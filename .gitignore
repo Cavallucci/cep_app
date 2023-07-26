@@ -56,3 +56,4 @@ Thumbs.db
 pids
 tmp
 *.config.js
+/icons

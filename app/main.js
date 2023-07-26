@@ -56,14 +56,13 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
       }
     });
 
-    sortedData = filteredRows;
+    event.sender.send('sortingSuccess', filteredRows);
     // Ajouter les en-têtes du worksheet à sortedData
     const headerRow = worksheet.getRow(1);
     const headerData = headerRow.values;
     filteredRows.unshift(headerData);
 
-    event.sender.send('sortingSuccess', filteredRows);
-
+    sortedData = filteredRows;
   } catch (error) {
     console.error('Erreur lors du tri des données :', error);
     event.sender.send('sortingError', 'Erreur lors du tri des données : ' + error.message);
