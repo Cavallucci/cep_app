@@ -1,6 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const ExcelJS = require('exceljs');
-const path = require('path');
 
 let mainWindow;
 
@@ -10,8 +9,8 @@ function createWindow() {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      contextIsolation: false,
+      preload: 'app/preload.js'
     }
   });
 
@@ -74,6 +73,7 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
     // Créer un nouveau fichier Excel avec les données triées
     const newFilePath = filePath.replace('.xlsx', '_trie.xlsx');
     await workbook.xlsx.writeFile(newFilePath);
+
     console.log('Fichier Excel trié créé :', newFilePath);
     event.sender.send('sortingSuccess', 'Données triées avec succès!');
   } catch (error) {
