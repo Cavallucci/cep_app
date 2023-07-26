@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const ExcelJS = require('exceljs');
 
 let mainWindow;
+let sortedData = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -55,29 +56,42 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
       }
     });
 
-    // Supprimer l'ancienne feuille de calcul
-    workbook.removeWorksheet(worksheet.id);
+    sortedData = filteredRows;
+    // Ajouter les en-têtes du worksheet à sortedData
+    const headerRow = worksheet.getRow(1);
+    const headerData = headerRow.values;
+    filteredRows.unshift(headerData);
 
-    // Créer une nouvelle feuille de calcul vide
-    const newWorksheet = workbook.addWorksheet('facturation');
+    event.sender.send('sortingSuccess', filteredRows);
 
-    // Ajouter les en-têtes de colonnes à la nouvelle feuille de calcul
-    const headerRow = newWorksheet.getRow(1);
-    headerRow.values = worksheet.getRow(1).values;
-
-    // Ajouter les lignes filtrées dans la nouvelle feuille de calcul
-    filteredRows.forEach((rowData) => {
-      newWorksheet.addRow(rowData);
-    });
-
-    // Créer un nouveau fichier Excel avec les données triées
-    const newFilePath = filePath.replace('.xlsx', '_trie.xlsx');
-    await workbook.xlsx.writeFile(newFilePath);
-
-    console.log('Fichier Excel trié créé :', newFilePath);
-    event.sender.send('sortingSuccess', 'Données triées avec succès!');
   } catch (error) {
     console.error('Erreur lors du tri des données :', error);
     event.sender.send('sortingError', 'Erreur lors du tri des données : ' + error.message);
+  }
+});
+
+ipcMain.on('printExcelFile', async (event, filePath) => {
+  if (!sortedData) {
+    event.sender.send('printError', 'Veuillez d\'abord trier le fichier Excel !');
+    return;
+  }
+  try {
+    // Créez un nouveau fichier Excel avec les données triées
+    const newFilePath = filePath.replace('.xlsx', '_trie.xlsx');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('facturation');
+
+    // Écrivez les données triées dans la feuille de calcul
+    sortedData.forEach((rowData) => {
+      worksheet.addRow(rowData);
+    });
+
+    await workbook.xlsx.writeFile(newFilePath);
+
+    // Envoyez un message de succès au processus de rendu
+    event.sender.send('printSuccess');
+  } catch (error) {
+    console.error('Erreur lors de l\'impression des données :', error);
+    event.sender.send('printError', 'Erreur lors de l\'impression des données : ' + error.message);
   }
 });

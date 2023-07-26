@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <title>Trieur Excel Electron</title>
 </head>
 <body>
   <h1>Trieur Excel Electron</h1>
   <input type="file" id="fileInput" accept=".xlsx"></input>
-  <button id="sortButton">Trier les données</button>
+  <button id="printButton">Imprimer Excel</button>
+  <div id="displayContainer"></div> 
   <script src="renderer.js"></script>
+  <script src="filter.js"></script>
 </body>
 </html>
 
