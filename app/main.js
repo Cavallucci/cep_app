@@ -51,9 +51,11 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
       const statusValue = rowData[1]; // Colonne 'A'
       const amountValue = rowData[9]; // Colonne 'I'
       const restDueValue = rowData[3]; // Colonne 'C'
-
-      const formattedRestDue = parseFloat(restDueValue.replace('.', ','));
-      rowData[3] = formattedRestDue; // Met à jour la valeur dans le tableau rowData
+      
+      if (typeof restDueValue === 'string'){
+        const formattedRestDue = parseFloat(restDueValue.replace('.', ','));
+        rowData[3] = formattedRestDue; // Met à jour la valeur dans le tableau rowData
+      }
     
       if (statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0 && rowData[3] > 0) {
           filteredRows.push(rowData);
