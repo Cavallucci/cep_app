@@ -18,7 +18,12 @@ document.getElementById('printButton').addEventListener('click', () => {
 
 // Écouter l'événement 'sortingSuccess'
 ipcRenderer.on('sortingSuccess', (event, groupedData) => {
-  displayGroupedData(groupedData);
+  if (groupedData.length > 0) {
+    displayGroupedData(groupedData);
+  }
+  else {
+    alert('Aucune donnée détecté');
+  }
 });
 
 ipcRenderer.on('sortingError', (event, error) => {
@@ -38,7 +43,6 @@ ipcRenderer.on('printError', (event, error) => {
 });
 
 function displayGroupedData(groupedData) {
-  console.log('Données triées groupées par customer_id :', groupedData);
   const container = document.getElementById('displayContainer');
   container.innerHTML = ''; // Reset the content of the container
 
