@@ -16,7 +16,6 @@ document.getElementById('printButton').addEventListener('click', () => {
   ipcRenderer.send('printExcelFile', filePath);
 });
 
-// Écouter l'événement 'sortingSuccess'
 ipcRenderer.on('sortingSuccess', (event, groupedData) => {
   if (groupedData.length > 0) {
     displayGroupedData(groupedData);
@@ -42,11 +41,8 @@ ipcRenderer.on('printError', (event, error) => {
   console.error(error);
 });
 
-function displayGroupedData(groupedData) {
-  const container = document.getElementById('displayContainer');
-  container.innerHTML = ''; // Reset the content of the container
-
-  const t_customers = []; // Use an array to store the list of customers
+function fillCustomersList(groupedData) {
+  const t_customers = [];
 
   for (let i = 0; i < groupedData.length; i++) {
     const customerData = groupedData[i];
@@ -65,10 +61,27 @@ function displayGroupedData(groupedData) {
       t_customers.push(newCustomer);
     }
   }
+  return t_customers;
+}
+
+function displayGroupedData(groupedData) {
+  const container = document.getElementById('displayContainer');
+  container.innerHTML = ''; // Reset the content of the container
+
+  const t_customers = fillCustomersList(groupedData);
 
   for (let i = 0; i < t_customers.length; i++) {
-    const customerInfo = document.createElement('p');
-    customerInfo.textContent = `Le customer ${t_customers[i].customerFirstName} numéro ${t_customers[i].customerId} a un total de ${t_customers[i].totalRestantDu}€ restant du pour les cours suivants : ${t_customers[i].courses}`;
+    const customerInfo = document.createElement('div');
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `customerCheckbox_${t_customers[i].customerId}`; // Unique ID for each checkbox
+    customerInfo.appendChild(checkbox);
+
+    const label = document.createElement('label');
+    label.textContent = `Le customer ${t_customers[i].customerFirstName} numéro ${t_customers[i].customerId} a un total de ${t_customers[i].totalRestantDu}€ restant du pour les cours suivants : ${t_customers[i].courses}`;
+    customerInfo.appendChild(label);
+
     container.appendChild(customerInfo);
   }
 }

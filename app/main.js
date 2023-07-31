@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const ExcelJS = require('exceljs');
-const fs = require('fs');
-const csvParser = require('csv-parser');
+const filterModule = require('./filter');
 
 let mainWindow;
 let sortedData = null;
@@ -49,30 +48,16 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
       workbook = new ExcelJS.Workbook();
       await workbook.xlsx.readFile(filePath);
     } else if (filePath.endsWith('.csv')) {
-      const xlsxData = await convertCSVtoXLSX(filePath);
+      const xlsxData = await filterModule.convertCSVtoXLSX(filePath);
       workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(xlsxData);
     }
 
-      const worksheet = workbook.getWorksheet(1);
-      
-      worksheet.eachRow((row) => {
-        const rowData = row.values;
-        const statusValue = rowData[1]; // Colonne 'A'
-        const amountValue = rowData[9]; // Colonne 'I'
-        const restDueValue = rowData[3]; // Colonne 'C'
-        
-        if (typeof restDueValue === 'string'){
-          const formattedRestDue = parseFloat(restDueValue.replace('.', ','));
-          rowData[3] = formattedRestDue; // Met à jour la valeur dans le tableau rowData
-        }
-      
-        if (statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0 && rowData[3] > 0) {
-            filteredRows.push(rowData);
-        }
-      });
-      const headerRow = worksheet.getRow(1);
-      headerData = headerRow.values;
+    const worksheet = workbook.getWorksheet(1); 
+    filteredRows = await filterModule.createWorkbook(worksheet, filteredRows);
+
+    const headerRow = worksheet.getRow(1);
+    headerData = headerRow.values;
 
     if (filteredRows.length > 0) {
       event.sender.send('sortingSuccess', filteredRows);
@@ -88,27 +73,6 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
     event.sender.send('sortingError', 'Erreur lors du tri des données : ' + error.message);
   }
 });
-
-async function convertCSVtoXLSX(filePath) {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Sheet1');
-  
-    // Read the CSV file and split it into lines and columns
-    const data = fs.readFileSync(filePath, 'utf-8');
-    const lines = data.split(/\r?\n/);
-    const header = lines.shift().split(';');
-    const rows = lines.map((line) => line.split(';'));
-  
-    // Write the header and rows to the worksheet
-    worksheet.addRow(header);
-    rows.forEach((columns) => worksheet.addRow(columns));
-  
-    // Create a buffer to hold the XLSX file
-    const buffer = await workbook.xlsx.writeBuffer();
-  
-    return buffer;
-  }
-
 
 ipcMain.on('printExcelFile', async (event, filePath) => {
   if (!sortedData) {
