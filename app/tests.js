@@ -22,14 +22,14 @@ function fillCustomersList(groupedData) {
     }
     const customersWithoutTKAndAdSKU = t_customers.filter((customer) => {
         const hasTKSKU = customer.sku.some((sku) => sku.startsWith('TK'));
-        const hasAdSKU = customer.sku.some((sku) => sku.startsWith('Ad'));
-        return hasTKSKU && !hasAdSKU;
+        const hasCDDSKU = customer.sku.some((sku) => sku.startsWith('CDD'));
+        return !hasTKSKU && hasCDDSKU;
     });
 
     return customersWithoutTKAndAdSKU;
 }
   
-function displayAdhesion(groupedData) {
+function displayTest(groupedData) {
     const container = document.getElementById('displayContainer');
     container.innerHTML = ''; // Reset the content of the container
 
@@ -44,7 +44,7 @@ function displayAdhesion(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `L'enfant ${t_customers[i].childId} n'a pas pris son adhésion pour les cours suivants : ${t_customers[i].courses}`;
+        label.textContent = `L'enfant ${t_customers[i].childId} a fait un cours de découverte : ${t_customers[i].courses}, mais ne s'est pas inscrit à l'année`;
         customerInfo.appendChild(label);
 
         container.appendChild(customerInfo);
@@ -52,6 +52,6 @@ function displayAdhesion(groupedData) {
 }
 
 module.exports = {
-    displayAdhesion,
+    displayTest,
     fillCustomersList
   };

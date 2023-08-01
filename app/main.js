@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 const filterModule = require('./filter');
 
 let mainWindow;
-let sortedData = null;
+let sortedData = [];
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -35,6 +35,10 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+ipcMain.handle('get-sorted-data', (event) => {
+  return sortedData;
 });
 
 ipcMain.on('sortExcelFile', async (event, filePath) => {
@@ -74,14 +78,14 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
   }
 });
 
-ipcMain.on('printExcelFile', async (event, filePath) => {
+ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
   if (!sortedData) {
     event.sender.send('printError', 'Veuillez d\'abord trier le fichier Excel !');
     return;
   }
   try {
     let newFilePath = '';
-    // Créez un nouveau fichier Excel avec les données triées
+
     if (filePath.endsWith('.xlsx')) {
       newFilePath = filePath.replace('.xlsx', '_trie.xlsx');
     } else if (filePath.endsWith('.csv')) {
@@ -92,19 +96,64 @@ ipcMain.on('printExcelFile', async (event, filePath) => {
       event.sender.send('sortingError', 'Format de fichier non pris en charge : ' + fileExtension);
     }
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('facturation');
+    const FacturationSheet = workbook.addWorksheet('facturation');
+    const AdhesionSheet = workbook.addWorksheet('adhesion');
+    const découverteSheet = workbook.addWorksheet('découverte');
 
-    // Écrivez les données triées dans la feuille de calcul
-    sortedData.forEach((rowData) => {
-      worksheet.addRow(rowData);
-    });
+    await fillFacturationWorksheet(FacturationSheet, dataSorted[0]);
+    await fillAdhesionWorksheet(AdhesionSheet, dataSorted[1]);
+    await fillDécouverteWorksheet(découverteSheet, dataSorted[2]);
 
     await workbook.xlsx.writeFile(newFilePath);
 
-    // Envoyez un message de succès au processus de rendu
     event.sender.send('printSuccess');
   } catch (error) {
     console.error('Erreur lors de l\'impression des données :', error);
     event.sender.send('printError', 'Erreur lors de l\'impression des données : ' + error.message);
   }
 });
+
+async function fillFacturationWorksheet(worksheet, data) {
+  const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
+  worksheet.addRow(header);
+
+  sortedData.sort((a, b) => a[4] - b[4]);
+
+  sortedData.forEach((rowData) => {
+    let existingCustomer = data.find((data) => data.customerId === rowData[4]);
+
+    if (existingCustomer  && rowData[3] > 0) {
+      worksheet.addRow(rowData);
+    }
+  });
+}
+
+async function fillAdhesionWorksheet(worksheet, data) {
+  const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
+  worksheet.addRow(header);
+
+  sortedData.sort((a, b) => a[18] - b[18]);
+
+  sortedData.forEach((rowData) => {
+    let existingCustomer = data.find((data) => data.childId === rowData[18]);
+
+    if (existingCustomer) {
+      worksheet.addRow(rowData);
+    }
+  });
+}
+
+async function fillDécouverteWorksheet(worksheet, data) {
+  const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
+  worksheet.addRow(header);
+
+  sortedData.sort((a, b) => a[18] - b[18]);
+
+  sortedData.forEach((rowData) => {
+    let existingCustomer = data.find((data) => data.childId === rowData[18]);
+
+    if (existingCustomer) {
+      worksheet.addRow(rowData);
+    }
+  });
+}

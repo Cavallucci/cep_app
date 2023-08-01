@@ -1,7 +1,9 @@
 const { ipcRenderer } = require('electron');
 const facturationModule = require('./facturation');
 const adhesionModule = require('./adhesion');
-
+const decouverteModule = require('./decouverte');
+const stageModule = require('./stage');
+const testModule = require('./tests');
 
 document.getElementById('fileInput').addEventListener('change', () => {
   console.log('Clic sur le bouton "Trier"');
@@ -12,11 +14,20 @@ document.getElementById('fileInput').addEventListener('change', () => {
   ipcRenderer.send('sortExcelFile', filePath);
 });
 
-document.getElementById('printButton').addEventListener('click', () => {
+document.getElementById('printButton').addEventListener('click', async () => {
   const fileInput = document.getElementById('fileInput');
   const filePath = fileInput.files[0].path;
 
-  ipcRenderer.send('printExcelFile', filePath);
+  const dataSorted = [];
+  const globalData = await ipcRenderer.invoke('get-sorted-data');
+
+  const facturationList = facturationModule.fillCustomersList(globalData);
+  const adhesionList = adhesionModule.fillCustomersList(globalData);
+  const decouverteList = decouverteModule.fillCustomersList(globalData);
+
+  dataSorted.push(facturationList, adhesionList, decouverteList);
+
+  ipcRenderer.send('printExcelFile', filePath, dataSorted);
 });
 
 ipcRenderer.on('sortingSuccess', (event, groupedData) => {
@@ -30,6 +41,15 @@ ipcRenderer.on('sortingSuccess', (event, groupedData) => {
           }
           else if (radioButton.id === 'adhesion') {
             adhesionModule.displayAdhesion(groupedData);
+          }
+          else if (radioButton.id === 'decouverte') {
+            decouverteModule.displayDecouverte(groupedData);
+          }
+          else if (radioButton.id === 'test') {
+            testModule.displayTest(groupedData);
+          }
+          else if (radioButton.id === 'stage') {
+            stageModule.displayStage(groupedData);
           }
         }
       });

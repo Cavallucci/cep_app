@@ -6,16 +6,18 @@ function fillCustomersList(groupedData) {
         let existingCustomer = t_customers.find((t_customer) => t_customer.customerId === customerData[4]);
 
         if (existingCustomer) {
-        existingCustomer.courses.push(customerData[8]);
-        existingCustomer.totalRestantDu += customerData[3];
+            existingCustomer.courses.push(customerData[8]);
+            existingCustomer.totalRestantDu += customerData[3];
         } else {
-        const newCustomer = {
-            customerId: customerData[4],
-            customerFirstName: customerData[5],
-            totalRestantDu: customerData[3],
-            courses: [customerData[8]]
-        };
-        t_customers.push(newCustomer);
+            const newCustomer = {
+                customerId: customerData[4],
+                customerFirstName: customerData[5],
+                customerLastName: customerData[6],
+                totalRestantDu: customerData[3],
+                courses: [customerData[8]]
+            };
+        if (newCustomer.totalRestantDu > 0)
+            t_customers.push(newCustomer);
         }
     }
     return t_customers;
@@ -36,7 +38,7 @@ function displayFacturation(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `Le customer ${t_customers[i].customerFirstName} numéro ${t_customers[i].customerId} a un total de ${t_customers[i].totalRestantDu}€ restant du pour les cours suivants : ${t_customers[i].courses}`;
+        label.textContent = `Le customer ${t_customers[i].customerFirstName} ${t_customers[i].customerLastName} numéro ${t_customers[i].customerId} a un total de ${t_customers[i].totalRestantDu}€ restant du pour les cours suivants : ${t_customers[i].courses}`;
         customerInfo.appendChild(label);
 
         container.appendChild(customerInfo);

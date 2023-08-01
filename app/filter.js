@@ -13,7 +13,7 @@ const createWorkbook = (worksheet, filteredRows) => {
         rowData[3] = formattedRestDue;
       }
     
-      if (statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0 && rowData[3] > 0) {
+      if (statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0) {
           filteredRows.push(rowData);
       }
     });
