@@ -45,7 +45,23 @@ function displayFacturation(groupedData) {
     }
 }
 
+async function fillFacturationWorksheet(worksheet, data, sortedData) {
+    const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
+    worksheet.addRow(header);
+  
+    sortedData.sort((a, b) => a[4] - b[4]);
+  
+    sortedData.forEach((rowData) => {
+      let existingCustomer = data.find((data) => data.customerId === rowData[4]);
+  
+      if (existingCustomer  && rowData[3] > 0) {
+        worksheet.addRow(rowData);
+      }
+    });
+  }
+
 module.exports = {
     displayFacturation,
-    fillCustomersList
+    fillCustomersList,
+    fillFacturationWorksheet
   };

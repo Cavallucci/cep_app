@@ -41,65 +41,39 @@ function fillCustomersList(groupedData) {
     return customerWithMatch;
 }
 
-// function findMatchingEnrollments(customersWithCD) {
-//     const customersWithoutMatch = [];
-  
-//     for (const customer of customersWithCD) {
-//       let matchedTK = false;
-  
-//       for (const cdCourse of customer.cd) {
-//         const cdWords = cdCourse.split(' ');
-//         const wordAfterCoursDeDecouverte = cdWords[3].toLowerCase();
-  
-//         if (customer.tk.some((tkCourse) => tkCourse.toLowerCase().includes(wordAfterCoursDeDecouverte))) {
-//           matchedTK = true;
-//           break;
-//         }
-//       }
-  
-//       if (!matchedTK) {
-//         customersWithoutMatch.push(customer);
-//       }
-//     }
-  
-//     return customersWithoutMatch;
-//   }
-
 function removeDiacritics(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
   
-  function findMatchingEnrollments(customersWithCD) {
-    const customersWithoutMatch = [];
-  
-    for (const customer of customersWithCD) {
-      let matchedTK = false;
-  
-      for (const cdCourse of customer.cd) {
-        const cdWords = cdCourse.split(' ');
-        const wordAfterCoursDeDecouverte = cdWords[3];
-  
-        const cdWordWithoutAccents = removeDiacritics(wordAfterCoursDeDecouverte).toLowerCase();
-  
-        if (
-          customer.tk.some(
-            (tkCourse) =>
-              removeDiacritics(tkCourse).toLowerCase().includes(cdWordWithoutAccents)
-          )
-        ) {
-            console.log('tkCourse', customer.tk);
-            console.log('cdWordWithoutAccents', cdWordWithoutAccents);
-          matchedTK = true;
-          break;
-        }
-      }
-  
-      if (!matchedTK) {
-        customersWithoutMatch.push(customer);
+function findMatchingEnrollments(customersWithCD) {
+  const customersWithoutMatch = [];
+
+  for (const customer of customersWithCD) {
+    let matchedTK = false;
+
+    for (const cdCourse of customer.cd) {
+      const cdWords = cdCourse.split(' ');
+      const wordAfterCoursDeDecouverte = cdWords[3];
+
+      const cdWordWithoutAccents = removeDiacritics(wordAfterCoursDeDecouverte).toLowerCase();
+
+      if (
+        customer.tk.some(
+          (tkCourse) =>
+            removeDiacritics(tkCourse).toLowerCase().includes(cdWordWithoutAccents)
+        )
+      ) {
+        matchedTK = true;
+        break;
       }
     }
-  
-    return customersWithoutMatch;
+
+    if (!matchedTK) {
+      customersWithoutMatch.push(customer);
+    }
+  }
+
+  return customersWithoutMatch;
 }  
 
 function displayDecouverte(groupedData) {
@@ -124,7 +98,33 @@ function displayDecouverte(groupedData) {
     }
 }
 
+async function fillDécouverteWorksheet(worksheet, data, sortedData) {
+  const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
+  worksheet.addRow(header);
+
+  sortedData.sort((a, b) => a[18] - b[18]);
+
+  sortedData.forEach((rowData) => {
+    let existingCustomer = data.find((data) => data.childId === rowData[18]);
+
+    if (existingCustomer) {
+      row = worksheet.addRow(rowData);
+
+      if (rowData[7].startsWith('CD')) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFFFF00' }
+          };
+        });
+      }
+    }
+  });
+}
+
 module.exports = {
     displayDecouverte,
-    fillCustomersList
+    fillCustomersList,
+    fillDécouverteWorksheet
   };

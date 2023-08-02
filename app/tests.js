@@ -6,29 +6,115 @@ function fillCustomersList(groupedData) {
         let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[18]);
 
         if (existingCustomer) {
+            if (customerData[7].startsWith('TEST')) {
+                existingCustomer.tests.push(customerData[8]);
+            }
+            else if (customerData[7].startsWith('TK')) {
+                existingCustomer.tk.push(customerData[8]);
+                existingCustomer.tkCode.push(customerData[7]);
+            }
             existingCustomer.courses.push(customerData[8]);
             existingCustomer.sku.push(customerData[7]);
         } else {
             const newCustomer = {
                 childId: customerData[18],
-                customerId: customerData[4],
-                customerFirstName: customerData[5],
-                customerLastName: customerData[6],
+                childFirstName: customerData[19],
+                childLastName: customerData[20],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
+                tests: [],
+                tk: [],
+                tkCode: [],
+                dateTest: customerData[36],
             };
-            t_customers.push(newCustomer);
+            if (customerData[7].startsWith('TEST')) {
+                newCustomer.tests.push(customerData[8]);
+            }
+            else if (customerData[7].startsWith('TK')) {
+                newCustomer.tk.push(customerData[8]);
+                newCustomer.tkCode.push(customerData[7]);
+            }
+            let today = new Date();
+            if (newCustomer.dateTest) {
+                const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+                const differenceInDays = Math.floor((today - newCustomer.dateTest) / oneDayInMilliseconds);
+              
+                if (differenceInDays >= 0 && differenceInDays < 62) {
+                  t_customers.push(newCustomer);
+                }
+            }
         }
     }
-    const customersWithoutTKAndAdSKU = t_customers.filter((customer) => {
-        const hasTKSKU = customer.sku.some((sku) => sku.startsWith('TK'));
-        const hasCDDSKU = customer.sku.some((sku) => sku.startsWith('CDD'));
-        return !hasTKSKU && hasCDDSKU;
+    const customerWithtest = t_customers.filter((customer) => {
+        const hastestDSKU = customer.sku.some((sku) => sku.startsWith('TEST'));
+        return hastestDSKU;
     });
 
-    return customersWithoutTKAndAdSKU;
+    const customerWithMatchTK = findMatchingTK(customerWithtest);
+
+    const customerWithMatch = findMatchingEnrollments(customerWithMatchTK);
+
+    return customerWithMatch;
+}
+
+function removeDiacritics(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
   
+function findMatchingEnrollments(customerWithMatchTK) {
+  const customersWithoutMatch = [];
+
+  for (const customer of customerWithMatchTK) {
+    let matchedTK = false;
+
+    for (const testCourse of customer.tests) {
+      const testWords = testCourse.split(' ');
+      const wordAfterCoursDeDecouverte = testWords[4];
+
+      const testWordWithoutAccents = removeDiacritics(wordAfterCoursDeDecouverte).toLowerCase();
+
+      if (
+        customer.tk.some(
+          (tkCourse) =>
+            removeDiacritics(tkCourse).toLowerCase().includes(testWordWithoutAccents)
+        )
+      ) {
+          console.log('testWordWithoutAccents', testWordWithoutAccents);
+        matchedTK = true;
+        break;
+      }
+    }
+
+    if (!matchedTK) {
+      customersWithoutMatch.push(customer);
+    }
+  }
+
+  return customersWithoutMatch;
+}  
+
+function findMatchingTK(customersWithtest) {
+    const customersWithoutMatch = [];
+  
+    for (const customer of customersWithtest) {
+      let matchedTK = false;
+  
+      for (const testCourse of customer.sku) {
+        const testWords = testCourse.split('TEST_');
+        const wordAfterTest = testWords[1];
+  
+        if (customer.tkCode.some((tkCourse) => tkCourse.includes(wordAfterTest))) {
+            matchedTK = true;
+            break;
+        }
+      }
+      if (!matchedTK) {
+        customersWithoutMatch.push(customer);
+      }
+    }
+    return customersWithoutMatch;
+} 
+
 function displayTest(groupedData) {
     const container = document.getElementById('displayContainer');
     container.innerHTML = ''; // Reset the content of the container
@@ -44,14 +130,51 @@ function displayTest(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `L'enfant ${t_customers[i].childId} a fait un cours de découverte : ${t_customers[i].courses}, mais ne s'est pas inscrit à l'année`;
+        label.textContent = `L'enfant ${t_customers[i].childId} ${t_customers[i].childFirstName} ${t_customers[i].childLastName} a fait les tests suivants : ${t_customers[i].tests}, mais ne s'est pas inscrit à l'année : ${t_customers[i].tk}`;
         customerInfo.appendChild(label);
 
         container.appendChild(customerInfo);
     }
 }
 
+async function fillTestWorksheet(worksheet, data, sortedData) {
+    const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
+    worksheet.addRow(header);
+  
+    sortedData.sort((a, b) => a[18] - b[18]);
+
+    sortedData.forEach((rowData) => {
+      let existingCustomer = data.find((data) => data.childId === rowData[18]);
+  
+      if (existingCustomer) {
+        row = worksheet.addRow(rowData);
+  
+        if (rowData[7].startsWith('TEST')) {
+            let today = new Date();
+            let dateTest = rowData[36];
+            
+            if (dateTest) {
+                const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+                const differenceInDays = Math.floor((today - dateTest) / oneDayInMilliseconds);
+
+                if (differenceInDays >= 0 && differenceInDays < 62) {
+                    console.log('differenceInDays', differenceInDays);
+                    row.eachCell((cell) => {
+                        cell.fill = {
+                          type: 'pattern',
+                          pattern: 'solid',
+                          fgColor: { argb: 'FFFFFF00' }
+                        };
+                    });
+                }
+            }
+        }
+      }
+    });
+  }
+
 module.exports = {
     displayTest,
-    fillCustomersList
+    fillCustomersList,
+    fillTestWorksheet
   };

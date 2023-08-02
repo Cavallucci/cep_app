@@ -4,13 +4,21 @@ const fs = require('fs');
 const createWorkbook = (worksheet, filteredRows) => {
     worksheet.eachRow((row) => {
       const rowData = row.values;
-      const statusValue = rowData[1]; // Colonne 'A'
-      const amountValue = rowData[9]; // Colonne 'I'
-      const restDueValue = rowData[3]; // Colonne 'C'
+      const statusValue = rowData[1];
+      const amountValue = rowData[9];
+      const restDueValue = rowData[3];
+      const dateTest = rowData[33];
       
       if (typeof restDueValue === 'string'){
         const formattedRestDue = parseFloat(restDueValue.replace('.', ','));
         rowData[3] = formattedRestDue;
+      }
+
+      if (typeof dateTest === 'string'){
+        const extractedDate = extractDateFromString(dateTest);
+        if (extractedDate) {
+          rowData[36] = extractedDate;
+        }
       }
     
       if (statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0) {
@@ -18,7 +26,20 @@ const createWorkbook = (worksheet, filteredRows) => {
       }
     });
     return filteredRows;
+}
+
+function extractDateFromString(str) {
+  if (str) {
+    const dateParts = str.split(' ');
+    const datePart = dateParts[6];
+    if (datePart) {
+      const [day, month, year] = datePart.split('/');
+      const date = new Date(`${year}-${month}-${day}`);
+      return date;
+    }
   }
+  return str;
+}
 
 async function convertCSVtoXLSX(filePath) {
     const workbook = new ExcelJS.Workbook();

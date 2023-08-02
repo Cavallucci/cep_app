@@ -1,6 +1,11 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const ExcelJS = require('exceljs');
 const filterModule = require('./filter');
+const facturationModule = require('./facturation');
+const adhesionModule = require('./adhesion');
+const decouverteModule = require('./decouverte');
+const stageModule = require('./stage');
+const testModule = require('./tests');
 
 let mainWindow;
 let sortedData = [];
@@ -42,7 +47,6 @@ ipcMain.handle('get-sorted-data', (event) => {
 });
 
 ipcMain.on('sortExcelFile', async (event, filePath) => {
-  console.log('Reçu un message pour trier le fichier Excel :', filePath);
   try {
     let filteredRows = [];
     let headerData = [];
@@ -99,10 +103,12 @@ ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
     const FacturationSheet = workbook.addWorksheet('facturation');
     const AdhesionSheet = workbook.addWorksheet('adhesion');
     const découverteSheet = workbook.addWorksheet('découverte');
+    const testSheet = workbook.addWorksheet('test');
 
-    await fillFacturationWorksheet(FacturationSheet, dataSorted[0]);
-    await fillAdhesionWorksheet(AdhesionSheet, dataSorted[1]);
-    await fillDécouverteWorksheet(découverteSheet, dataSorted[2]);
+    await facturationModule.fillFacturationWorksheet(FacturationSheet, dataSorted[0], sortedData);
+    await adhesionModule.fillAdhesionWorksheet(AdhesionSheet, dataSorted[1], sortedData);
+    await decouverteModule.fillDécouverteWorksheet(découverteSheet, dataSorted[2], sortedData);
+    await testModule.fillTestWorksheet(testSheet, dataSorted[3], sortedData);
 
     await workbook.xlsx.writeFile(newFilePath);
 
@@ -112,48 +118,3 @@ ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
     event.sender.send('printError', 'Erreur lors de l\'impression des données : ' + error.message);
   }
 });
-
-async function fillFacturationWorksheet(worksheet, data) {
-  const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
-  worksheet.addRow(header);
-
-  sortedData.sort((a, b) => a[4] - b[4]);
-
-  sortedData.forEach((rowData) => {
-    let existingCustomer = data.find((data) => data.customerId === rowData[4]);
-
-    if (existingCustomer  && rowData[3] > 0) {
-      worksheet.addRow(rowData);
-    }
-  });
-}
-
-async function fillAdhesionWorksheet(worksheet, data) {
-  const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
-  worksheet.addRow(header);
-
-  sortedData.sort((a, b) => a[18] - b[18]);
-
-  sortedData.forEach((rowData) => {
-    let existingCustomer = data.find((data) => data.childId === rowData[18]);
-
-    if (existingCustomer) {
-      worksheet.addRow(rowData);
-    }
-  });
-}
-
-async function fillDécouverteWorksheet(worksheet, data) {
-  const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
-  worksheet.addRow(header);
-
-  sortedData.sort((a, b) => a[18] - b[18]);
-
-  sortedData.forEach((rowData) => {
-    let existingCustomer = data.find((data) => data.childId === rowData[18]);
-
-    if (existingCustomer) {
-      worksheet.addRow(rowData);
-    }
-  });
-}
