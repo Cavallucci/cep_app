@@ -15,6 +15,7 @@ function fillCustomersList(groupedData) {
             }
             existingCustomer.courses.push(customerData[8]);
             existingCustomer.sku.push(customerData[7]);
+            existingCustomer.dateTest.push(customerData[36]);
         } else {
             const newCustomer = {
                 childId: customerData[18],
@@ -25,7 +26,7 @@ function fillCustomersList(groupedData) {
                 tests: [],
                 tk: [],
                 tkCode: [],
-                dateTest: customerData[36],
+                dateTest: [customerData[36]],
             };
             if (customerData[7].startsWith('TEST')) {
                 newCustomer.tests.push(customerData[8]);
@@ -34,18 +35,19 @@ function fillCustomersList(groupedData) {
                 newCustomer.tk.push(customerData[8]);
                 newCustomer.tkCode.push(customerData[7]);
             }
-            let today = new Date();
-            if (newCustomer.dateTest) {
-                const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
-                const differenceInDays = Math.floor((today - newCustomer.dateTest) / oneDayInMilliseconds);
-              
-                if (differenceInDays >= 0 && differenceInDays < 62) {
-                  t_customers.push(newCustomer);
-                }
-            }
+            t_customers.push(newCustomer);
         }
     }
-    const customerWithtest = t_customers.filter((customer) => {
+    let today = new Date();
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+
+    
+    const customerWithDate = t_customers.filter((customer) => {
+        const hasDate = customer.dateTest.some((date) => Math.floor((today - date) / oneDayInMilliseconds) >= 0 && Math.floor((today - date) / oneDayInMilliseconds) < 120);
+        return hasDate;
+    });
+    
+    const customerWithtest = customerWithDate.filter((customer) => {
         const hastestDSKU = customer.sku.some((sku) => sku.startsWith('TEST'));
         return hastestDSKU;
     });
@@ -157,8 +159,7 @@ async function fillTestWorksheet(worksheet, data, sortedData) {
                 const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
                 const differenceInDays = Math.floor((today - dateTest) / oneDayInMilliseconds);
 
-                if (differenceInDays >= 0 && differenceInDays < 62) {
-                    console.log('differenceInDays', differenceInDays);
+                if (differenceInDays >= 0 && differenceInDays < 120) {
                     row.eachCell((cell) => {
                         cell.fill = {
                           type: 'pattern',
