@@ -1,3 +1,5 @@
+const checkboxModule = require('./checkbox');
+
 function fillCustomersList(groupedData) {
     const t_customers = [];
 
@@ -39,7 +41,8 @@ function displayAdhesion(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `customerCheckbox_${t_customers[i].customerId}`; // Unique ID for each checkbox
+        checkbox.id = `adhesioncustomerCheckbox_${t_customers[i].customerId}`;
+        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -48,6 +51,7 @@ function displayAdhesion(groupedData) {
 
         container.appendChild(customerInfo);
     }
+    checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillAdhesionWorksheet(worksheet, data, sortedData) {

@@ -1,3 +1,5 @@
+const checkboxModule = require('./checkbox');
+
 function fillCustomersList(groupedData) {
     const t_customers = [];
 
@@ -90,7 +92,8 @@ function displayDecouverte(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `customerCheckbox_${t_customers[i].customerId}`; // Unique ID for each checkbox
+        checkbox.id = `decouvertecustomerCheckbox_${t_customers[i].customerId}`; // Unique ID for each checkbox
+        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -99,6 +102,7 @@ function displayDecouverte(groupedData) {
 
         container.appendChild(customerInfo);
     }
+    checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillDécouverteWorksheet(worksheet, data, sortedData) {
