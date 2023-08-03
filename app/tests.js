@@ -6,10 +6,10 @@ function fillCustomersList(groupedData) {
         let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[18]);
 
         if (existingCustomer) {
-            if (customerData[7].startsWith('TEST')) {
+            if (customerData[7] && customerData[7].startsWith('TEST')) {
                 existingCustomer.tests.push(customerData[8]);
             }
-            else if (customerData[7].startsWith('TK')) {
+            else if (customerData[7] && customerData[7].startsWith('TK')) {
                 existingCustomer.tk.push(customerData[8]);
                 existingCustomer.tkCode.push(customerData[7]);
             }
@@ -31,10 +31,10 @@ function fillCustomersList(groupedData) {
                 tkCode: [],
                 dateTest: [customerData[36]],
             };
-            if (customerData[7].startsWith('TEST')) {
+            if (customerData[7] && customerData[7].startsWith('TEST')) {
                 newCustomer.tests.push(customerData[8]);
             }
-            else if (customerData[7].startsWith('TK')) {
+            else if (customerData[7] && customerData[7].startsWith('TK')) {
                 newCustomer.tk.push(customerData[8]);
                 newCustomer.tkCode.push(customerData[7]);
             }
@@ -44,14 +44,13 @@ function fillCustomersList(groupedData) {
     let today = new Date();
     const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
 
-    
     const customerWithDate = t_customers.filter((customer) => {
-        const hasDate = customer.dateTest.some((date) => Math.floor((today - date) / oneDayInMilliseconds) >= 0 && Math.floor((today - date) / oneDayInMilliseconds) < 120);
+        const hasDate = customer.dateTest.some((date) => date && Math.floor((today - date) / oneDayInMilliseconds) >= 0 && Math.floor((today - date) / oneDayInMilliseconds) < 120);
         return hasDate;
     });
     
     const customerWithtest = customerWithDate.filter((customer) => {
-        const hastestDSKU = customer.sku.some((sku) => sku.startsWith('TEST'));
+        const hastestDSKU = customer.sku.some((sku) => sku && sku.startsWith('TEST'));
         return hastestDSKU;
     });
 

@@ -6,11 +6,11 @@ function fillCustomersList(groupedData) {
         let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[18]);
 
         if (existingCustomer) {
-            if (customerData[7].startsWith('STA')) {
+            if (customerData[7] && customerData[7].startsWith('STA')) {
                 existingCustomer.sta.push(customerData[8]);
                 existingCustomer.dateStage.push(customerData[7]);
             }
-            else if (customerData[7].startsWith('TK')) {
+            else if (customerData[7] && customerData[7].startsWith('TK')) {
                 existingCustomer.tk.push(customerData[8]);
             }
             existingCustomer.courses.push(customerData[8]);
@@ -29,18 +29,18 @@ function fillCustomersList(groupedData) {
                 sta: [],
                 tk: [],
             };
-            if (customerData[7].startsWith('STA')) {
+            if (customerData[7] && customerData[7].startsWith('STA')) {
                 newCustomer.sta.push(customerData[8]);
                 newCustomer.dateStage.push(customerData[7]);
             }
-            else if (customerData[7].startsWith('TK')) {
+            else if (customerData[7] && customerData[7].startsWith('TK')) {
                 newCustomer.tk.push(customerData[8]);
             }
             t_customers.push(newCustomer);
         }
     }
     const customerWithSTA = t_customers.filter((customer) => {
-        const hasSTASKU = customer.sku.some((sku) => sku.startsWith('STA'));
+        const hasSTASKU = customer.sku.some((sku) => sku && sku.startsWith('STA'));
         return hasSTASKU;
     });
 
@@ -53,49 +53,63 @@ function fillCustomersList(groupedData) {
 
 function findMatchingDate(customersWithSTA) {
     const customersWithoutMatch = [];
+    const customerWithDate = [];
+    let mostRecentDate = new Date(0);
 
     for (const customer of customersWithSTA) { //STA_TOUSS22_24OCT_018_2022
-        let mostRecentDate = new Date(0);
 
         for (const date of customer.dateStage) {
-
-            let dateSTA = date.split('_'); //TOUSS22
-            let yearSTA = dateSTA[1].slice(-2); //22
-            let completeYearSTA = `20${yearSTA}`; //2022
-            let monthSTA = dateSTA[1].slice(0, -2); //TOUSS
-            let daySTA = '01';
-
-            if (monthSTA == "TOUSS") {
-                monthSTA = "10";
-            }
-            else if (monthSTA == "NOEL") { 
-                monthSTA = "12";
-            }
-            else if (monthSTA == "PAQ") {
-                monthSTA = "04";
-            }
-            else if (monthSTA == "ETE") {
-                monthSTA = "07";
-            }
-            else if (monthSTA == "TOUSS") {
-                monthSTA = "10";
-            }
-            else if (monthSTA == "FEV") {
-                monthSTA = "02";
-            }
-
-            const completeDateSTA = new Date(`${completeYearSTA}-${monthSTA}-${daySTA}`);
+            completeDateSTA = replaceDateStage(date);
             customer.dateStage = completeDateSTA;
             if (completeDateSTA > mostRecentDate) {
                 mostRecentDate = completeDateSTA;
             }
         }
-
-        if (mostRecentDate === customer.dateStage) {
-            customersWithoutMatch.push(customer);
-        }
+        customersWithoutMatch.push(customer);
     }
-    return customersWithoutMatch;
+    for (const customer of customersWithoutMatch) {
+        const customerDate = new Date(customer.dateStage);
+        customerDate.setHours(0, 0, 0, 0);
+      
+        const recentDate = new Date(mostRecentDate);
+        recentDate.setHours(0, 0, 0, 0);
+      
+        if (customerDate.getTime() === recentDate.getTime()) {
+          customerWithDate.push(customer);
+        }
+      }
+    return customerWithDate;
+}
+
+function replaceDateStage(date) {
+
+    let dateSTA = date.split('_'); //TOUSS22
+    let yearSTA = dateSTA[1].slice(-2); //22
+    let completeYearSTA = `20${yearSTA}`; //2022
+    let monthSTA = dateSTA[1].slice(0, -2); //TOUSS
+    let daySTA = '01';
+
+    if (monthSTA == "TOUSS") {
+        monthSTA = "10";
+    }
+    else if (monthSTA == "NOEL") { 
+        monthSTA = "12";
+    }
+    else if (monthSTA == "PAQ") {
+        monthSTA = "04";
+    }
+    else if (monthSTA == "ETE") {
+        monthSTA = "07";
+    }
+    else if (monthSTA == "TOUSS") {
+        monthSTA = "10";
+    }
+    else if (monthSTA == "FEV") {
+        monthSTA = "02";
+    }
+
+    const completeDateSTA = new Date(`${completeYearSTA}-${monthSTA}-${daySTA}`);
+    return completeDateSTA
 }
 
 function removeDiacritics(str) {
@@ -105,10 +119,10 @@ function removeDiacritics(str) {
 function findMatchingEnrollments(customerWithDate) {
     const customersWithoutMatch = [];
     const stageList = [
-        'boxe', 'yoga', 'skate', 'chant', 'théatre', 'danse', 'poterie', 'hip hop',
+        'boxe', 'yoga', 'skate', 'chant', 'theatre', 'danse', 'poterie', 'hip hop',
         'couture', 'dessin', 'gym', 'taekwondo', 'street art', 'cuisine', 'zumba',
         'programmation', 'echecs', 'piano', 'guitare', 'peinture', 'kid boxing',
-        'trapèze', 'cirque',
+        'trapeze', 'cirque',
     ];
       
     for (const customer of customerWithDate) {
@@ -116,36 +130,26 @@ function findMatchingEnrollments(customerWithDate) {
         let matchedTK = false;
 
         for (const staCourse of customer.sta) {
+            stageWithoutDiacritics = removeDiacritics(staCourse).toLowerCase();
             for (const stage of stageList) {
-                if (staCourse.includes(stage)) {
+                if (stageWithoutDiacritics.includes(stage)) {
                     newListOfStage.push(stage);
                 }
             }
-        }    
-    //for (const staCourse of customer.sta) {
-
-    //   const staWords = staCourse.split(' ');
-    //   const wordAfterCoursDeDecouverte = staWords[3];
-
-    //   const staWordWithoutAccents = removeDiacritics(wordAfterCoursDeDecouverte).toLowerCase();
-
-    //   if (
-    //     customer.tk.some(
-    //       (tkCourse) =>
-    //         removeDiacritics(tkCourse).toLowerCase().includes(staWordWithoutAccents)
-    //     )
-    //   ) {
-    //     matchedTK = true;
-    //     break;
-    //   }
-    //}
-
-    if (!matchedTK) {
-      customersWithoutMatch.push(customer);
-    }
+        }
+        for (const tkCourse of customer.tk) {
+            tkCourseWithoutDiacritics = removeDiacritics(tkCourse).toLowerCase();
+            for (const stage of newListOfStage) {
+                if (tkCourseWithoutDiacritics.includes(stage)) {
+                    matchedTK = true;
+                    break;
+                }
+            }
+        }
+        if (!matchedTK) {
+            customersWithoutMatch.push(customer);
+        }
   }
-
-
   return customersWithoutMatch;
 }  
 
@@ -177,23 +181,38 @@ async function fillStageWorksheet(worksheet, data, sortedData) {
 
   sortedData.sort((a, b) => a[18] - b[18]);
 
+  let mostRecentDate = new Date(0);
+
+  for (const date of data) {
+    if (date.dateStage > mostRecentDate) {
+        mostRecentDate = date.dateStage;
+    }
+  }
+  const recentDate = new Date(mostRecentDate);
+  recentDate.setHours(0, 0, 0, 0);
+
+
   sortedData.forEach((rowData) => {
     let existingCustomer = data.find((data) => data.childId === rowData[18]);
 
-    if (existingCustomer) {
-      row = worksheet.addRow(rowData);
-
-      if (rowData[7].startsWith('STA')) {
-        row.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFFFFF00' }
-          };
-        });
-      }
-    }
-  });
+        if (existingCustomer) {
+            row = worksheet.addRow(rowData);
+            if (rowData[7].startsWith('STA')) {
+                const customerDate = new Date(replaceDateStage(rowData[7]));
+                customerDate.setHours(0, 0, 0, 0);
+                if (customerDate.getTime() === recentDate.getTime()) {
+                    row.eachCell((cell) => {
+                        cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFFFFF00' }
+                        };
+                    });
+                }
+                
+            }
+        }
+    });
 }
 
 module.exports = {

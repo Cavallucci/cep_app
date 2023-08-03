@@ -6,10 +6,10 @@ function fillCustomersList(groupedData) {
         let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[18]);
 
         if (existingCustomer) {
-            if (customerData[7].startsWith('CD')) {
+            if (customerData[7] && customerData[7].startsWith('CD')) {
                 existingCustomer.cd.push(customerData[8]);
             }
-            else if (customerData[7].startsWith('TK')) {
+            else if (customerData[7] && customerData[7].startsWith('TK')) {
                 existingCustomer.tk.push(customerData[8]);
             }
             existingCustomer.courses.push(customerData[8]);
@@ -25,17 +25,17 @@ function fillCustomersList(groupedData) {
                 cd: [],
                 tk: [],
             };
-            if (customerData[7].startsWith('CD')) {
+            if (customerData[7] && customerData[7].startsWith('CD')) {
                 newCustomer.cd.push(customerData[8]);
             }
-            else if (customerData[7].startsWith('TK')) {
+            else if (customerData[7] && customerData[7].startsWith('TK')) {
                 newCustomer.tk.push(customerData[8]);
             }
             t_customers.push(newCustomer);
         }
     }
     const customerWithCD = t_customers.filter((customer) => {
-        const hasCDDSKU = customer.sku.some((sku) => sku.startsWith('CD'));
+        const hasCDDSKU = customer.sku.some((sku) => sku && sku.startsWith('CD'));
         return hasCDDSKU;
     });
 

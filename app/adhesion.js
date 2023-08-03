@@ -1,8 +1,7 @@
 function fillCustomersList(groupedData) {
     const t_customers = [];
 
-    for (let i = 0; i < groupedData.length; i++) {
-        const customerData = groupedData[i];
+    for (customerData of groupedData) {
         let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[18]);
 
         if (existingCustomer) {
@@ -21,8 +20,8 @@ function fillCustomersList(groupedData) {
         }
     }
     const customersWithoutTKAndAdSKU = t_customers.filter((customer) => {
-        const hasTKSKU = customer.sku.some((sku) => sku.startsWith('TK'));
-        const hasAdSKU = customer.sku.some((sku) => sku.startsWith('Ad'));
+        const hasTKSKU = customer.sku.some((sku) => sku && sku.startsWith('TK'));
+        const hasAdSKU = customer.sku.some((sku) => sku && sku.startsWith('Ad'));
         return hasTKSKU && !hasAdSKU;
     });
 

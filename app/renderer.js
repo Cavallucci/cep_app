@@ -6,12 +6,13 @@ const stageModule = require('./stage');
 const testModule = require('./tests');
 
 document.getElementById('fileInput').addEventListener('change', () => {
-  console.log('Clic sur le bouton "Trier"');
   const fileInput = document.getElementById('fileInput');
   const filePath = fileInput.files[0].path;
-  console.log('Chemin du fichier Excel :', filePath);
-
-  ipcRenderer.send('sortExcelFile', filePath);
+  if (filePath.endsWith('_trie.xlsx')) {
+    alert('Le fichier a déjà été trié');
+  } else {
+    ipcRenderer.send('sortExcelFile', filePath);
+  }
 });
 
 document.getElementById('printButton').addEventListener('click', async () => {
@@ -55,6 +56,23 @@ ipcRenderer.on('sortingSuccess', (event, groupedData) => {
           }
         }
       });
+      if (radioButton.checked) {
+        if (radioButton.id === 'facturation') {
+          facturationModule.displayFacturation(groupedData);
+        }
+        else if (radioButton.id === 'adhesion') {
+          adhesionModule.displayAdhesion(groupedData);
+        }
+        else if (radioButton.id === 'decouverte') {
+          decouverteModule.displayDecouverte(groupedData);
+        }
+        else if (radioButton.id === 'test') {
+          testModule.displayTest(groupedData);
+        }
+        else if (radioButton.id === 'stage') {
+          stageModule.displayStage(groupedData);
+        }
+      }
     });
   }
   else {

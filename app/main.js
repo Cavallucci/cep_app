@@ -104,12 +104,13 @@ ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
     const AdhesionSheet = workbook.addWorksheet('adhesion');
     const découverteSheet = workbook.addWorksheet('découverte');
     const testSheet = workbook.addWorksheet('test');
+    const stageSheet = workbook.addWorksheet('stage');
 
     await facturationModule.fillFacturationWorksheet(FacturationSheet, dataSorted[0], sortedData);
     await adhesionModule.fillAdhesionWorksheet(AdhesionSheet, dataSorted[1], sortedData);
     await decouverteModule.fillDécouverteWorksheet(découverteSheet, dataSorted[2], sortedData);
     await testModule.fillTestWorksheet(testSheet, dataSorted[3], sortedData);
-    await stageModule.fillStageWorksheet(workbook, dataSorted[4], sortedData);
+    await stageModule.fillStageWorksheet(stageSheet, dataSorted[4], sortedData);
 
     await workbook.xlsx.writeFile(newFilePath);
 
