@@ -103,9 +103,6 @@ function replaceDateStage(date) {
     else if (monthSTA == "ETE") {
         monthSTA = "07";
     }
-    else if (monthSTA == "TOUSS") {
-        monthSTA = "10";
-    }
     else if (monthSTA == "FEV") {
         monthSTA = "02";
     }
