@@ -5,6 +5,7 @@ const createWorkbook = (worksheet, filteredRows) => {
     worksheet.eachRow((row) => {
       const rowData = row.values;
       const statusValue = rowData[1];
+      const customerId = rowData[4];
       const amountValue = rowData[9];
       const restDueValue = rowData[3];
       const dateTest = rowData[33];
@@ -21,7 +22,7 @@ const createWorkbook = (worksheet, filteredRows) => {
         }
       }
     
-      if (statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0) {
+      if (customerId != '917' && statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0) {
           filteredRows.push(rowData);
       }
     });
