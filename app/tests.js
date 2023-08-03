@@ -21,6 +21,9 @@ function fillCustomersList(groupedData) {
                 childId: customerData[18],
                 childFirstName: customerData[19],
                 childLastName: customerData[20],
+                customerId: customerData[4],
+                customerFirstName: customerData[5],
+                customerLastName: customerData[6],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
                 tests: [],
@@ -81,7 +84,6 @@ function findMatchingEnrollments(customerWithMatchTK) {
             removeDiacritics(tkCourse).toLowerCase().includes(testWordWithoutAccents)
         )
       ) {
-          console.log('testWordWithoutAccents', testWordWithoutAccents);
         matchedTK = true;
         break;
       }

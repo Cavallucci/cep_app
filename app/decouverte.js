@@ -17,6 +17,9 @@ function fillCustomersList(groupedData) {
         } else {
             const newCustomer = {
                 childId: customerData[18],
+                customerId: customerData[4],
+                customerFirstName: customerData[5],
+                customerLastName: customerData[6],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
                 cd: [],

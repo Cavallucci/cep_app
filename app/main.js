@@ -109,6 +109,7 @@ ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
     await adhesionModule.fillAdhesionWorksheet(AdhesionSheet, dataSorted[1], sortedData);
     await decouverteModule.fillDécouverteWorksheet(découverteSheet, dataSorted[2], sortedData);
     await testModule.fillTestWorksheet(testSheet, dataSorted[3], sortedData);
+    await stageModule.fillStageWorksheet(workbook, dataSorted[4], sortedData);
 
     await workbook.xlsx.writeFile(newFilePath);
 

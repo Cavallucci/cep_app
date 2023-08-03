@@ -25,8 +25,9 @@ document.getElementById('printButton').addEventListener('click', async () => {
   const adhesionList = adhesionModule.fillCustomersList(globalData);
   const decouverteList = decouverteModule.fillCustomersList(globalData);
   const testList = testModule.fillCustomersList(globalData);
+  const stageList = stageModule.fillCustomersList(globalData);
 
-  dataSorted.push(facturationList, adhesionList, decouverteList, testList);
+  dataSorted.push(facturationList, adhesionList, decouverteList, testList, stageList);
 
   ipcRenderer.send('printExcelFile', filePath, dataSorted);
 });
