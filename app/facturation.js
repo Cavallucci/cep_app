@@ -72,12 +72,12 @@ async function fillFacturationWorksheet(worksheet, data, sortedData) {
     });
 }
 
-function manageFacturationEmail(checkbox, globalData) {
+async function manageFacturationEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const facturationList = facturationModule.fillCustomersList(globalData);
     const checkboxFound = facturationList.find((facturationList) => facturationList.customerId === customerId);
 
-    checkboxModule.sendEmailFacturation(checkboxFound);
+    await checkboxModule.sendEmailFacturation(checkboxFound);
 }
 
 module.exports = {

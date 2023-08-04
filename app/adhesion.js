@@ -72,7 +72,7 @@ async function fillAdhesionWorksheet(worksheet, data, sortedData) {
     });
   }
 
-function manageAdhesionEmail(checkbox, globalData) {
+async function manageAdhesionEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const adhesionList = adhesionModule.fillCustomersList(globalData);
 

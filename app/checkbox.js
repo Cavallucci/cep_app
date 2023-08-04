@@ -42,7 +42,7 @@ function sendEmailFacturation(customer) {
       });
 }
 
-function sendEmailAdhesion(customerGroup) {
+async function sendEmailAdhesion(customerGroup) {
     let customerEmail = customerGroup[0].customerEmail;
     let customerLastName = customerGroup[0].customerLastName;
     let customerFirstName = customerGroup[0].customerFirstName;
@@ -69,6 +69,7 @@ function sendEmailAdhesion(customerGroup) {
           console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
         } else {
           console.log('E-mail envoyé avec succès:', info.response);
+          alert('E-mail envoyé avec succès:', info.response);
         }
       });
 }

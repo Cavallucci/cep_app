@@ -114,14 +114,15 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
     const alreadySent = [];
 
     if (userConfirmed) {
-      checkboxes.forEach((checkbox) => {
+      document.getElementById('loadingMessage').style.display = 'block';
+      checkboxes.forEach(async (checkbox) => {
         const attribute = checkbox.getAttribute('data-customer-id');
         if (!alreadySent.includes(attribute)) {
           if (checkbox.id === 'facturation') {
-            facturationModule.manageFacturationEmail(checkbox, globalData);
+            await facturationModule.manageFacturationEmail(checkbox, globalData);
           }
           if (checkbox.id === 'adhesion') {
-            adhesionModule.manageAdhesionEmail(checkbox, globalData);
+            await adhesionModule.manageAdhesionEmail(checkbox, globalData);
           }
           if (checkbox.id === 'decouverte') {
             decouverteModule.manageDecouverteEmail(checkbox, globalData);
@@ -135,6 +136,7 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
           alreadySent.push(attribute);
         }
       });
+      document.getElementById('loadingMessage').style.display = 'none';
     }
   }
 });
