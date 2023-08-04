@@ -26,6 +26,7 @@ function fillCustomersList(groupedData) {
                 customerId: customerData[4],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
+                customerEmail: customerData[27],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
                 tests: [],
@@ -132,7 +133,7 @@ function displayTest(groupedData) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `test`; // Unique ID for each checkbox
-        checkbox.setAttribute('data-customer-id', t_customers[i].childId);
+        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -182,11 +183,10 @@ async function fillTestWorksheet(worksheet, data, sortedData) {
 function manageTestEmail(checkbox, globalData) {
   const customerId = checkbox.getAttribute('data-customer-id');
   const testList = testModule.fillCustomersList(globalData);
-  const checkboxFound = testList.find((testList) => testList.childId === customerId);
 
   let groupEmail = [];
   for (const test of testList) {
-      if (test.customerId === checkboxFound.customerId) {
+      if (test.customerId === customerId) {
           groupEmail.push(test);
       }
   }

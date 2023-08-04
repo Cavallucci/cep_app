@@ -111,23 +111,28 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
   if (checkboxes.length > 0) {
     const globalData = await ipcRenderer.invoke('get-sorted-data');
     const userConfirmed = confirm('Envoyer Email ?');
+    const alreadySent = [];
 
     if (userConfirmed) {
       checkboxes.forEach((checkbox) => {
-        if (checkbox.id === 'facturation') {
-          facturationModule.manageFacturationEmail(checkbox, globalData);
-        }
-        if (checkbox.id === 'adhesion') {
-          adhesionModule.manageAdhesionEmail(checkbox, globalData);
-        }
-        if (checkbox.id === 'decouverte') {
-          decouverteModule.manageDecouverteEmail(checkbox, globalData);
-        }
-        if (checkbox.id === 'test') {
-          testModule.manageTestEmail(checkbox, globalData);
-        }
-        if (checkbox.id === 'stage') {
-          stageModule.manageStageEmail(checkbox, globalData);
+        const attribute = checkbox.getAttribute('data-customer-id');
+        if (!alreadySent.includes(attribute)) {
+          if (checkbox.id === 'facturation') {
+            facturationModule.manageFacturationEmail(checkbox, globalData);
+          }
+          if (checkbox.id === 'adhesion') {
+            adhesionModule.manageAdhesionEmail(checkbox, globalData);
+          }
+          if (checkbox.id === 'decouverte') {
+            decouverteModule.manageDecouverteEmail(checkbox, globalData);
+          }
+          if (checkbox.id === 'test') {
+            testModule.manageTestEmail(checkbox, globalData);
+          }
+          if (checkbox.id === 'stage') {
+            stageModule.manageStageEmail(checkbox, globalData);
+          }
+          alreadySent.push(attribute);
         }
       });
     }

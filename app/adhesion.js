@@ -12,9 +12,12 @@ function fillCustomersList(groupedData) {
         } else {
             const newCustomer = {
                 childId: customerData[18],
+                childFirstName: customerData[19],
+                childLastName: customerData[20],
                 customerId: customerData[4],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
+                customerEmail: customerData[27],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
             };
@@ -42,7 +45,7 @@ function displayAdhesion(groupedData) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `adhesion`;
-        checkbox.setAttribute('data-customer-id', t_customers[i].childId);
+        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -72,17 +75,16 @@ async function fillAdhesionWorksheet(worksheet, data, sortedData) {
 function manageAdhesionEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const adhesionList = adhesionModule.fillCustomersList(globalData);
-    const checkboxFound = adhesionList.find((adhesionList) => adhesionList.childId === customerId);
 
     let groupEmail = [];
     for (const adhesion of adhesionList) {
-        if (adhesion.customerId === checkboxFound.customerId) {
+        if (adhesion.customerId === customerId) {
             groupEmail.push(adhesion);
         }
     }
     console.log(groupEmail);
 
-    //checkboxModule.sendEmailAdhesion(checkboxFound);
+    checkboxModule.sendEmailAdhesion(groupEmail);
 }
 
 module.exports = {

@@ -25,6 +25,7 @@ function fillCustomersList(groupedData) {
                 customerId: customerData[4],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
+                customerEmail: customerData[27],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
                 dateStage: [],
@@ -168,7 +169,7 @@ function displayStage(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `L'enfant ${t_customers[i].childId} ${t_customers[i].childFirstName} ${t_customers[i].childLastName} a fait les stages suivants : ${t_customers[i].sta},  en date du : ${t_customers[i].dateStage} mais ne s'est pas inscrit à l'année : ${t_customers[i].tk}`;
+        label.textContent = `L'enfant ${t_customers[i].customerId} ${t_customers[i].childFirstName} ${t_customers[i].childLastName} a fait les stages suivants : ${t_customers[i].sta},  en date du : ${t_customers[i].dateStage} mais ne s'est pas inscrit à l'année : ${t_customers[i].tk}`;
         customerInfo.appendChild(label);
 
         container.appendChild(customerInfo);
@@ -219,11 +220,10 @@ async function fillStageWorksheet(worksheet, data, sortedData) {
 function manageStageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const stageList = stageModule.fillCustomersList(globalData);
-    const checkboxFound = stageList.find((stageList) => stageList.childId === customerId);
 
     let groupEmail = [];
     for (const stage of stageList) {
-        if (stage.customerId === checkboxFound.customerId) {
+        if (stage.customerId === customerId) {
             groupEmail.push(stage);
         }
     }

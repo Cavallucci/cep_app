@@ -22,6 +22,7 @@ function fillCustomersList(groupedData) {
                 customerId: customerData[4],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
+                customerEmail: customerData[27],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
                 cd: [],
@@ -93,7 +94,7 @@ function displayDecouverte(groupedData) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `decouverte`;
-        checkbox.setAttribute('data-customer-id', t_customers[i].childId);
+        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -132,11 +133,10 @@ async function fillDécouverteWorksheet(worksheet, data, sortedData) {
 function manageDecouverteEmail(checkbox, globalData) {
   const customerId = checkbox.getAttribute('data-customer-id');
   const decouverteList = decouverteModule.fillCustomersList(globalData);
-  const checkboxFound = decouverteList.find((decouverteList) => decouverteList.childId === customerId);
   
   let groupEmail = [];
   for (const decouverte of decouverteList) {
-      if (decouverte.customerId === checkboxFound.customerId) {
+      if (decouverte.customerId === customerId) {
           groupEmail.push(decouverte);
       }
   }

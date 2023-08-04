@@ -42,14 +42,24 @@ function sendEmailFacturation(customer) {
       });
 }
 
-function sendEmailAdhesion(customer) {
+function sendEmailAdhesion(customerGroup) {
+    let customerEmail = customerGroup[0].customerEmail;
+    let customerLastName = customerGroup[0].customerLastName;
+    let customerFirstName = customerGroup[0].customerFirstName;
+    let childFirstName = [];
+
+    for (childsName of customerGroup) {
+      childFirstName.push(childsName.childFirstName);
+    }
+
     const myHTML = fs.readFileSync("./app/emails/adhesionEmail.html", "utf8");
-    htmlWithCode = myHTML.replace("{{customerFirstName}}", customer.customerFirstName);
+    htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
+    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstName);
 
     const mailOptions = {
-      to: `${customer.customerEmail}`,
+      to: `${customerEmail}`,
       from: "laura.cllucci@gmail.com",
-      subject: "Club des Enfants Parisiens: Facturation",
+      subject: "Club des Enfants Parisiens: Adhesion",
       text: "Facturation",
       html: htmlWithCode,
     };
