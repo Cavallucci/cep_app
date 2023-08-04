@@ -5,7 +5,7 @@ function setupCheckboxListeners(t_customers) {
             if (checkbox.checked) {
                 const customerId = checkbox.getAttribute('data-customer-id'); 
                 const customer = t_customers.find((customer) => customer.customerId === customerId);
-                console.log('Customer info (Adhésion):', customer);
+                console.log('Customer info :', customer);
             }
         });
     });

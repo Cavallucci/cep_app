@@ -95,3 +95,37 @@ ipcRenderer.on('printError', (event, error) => {
   alert(error);
   console.error(error);
 });
+
+document.getElementById('sendEmailButton').addEventListener('click', () => {
+  const checkboxes = document.querySelectorAll('[type="checkbox"]:checked');
+
+  if (checkboxes.length > 0) {
+    checkboxes.forEach((checkbox) => {
+    if (checkbox.id === 'facturation') {
+      const customerId = checkbox.getAttribute('data-customer-id');
+      console.log("facturation");
+      console.log(customerId);
+    }
+    if (checkbox.id === 'adhesion') {
+      const customerId = checkbox.getAttribute('data-customer-id');
+      console.log("adhesion");
+      console.log(customerId);
+    }
+    if (checkbox.id === 'decouverte') {
+      const customerId = checkbox.getAttribute('data-customer-id');
+      console.log("decouverte");
+      console.log(customerId);
+    }
+    if (checkbox.id === 'test') {
+      const customerId = checkbox.getAttribute('data-customer-id');
+      console.log("test");
+      console.log(customerId);
+    }
+    if (checkbox.id === 'stage') {
+      const customerId = checkbox.getAttribute('data-customer-id');
+      console.log("stage");
+      console.log(customerId);
+    }
+    });
+  }
+});

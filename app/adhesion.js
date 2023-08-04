@@ -41,7 +41,7 @@ function displayAdhesion(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `adhesioncustomerCheckbox_${t_customers[i].customerId}`;
+        checkbox.id = `adhesion`;
         checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 

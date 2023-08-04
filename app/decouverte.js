@@ -92,8 +92,8 @@ function displayDecouverte(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `decouvertecustomerCheckbox_${t_customers[i].customerId}`; // Unique ID for each checkbox
-        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
+        checkbox.id = `decouverte`;
+        checkbox.setAttribute('data-customer-id', t_customers[i].childId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');

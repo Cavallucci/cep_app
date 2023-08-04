@@ -9,10 +9,16 @@ const createWorkbook = (worksheet, filteredRows) => {
       const amountValue = rowData[9];
       const restDueValue = rowData[3];
       const dateTest = rowData[33];
+      const pxVente = rowData[23];
       
       if (typeof restDueValue === 'string'){
-        const formattedRestDue = parseFloat(restDueValue.replace('.', ','));
+        const formattedRestDue = parseFloat(restDueValue);
         rowData[3] = formattedRestDue;
+      }
+
+      if (typeof pxVente === 'string'){
+        const formattedVenteDue = parseFloat(pxVente);
+        rowData[23] = formattedVenteDue;
       }
 
       if (typeof dateTest === 'string'){

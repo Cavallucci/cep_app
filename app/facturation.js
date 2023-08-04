@@ -10,15 +10,17 @@ function fillCustomersList(groupedData) {
         if (existingCustomer) {
             existingCustomer.courses.push(customerData[8]);
             existingCustomer.totalRestantDu += customerData[3];
+            existingCustomer.totalPxVente += customerData[23];
         } else {
             const newCustomer = {
                 customerId: customerData[4],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
                 totalRestantDu: customerData[3],
-                courses: [customerData[8]]
+                courses: [customerData[8]],
+                totalPxVente: customerData[23]
             };
-        if (newCustomer.totalRestantDu > 0)
+        if (newCustomer.totalRestantDu > 0 && newCustomer.totalPxVente > 0)
             t_customers.push(newCustomer);
         }
     }
@@ -36,12 +38,12 @@ function displayFacturation(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `facturationcustomerCheckbox_${t_customers[i].customerId}`; // Unique ID for each checkbox
+        checkbox.id = `facturation`; // Unique ID for each checkbox
         checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `Le customer ${t_customers[i].customerFirstName} ${t_customers[i].customerLastName} numéro ${t_customers[i].customerId} a un total de ${t_customers[i].totalRestantDu}€ restant du pour les cours suivants : ${t_customers[i].courses}`;
+        label.textContent = `Le customer ${t_customers[i].customerFirstName} ${t_customers[i].customerLastName} numéro ${t_customers[i].customerId} a un total de ${t_customers[i].totalPxVente}€ restant du pour les cours suivants : ${t_customers[i].courses}`;
         customerInfo.appendChild(label);
 
         container.appendChild(customerInfo);
@@ -58,11 +60,16 @@ async function fillFacturationWorksheet(worksheet, data, sortedData) {
     sortedData.forEach((rowData) => {
       let existingCustomer = data.find((data) => data.customerId === rowData[4]);
   
-      if (existingCustomer  && rowData[3] > 0) {
-        worksheet.addRow(rowData);
+      if (existingCustomer  && rowData[3] > 0 && rowData[23] > 0) {
+        row = worksheet.addRow(rowData);
+        row.getCell(23).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFFFF00' }
+        };
       }
     });
-  }
+}
 
 module.exports = {
     displayFacturation,
