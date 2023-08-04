@@ -11,6 +11,8 @@ const createWorkbook = (worksheet, filteredRows) => {
       const dateTest = rowData[33];
       const pxVente = rowData[23];
       
+      rowData[27] = 'test.cep.application@laposte.net';
+
       if (typeof restDueValue === 'string'){
         const formattedRestDue = parseFloat(restDueValue);
         rowData[3] = formattedRestDue;
@@ -27,7 +29,6 @@ const createWorkbook = (worksheet, filteredRows) => {
           rowData[36] = extractedDate;
         }
       }
-    
       if (customerId != '917' && statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0) {
           filteredRows.push(rowData);
       }

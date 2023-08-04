@@ -42,7 +42,7 @@ function displayAdhesion(groupedData) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `adhesion`;
-        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
+        checkbox.setAttribute('data-customer-id', t_customers[i].childId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -69,8 +69,25 @@ async function fillAdhesionWorksheet(worksheet, data, sortedData) {
     });
   }
 
+function manageAdhesionEmail(checkbox, globalData) {
+    const customerId = checkbox.getAttribute('data-customer-id');
+    const adhesionList = adhesionModule.fillCustomersList(globalData);
+    const checkboxFound = adhesionList.find((adhesionList) => adhesionList.childId === customerId);
+
+    let groupEmail = [];
+    for (const adhesion of adhesionList) {
+        if (adhesion.customerId === checkboxFound.customerId) {
+            groupEmail.push(adhesion);
+        }
+    }
+    console.log(groupEmail);
+
+    //checkboxModule.sendEmailAdhesion(checkboxFound);
+}
+
 module.exports = {
     displayAdhesion,
     fillCustomersList,
-    fillAdhesionWorksheet
+    fillAdhesionWorksheet,
+    manageAdhesionEmail
   };

@@ -131,8 +131,8 @@ function displayTest(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `testcustomerCheckbox_${t_customers[i].customerId}`; // Unique ID for each checkbox
-        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
+        checkbox.id = `test`; // Unique ID for each checkbox
+        checkbox.setAttribute('data-customer-id', t_customers[i].childId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -179,8 +179,24 @@ async function fillTestWorksheet(worksheet, data, sortedData) {
     });
   }
 
+function manageTestEmail(checkbox, globalData) {
+  const customerId = checkbox.getAttribute('data-customer-id');
+  const testList = testModule.fillCustomersList(globalData);
+  const checkboxFound = testList.find((testList) => testList.childId === customerId);
+
+  let groupEmail = [];
+  for (const test of testList) {
+      if (test.customerId === checkboxFound.customerId) {
+          groupEmail.push(test);
+      }
+  }
+  console.log(groupEmail);
+  //checkboxModule.sendEmailTest(checkboxFound);
+}
+
 module.exports = {
     displayTest,
     fillCustomersList,
-    fillTestWorksheet
+    fillTestWorksheet,
+    manageTestEmail
   };

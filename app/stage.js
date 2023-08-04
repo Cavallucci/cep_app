@@ -163,8 +163,8 @@ function displayStage(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `stagecustomerCheckbox_${t_customers[i].customerId}`; // Unique ID for each checkbox
-        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
+        checkbox.id = `stage`; // Unique ID for each checkbox
+        checkbox.setAttribute('data-customer-id', t_customers[i].childId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -216,8 +216,25 @@ async function fillStageWorksheet(worksheet, data, sortedData) {
     });
 }
 
+function manageStageEmail(checkbox, globalData) {
+    const customerId = checkbox.getAttribute('data-customer-id');
+    const stageList = stageModule.fillCustomersList(globalData);
+    const checkboxFound = stageList.find((stageList) => stageList.childId === customerId);
+
+    let groupEmail = [];
+    for (const stage of stageList) {
+        if (stage.customerId === checkboxFound.customerId) {
+            groupEmail.push(stage);
+        }
+    }
+    console.log(groupEmail);
+
+    //checkboxModule.sendEmailStage(checkboxFound);
+}
+
 module.exports = {
     displayStage,
     fillCustomersList,
-    fillStageWorksheet
+    fillStageWorksheet,
+    manageStageEmail
   };

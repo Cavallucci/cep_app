@@ -129,9 +129,25 @@ async function fillDécouverteWorksheet(worksheet, data, sortedData) {
     }
   });
 }
+function manageDecouverteEmail(checkbox, globalData) {
+  const customerId = checkbox.getAttribute('data-customer-id');
+  const decouverteList = decouverteModule.fillCustomersList(globalData);
+  const checkboxFound = decouverteList.find((decouverteList) => decouverteList.childId === customerId);
+  
+  let groupEmail = [];
+  for (const decouverte of decouverteList) {
+      if (decouverte.customerId === checkboxFound.customerId) {
+          groupEmail.push(decouverte);
+      }
+  }
+  console.log(groupEmail);
+  //checkboxModule.sendEmailDecouverte(checkboxFound);
+
+}
 
 module.exports = {
     displayDecouverte,
     fillCustomersList,
-    fillDécouverteWorksheet
+    fillDécouverteWorksheet,
+    manageDecouverteEmail
   };

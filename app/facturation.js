@@ -18,7 +18,8 @@ function fillCustomersList(groupedData) {
                 customerLastName: customerData[6],
                 totalRestantDu: customerData[3],
                 courses: [customerData[8]],
-                totalPxVente: customerData[23]
+                totalPxVente: customerData[23],
+                customerEmail: customerData[27],
             };
         if (newCustomer.totalRestantDu > 0 && newCustomer.totalPxVente > 0)
             t_customers.push(newCustomer);
@@ -71,8 +72,17 @@ async function fillFacturationWorksheet(worksheet, data, sortedData) {
     });
 }
 
+function manageFacturationEmail(checkbox, globalData) {
+    const customerId = checkbox.getAttribute('data-customer-id');
+    const facturationList = facturationModule.fillCustomersList(globalData);
+    const checkboxFound = facturationList.find((facturationList) => facturationList.customerId === customerId);
+
+    checkboxModule.sendEmailFacturation(checkboxFound);
+}
+
 module.exports = {
     displayFacturation,
     fillCustomersList,
+    manageFacturationEmail,
     fillFacturationWorksheet
   };

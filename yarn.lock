@@ -2243,6 +2243,11 @@
   "resolved" "https://registry.npmjs.org/node-releases/-/node-releases-2.0.13.tgz"
   "version" "2.0.13"
 
+"nodemailer@^6.9.4":
+  "integrity" "sha512-CXjQvrQZV4+6X5wP6ZIgdehJamI63MFoYFGGPtHudWym9qaEHDNdPzaj5bfMCvxG1vhAileSWW90q7nL0N36mA=="
+  "resolved" "https://registry.npmjs.org/nodemailer/-/nodemailer-6.9.4.tgz"
+  "version" "6.9.4"
+
 "nopt@^6.0.0":
   "integrity" "sha512-ZwLpbTgdhuZUnZzjd7nb1ZV+4DoiC6/sfiVKok72ym/4Tlf+DFdlHYmT2JPmcNNWV6Pi3SDf1kT+A4r9RTuT9g=="
   "resolved" "https://registry.npmjs.org/nopt/-/nopt-6.0.0.tgz"

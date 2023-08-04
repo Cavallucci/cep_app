@@ -4,6 +4,7 @@ const adhesionModule = require('./adhesion');
 const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
 const testModule = require('./tests');
+const checkboxModule = require('./checkbox');
 
 document.getElementById('fileInput').addEventListener('change', () => {
   const fileInput = document.getElementById('fileInput');
@@ -96,36 +97,39 @@ ipcRenderer.on('printError', (event, error) => {
   console.error(error);
 });
 
-document.getElementById('sendEmailButton').addEventListener('click', () => {
+document.getElementById('selectAllCheckbox').addEventListener('change', () => {
+  const isChecked = selectAllCheckbox.checked;
+  const customerCheckboxes = document.querySelectorAll('[type="checkbox"][data-customer-id]');
+  customerCheckboxes.forEach(checkbox => {
+    checkbox.checked = isChecked;
+  });
+});
+
+document.getElementById('sendEmailButton').addEventListener('click', async () => {
   const checkboxes = document.querySelectorAll('[type="checkbox"]:checked');
 
   if (checkboxes.length > 0) {
-    checkboxes.forEach((checkbox) => {
-    if (checkbox.id === 'facturation') {
-      const customerId = checkbox.getAttribute('data-customer-id');
-      console.log("facturation");
-      console.log(customerId);
+    const globalData = await ipcRenderer.invoke('get-sorted-data');
+    const userConfirmed = confirm('Envoyer Email ?');
+
+    if (userConfirmed) {
+      checkboxes.forEach((checkbox) => {
+        if (checkbox.id === 'facturation') {
+          facturationModule.manageFacturationEmail(checkbox, globalData);
+        }
+        if (checkbox.id === 'adhesion') {
+          adhesionModule.manageAdhesionEmail(checkbox, globalData);
+        }
+        if (checkbox.id === 'decouverte') {
+          decouverteModule.manageDecouverteEmail(checkbox, globalData);
+        }
+        if (checkbox.id === 'test') {
+          testModule.manageTestEmail(checkbox, globalData);
+        }
+        if (checkbox.id === 'stage') {
+          stageModule.manageStageEmail(checkbox, globalData);
+        }
+      });
     }
-    if (checkbox.id === 'adhesion') {
-      const customerId = checkbox.getAttribute('data-customer-id');
-      console.log("adhesion");
-      console.log(customerId);
-    }
-    if (checkbox.id === 'decouverte') {
-      const customerId = checkbox.getAttribute('data-customer-id');
-      console.log("decouverte");
-      console.log(customerId);
-    }
-    if (checkbox.id === 'test') {
-      const customerId = checkbox.getAttribute('data-customer-id');
-      console.log("test");
-      console.log(customerId);
-    }
-    if (checkbox.id === 'stage') {
-      const customerId = checkbox.getAttribute('data-customer-id');
-      console.log("stage");
-      console.log(customerId);
-    }
-    });
   }
 });
