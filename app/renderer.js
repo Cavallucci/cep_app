@@ -22,7 +22,6 @@ document.getElementById('printButton').addEventListener('click', async () => {
 
   if (fileInput.files.length > 0) {
     const filePath = fileInput.files[0].path;
-    alert(filePath);
     const dataSorted = [];
     const globalData = await ipcRenderer.invoke('get-sorted-data');
 
@@ -40,40 +39,53 @@ document.getElementById('printButton').addEventListener('click', async () => {
   }
 });
 
+function handleOptionChange(radioButton, groupedData) {
+  document.querySelectorAll('.option-label').forEach((label) => {
+    label.classList.remove('selected-option');
+  });
+
+  const selectedLabel = radioButton.closest('.option-label');
+  selectedLabel.classList.add('selected-option');
+
+  switch (radioButton.id) {
+    case 'facturation':
+      facturationModule.displayFacturation(groupedData);
+      break;
+    case 'adhesion':
+      adhesionModule.displayAdhesion(groupedData);
+      break;
+    case 'decouverte':
+      decouverteModule.displayDecouverte(groupedData);
+      break;
+    case 'test':
+      testModule.displayTest(groupedData);
+      break;
+    case 'stage':
+      stageModule.displayStage(groupedData);
+      break;
+    default:
+      break;
+  }
+}
+
 ipcRenderer.on('sortingSuccess', (event, groupedData) => {
   document.getElementById('loadingMessage').style.display = 'none';
+  
   if (groupedData.length > 0) {
     const radioGroup = document.getElementsByName("options");
+    
     radioGroup.forEach((radioButton) => {
       radioButton.addEventListener("change", () => {
         if (radioButton.checked) {
-          document.querySelectorAll('.option-label').forEach((label) => {
-            label.classList.remove('selected-option');
-          });
-          
-          const selectedLabel = radioButton.closest('.option-label');
-          selectedLabel.classList.add('selected-option');
-          
-          if (radioButton.id === 'facturation') {
-            facturationModule.displayFacturation(groupedData);
-          }
-          else if (radioButton.id === 'adhesion') {
-            adhesionModule.displayAdhesion(groupedData);
-          }
-          else if (radioButton.id === 'decouverte') {
-            decouverteModule.displayDecouverte(groupedData);
-          }
-          else if (radioButton.id === 'test') {
-            testModule.displayTest(groupedData);
-          }
-          else if (radioButton.id === 'stage') {
-            stageModule.displayStage(groupedData);
-          }
+          handleOptionChange(radioButton, groupedData);
         }
       });
+      
+      if (radioButton.checked) {
+        handleOptionChange(radioButton, groupedData);
+      }
     });
-  }
-  else {
+  } else {
     alert('Aucune donnée détectée');
   }
 });
