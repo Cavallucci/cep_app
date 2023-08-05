@@ -41,11 +41,11 @@ document.getElementById('printButton').addEventListener('click', async () => {
 
 function handleOptionChange(radioButton, groupedData) {
   document.querySelectorAll('.option-label').forEach((label) => {
-    label.classList.remove('selected-option');
+    label.classList.remove('active');
   });
 
   const selectedLabel = radioButton.closest('.option-label');
-  selectedLabel.classList.add('selected-option');
+  selectedLabel.classList.add('active');
 
   switch (radioButton.id) {
     case 'facturation':
@@ -70,17 +70,17 @@ function handleOptionChange(radioButton, groupedData) {
 
 ipcRenderer.on('sortingSuccess', (event, groupedData) => {
   document.getElementById('loadingMessage').style.display = 'none';
-  
+
   if (groupedData.length > 0) {
     const radioGroup = document.getElementsByName("options");
-    
+
     radioGroup.forEach((radioButton) => {
       radioButton.addEventListener("change", () => {
         if (radioButton.checked) {
           handleOptionChange(radioButton, groupedData);
         }
       });
-      
+
       if (radioButton.checked) {
         handleOptionChange(radioButton, groupedData);
       }
