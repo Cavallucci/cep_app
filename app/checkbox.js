@@ -14,14 +14,14 @@ function setupCheckboxListeners(t_customers) {
         checkbox.addEventListener('change', () => {
             if (checkbox.checked) {
                 const customerId = checkbox.getAttribute('data-customer-id'); 
-                const customer = t_customers.find((customer) => customer.childId === customerId);
-                console.log('Customer info :', customer);
+                const customer = t_customers.find((customer) => customer.customerId === customerId);
+                console.log('Customer email :', customer.customerEmail);
             }
         });
     });
 }
 
-function sendEmailFacturation(customer) {
+async function sendEmailFacturation(customer) {
     const myHTML = fs.readFileSync("./app/emails/facturationEmail.html", "utf8");
     htmlWithCode = myHTML.replace("{{customerFirstName}}", customer.customerFirstName);
 
@@ -43,30 +43,114 @@ function sendEmailFacturation(customer) {
 }
 
 async function sendEmailAdhesion(customerGroup) {
-    let customerEmail = customerGroup[0].customerEmail;
-    let customerLastName = customerGroup[0].customerLastName;
-    let customerFirstName = customerGroup[0].customerFirstName;
-    let childFirstName = [];
-
-    for (childsName of customerGroup) {
-      childFirstName.push(childsName.childFirstName);
-    }
+  const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
+  const childFirstNames = customerGroup.map(child => child.childFirstName);
+  const childLastNames = customerGroup.map(child => child.childLastName);
 
     const myHTML = fs.readFileSync("./app/emails/adhesionEmail.html", "utf8");
-    htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
-    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstName);
+    let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
+    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
+    htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
 
     const mailOptions = {
       to: `${customerEmail}`,
       from: "laura.cllucci@gmail.com",
       subject: "Club des Enfants Parisiens: Adhesion",
-      text: "Facturation",
+      text: "Adhésion",
       html: htmlWithCode,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+          alert('Erreur lors de l\'envoi de l\'e-mail :', error);
+        } else {
+          console.log('E-mail envoyé avec succès:', info.response);
+          alert('E-mail envoyé avec succès:', info.response);
+        }
+      });
+}
+
+async function sendEmailDecouverte(customerGroup) {
+  const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
+  const childFirstNames = customerGroup.map(child => child.childFirstName);
+  const childLastNames = customerGroup.map(child => child.childLastName);
+
+    const myHTML = fs.readFileSync("./app/emails/decouverteEmail.html", "utf8");
+    let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
+    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
+    htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
+
+    const mailOptions = {
+      to: `${customerEmail}`,
+      from: "laura.cllucci@gmail.com",
+      subject: "Club des Enfants Parisiens: Cours de découverte",
+      text: "Cours de découverte",
+      html: htmlWithCode,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+          alert('Erreur lors de l\'envoi de l\'e-mail :', error);
+        } else {
+          console.log('E-mail envoyé avec succès:', info.response);
+          alert('E-mail envoyé avec succès:', info.response);
+        }
+      });
+}
+
+async function sendEmailTest(customerGroup) {
+  const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
+  const childFirstNames = customerGroup.map(child => child.childFirstName);
+  const childLastNames = customerGroup.map(child => child.childLastName);
+
+    const myHTML = fs.readFileSync("./app/emails/testEmail.html", "utf8");
+    let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
+    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
+    htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
+
+    const mailOptions = {
+      to: `${customerEmail}`,
+      from: "laura.cllucci@gmail.com",
+      subject: "Club des Enfants Parisiens: Cours de test",
+      text: "Cours de test",
+      html: htmlWithCode,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+          alert('Erreur lors de l\'envoi de l\'e-mail :', error);
+        } else {
+          console.log('E-mail envoyé avec succès:', info.response);
+          alert('E-mail envoyé avec succès:', info.response);
+        }
+      });
+}
+
+async function sendEmailStage(customerGroup) {
+  const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
+  const childFirstNames = customerGroup.map(child => child.childFirstName);
+  const childLastNames = customerGroup.map(child => child.childLastName);
+
+    const myHTML = fs.readFileSync("./app/emails/stageEmail.html", "utf8");
+    let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
+    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
+    htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
+
+    const mailOptions = {
+      to: `${customerEmail}`,
+      from: "laura.cllucci@gmail.com",
+      subject: "Club des Enfants Parisiens: Stages",
+      text: "Stages",
+      html: htmlWithCode,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+          alert('Erreur lors de l\'envoi de l\'e-mail :', error);
         } else {
           console.log('E-mail envoyé avec succès:', info.response);
           alert('E-mail envoyé avec succès:', info.response);
@@ -77,5 +161,8 @@ async function sendEmailAdhesion(customerGroup) {
 module.exports = {
     setupCheckboxListeners,
     sendEmailFacturation,
-    sendEmailAdhesion
+    sendEmailAdhesion,
+    sendEmailDecouverte,
+    sendEmailTest,
+    sendEmailStage
   };

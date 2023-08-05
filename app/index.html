@@ -2,44 +2,54 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <title>CEP Application</title>
 </head>
 <body>
-  <h1>Club des Enfants Parisiens</h1>
-  <h2>Automatisation</h2>
-  <input type="file" id="fileInput" accept=".xlsx, .csv"></input>
-  <button id="printButton">Imprimer Excel</button>
+  <header class="header">
+    <h1 class="title">Club des Enfants Parisiens</h1>
+    <h2 class="subtitle">Automatisation</h2>
+  </header>
 
-  <div>
-    <input type="checkbox" id="selectAllCheckbox">
-    <label for="selectAllCheckbox">Cocher tout</label>
-  </div>
-  
-  <div class="btn-group btn-group-toggle" data-toggle="buttons">
-    <label class="btn btn-secondary active">
-      <input type="radio" name="options" id="facturation" autocomplete="off" checked> Facturation
-    </label>
-    <label class="btn btn-secondary">
-      <input type="radio" name="options" id="adhesion" autocomplete="off"> Adhésion
-    </label>
-    <label class="btn btn-secondary">
-      <input type="radio" name="options" id="decouverte" autocomplete="off"> Découverte
-    </label>
-    <label class="btn btn-secondary">
-      <input type="radio" name="options" id="test" autocomplete="off"> Test
-    </label>
-    <label class="btn btn-secondary">
-      <input type="radio" name="options" id="stage" autocomplete="off"> Stage
-    </label>
-  </div>
+  <main class="main">
+    <input type="file" id="fileInput" accept=".xlsx, .csv" class="file-input">
+    <button id="printButton" class="action-button">Imprimer Excel</button>
 
-  <button id="sendEmailButton">Envoyer les emails</button>
-  <div id="loadingMessage" style="display: none;">Envoi en cours...</div>
-  <div id="displayContainer"></div>
+    <div class="checkbox-container">
+      <input type="checkbox" id="selectAllCheckbox">
+      <label for="selectAllCheckbox" class="checkbox-label">Cocher tout</label>
+    </div>
+    
+    <div class="options-container">
+      <label class="option-label">
+        <input type="radio" name="options" id="facturation" autocomplete="off" checked>
+        Facturation
+      </label>
+      <label class="option-label">
+        <input type="radio" name="options" id="adhesion" autocomplete="off">
+        Adhésion
+      </label>
+      <label class="option-label">
+        <input type="radio" name="options" id="decouverte" autocomplete="off">
+        Découverte
+      </label>
+      <label class="option-label">
+        <input type="radio" name="options" id="test" autocomplete="off">
+        Test
+      </label>
+      <label class="option-label">
+        <input type="radio" name="options" id="stage" autocomplete="off">
+        Stage
+      </label>
+    </div>
+
+    <button id="sendEmailButton" class="action-button">Envoyer les emails</button>
+    <div id="loadingMessage" class="loading-message">Chargement...</div>
+    <div id="displayContainer" class="display-container"></div>
+  </main>
 
   <script src="renderer.js"></script>
   <script src="filter.js"></script>
 </body>
 </html>
-

@@ -1,4 +1,5 @@
 const checkboxModule = require('./checkbox');
+const emailValidator = require('email-validator');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -180,7 +181,7 @@ async function fillTestWorksheet(worksheet, data, sortedData) {
     });
   }
 
-function manageTestEmail(checkbox, globalData) {
+async function manageTestEmail(checkbox, globalData) {
   const customerId = checkbox.getAttribute('data-customer-id');
   const testList = testModule.fillCustomersList(globalData);
 
@@ -190,8 +191,11 @@ function manageTestEmail(checkbox, globalData) {
           groupEmail.push(test);
       }
   }
-  console.log(groupEmail);
-  //checkboxModule.sendEmailTest(checkboxFound);
+  if (emailValidator.validate(groupEmail[0].customerEmail)) {
+    await checkboxModule.sendEmailTest(groupEmail);
+  } else {
+    alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+    }  
 }
 
 module.exports = {

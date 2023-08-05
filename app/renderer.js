@@ -12,34 +12,48 @@ document.getElementById('fileInput').addEventListener('change', () => {
   if (filePath.endsWith('_trie.xlsx')) {
     alert('Le fichier a déjà été trié');
   } else {
+    document.getElementById('loadingMessage').style.display = 'block';
     ipcRenderer.send('sortExcelFile', filePath);
   }
 });
 
 document.getElementById('printButton').addEventListener('click', async () => {
   const fileInput = document.getElementById('fileInput');
-  const filePath = fileInput.files[0].path;
 
-  const dataSorted = [];
-  const globalData = await ipcRenderer.invoke('get-sorted-data');
+  if (fileInput.files.length > 0) {
+    const filePath = fileInput.files[0].path;
+    alert(filePath);
+    const dataSorted = [];
+    const globalData = await ipcRenderer.invoke('get-sorted-data');
 
-  const facturationList = facturationModule.fillCustomersList(globalData);
-  const adhesionList = adhesionModule.fillCustomersList(globalData);
-  const decouverteList = decouverteModule.fillCustomersList(globalData);
-  const testList = testModule.fillCustomersList(globalData);
-  const stageList = stageModule.fillCustomersList(globalData);
+    const facturationList = facturationModule.fillCustomersList(globalData);
+    const adhesionList = adhesionModule.fillCustomersList(globalData);
+    const decouverteList = decouverteModule.fillCustomersList(globalData);
+    const testList = testModule.fillCustomersList(globalData);
+    const stageList = stageModule.fillCustomersList(globalData);
 
-  dataSorted.push(facturationList, adhesionList, decouverteList, testList, stageList);
+    dataSorted.push(facturationList, adhesionList, decouverteList, testList, stageList);
 
-  ipcRenderer.send('printExcelFile', filePath, dataSorted);
+    ipcRenderer.send('printExcelFile', filePath, dataSorted);
+  } else {
+    alert('Aucun fichier sélectionné');
+  }
 });
 
 ipcRenderer.on('sortingSuccess', (event, groupedData) => {
+  document.getElementById('loadingMessage').style.display = 'none';
   if (groupedData.length > 0) {
     const radioGroup = document.getElementsByName("options");
     radioGroup.forEach((radioButton) => {
       radioButton.addEventListener("change", () => {
         if (radioButton.checked) {
+          document.querySelectorAll('.option-label').forEach((label) => {
+            label.classList.remove('selected-option');
+          });
+          
+          const selectedLabel = radioButton.closest('.option-label');
+          selectedLabel.classList.add('selected-option');
+          
           if (radioButton.id === 'facturation') {
             facturationModule.displayFacturation(groupedData);
           }
@@ -57,27 +71,10 @@ ipcRenderer.on('sortingSuccess', (event, groupedData) => {
           }
         }
       });
-      if (radioButton.checked) {
-        if (radioButton.id === 'facturation') {
-          facturationModule.displayFacturation(groupedData);
-        }
-        else if (radioButton.id === 'adhesion') {
-          adhesionModule.displayAdhesion(groupedData);
-        }
-        else if (radioButton.id === 'decouverte') {
-          decouverteModule.displayDecouverte(groupedData);
-        }
-        else if (radioButton.id === 'test') {
-          testModule.displayTest(groupedData);
-        }
-        else if (radioButton.id === 'stage') {
-          stageModule.displayStage(groupedData);
-        }
-      }
     });
   }
   else {
-    alert('Aucune donnée détecté');
+    alert('Aucune donnée détectée');
   }
 });
 
@@ -125,18 +122,21 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
             await adhesionModule.manageAdhesionEmail(checkbox, globalData);
           }
           if (checkbox.id === 'decouverte') {
-            decouverteModule.manageDecouverteEmail(checkbox, globalData);
+            await decouverteModule.manageDecouverteEmail(checkbox, globalData);
           }
           if (checkbox.id === 'test') {
-            testModule.manageTestEmail(checkbox, globalData);
+            await testModule.manageTestEmail(checkbox, globalData);
           }
           if (checkbox.id === 'stage') {
-            stageModule.manageStageEmail(checkbox, globalData);
+            await stageModule.manageStageEmail(checkbox, globalData);
           }
           alreadySent.push(attribute);
         }
       });
       document.getElementById('loadingMessage').style.display = 'none';
     }
+  }
+  else {
+    alert('Aucun client sélectionné');
   }
 });

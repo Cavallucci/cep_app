@@ -1,4 +1,5 @@
 const checkboxModule = require('./checkbox');
+const emailValidator = require('email-validator');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -82,9 +83,12 @@ async function manageAdhesionEmail(checkbox, globalData) {
             groupEmail.push(adhesion);
         }
     }
-    console.log(groupEmail);
 
-    checkboxModule.sendEmailAdhesion(groupEmail);
+    if (emailValidator.validate(groupEmail[0].customerEmail)) {
+        await checkboxModule.sendEmailAdhesion(groupEmail);
+    } else {
+        alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+    }
 }
 
 module.exports = {

@@ -1,4 +1,5 @@
 const checkboxModule = require('./checkbox');
+const emailValidator = require('email-validator');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -165,7 +166,7 @@ function displayStage(groupedData) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `stage`; // Unique ID for each checkbox
-        checkbox.setAttribute('data-customer-id', t_customers[i].childId);
+        checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
@@ -217,7 +218,7 @@ async function fillStageWorksheet(worksheet, data, sortedData) {
     });
 }
 
-function manageStageEmail(checkbox, globalData) {
+async function manageStageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const stageList = stageModule.fillCustomersList(globalData);
 
@@ -227,9 +228,11 @@ function manageStageEmail(checkbox, globalData) {
             groupEmail.push(stage);
         }
     }
-    console.log(groupEmail);
-
-    //checkboxModule.sendEmailStage(checkboxFound);
+    if (emailValidator.validate(groupEmail[0].customerEmail)) {
+        await checkboxModule.sendEmailStage(groupEmail);
+    } else {
+        alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+        }  
 }
 
 module.exports = {

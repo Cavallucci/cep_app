@@ -1,4 +1,5 @@
 const checkboxModule = require('./checkbox');
+const emailValidator = require('email-validator');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -19,6 +20,8 @@ function fillCustomersList(groupedData) {
         } else {
             const newCustomer = {
                 childId: customerData[18],
+                childFirstName: customerData[19],
+                childLastName: customerData[20],
                 customerId: customerData[4],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
@@ -98,7 +101,7 @@ function displayDecouverte(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `L'enfant ${t_customers[i].childId} a fait un cours de découverte : ${t_customers[i].cd}, mais ne s'est pas inscrit à l'année : ${t_customers[i].tk}`;
+        label.textContent = `L'enfant ${t_customers[i].childFirstName} numéro ${t_customers[i].childId} a fait un cours de découverte : ${t_customers[i].cd}, mais ne s'est pas inscrit à l'année : ${t_customers[i].tk}`;
         customerInfo.appendChild(label);
 
         container.appendChild(customerInfo);
@@ -130,7 +133,7 @@ async function fillDécouverteWorksheet(worksheet, data, sortedData) {
     }
   });
 }
-function manageDecouverteEmail(checkbox, globalData) {
+async function manageDecouverteEmail(checkbox, globalData) {
   const customerId = checkbox.getAttribute('data-customer-id');
   const decouverteList = decouverteModule.fillCustomersList(globalData);
   
@@ -140,9 +143,11 @@ function manageDecouverteEmail(checkbox, globalData) {
           groupEmail.push(decouverte);
       }
   }
-  console.log(groupEmail);
-  //checkboxModule.sendEmailDecouverte(checkboxFound);
-
+  if (emailValidator.validate(groupEmail[0].customerEmail)) {
+    await checkboxModule.sendEmailDecouverte(groupEmail);
+  } else {
+    alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+    }  
 }
 
 module.exports = {

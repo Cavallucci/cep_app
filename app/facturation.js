@@ -1,4 +1,5 @@
 const checkboxModule = require('./checkbox');
+const emailValidator = require('email-validator');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -77,7 +78,11 @@ async function manageFacturationEmail(checkbox, globalData) {
     const facturationList = facturationModule.fillCustomersList(globalData);
     const checkboxFound = facturationList.find((facturationList) => facturationList.customerId === customerId);
 
+    if (emailValidator.validate(checkboxFound.customerEmail)) {
     await checkboxModule.sendEmailFacturation(checkboxFound);
+    } else {
+    alert(`Le customer ${checkboxFound.customerFirstName} ${checkboxFound.customerLastName} numéro ${checkboxFound.customerId} n'a pas d'email de renseigné`);
+    }
 }
 
 module.exports = {
