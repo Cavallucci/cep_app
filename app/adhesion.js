@@ -33,6 +33,26 @@ function fillCustomersList(groupedData) {
 
     return customersWithoutTKAndAdSKU;
 }
+
+function displayCustomerDetails(customer) {
+    const container = document.getElementById('customerDetails');
+    container.innerHTML = '';
+
+    const customerDetails = document.createElement('div');
+    customerDetails.innerHTML = `
+        <h3>Informations de l'enfant</h3>
+        <p><strong>Prénom</strong>: ${customer.childFirstName}</p>
+        <p><strong>Nom</strong>: ${customer.childLastName}</p>
+        <p><strong>Identifiant</strong>: ${customer.childId}</p>
+        <p><strong>Parent</strong>: ${customer.customerFirstName} ${customer.customerLastName}</p>
+        <p><strong>Identifiant du parent</strong>: ${customer.customerId}</p>
+        <ul><strong>Cours</strong>:
+        ${customer.courses.map(courses => `<li>${courses}</li>`).join('')}
+        </ul>
+            `;
+    
+    container.appendChild(customerDetails);
+}
   
 function displayAdhesion(groupedData) {
     const container = document.getElementById('displayContainer');
@@ -50,8 +70,12 @@ function displayAdhesion(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `L'enfant ${t_customers[i].childId} n'a pas pris son adhésion pour les cours suivants : ${t_customers[i].courses}`;
+        label.textContent = `${t_customers[i].childFirstName} ${t_customers[i].childLastName}`;
         customerInfo.appendChild(label);
+
+        label.addEventListener('click', () => {
+            displayCustomerDetails(t_customers[i]);
+        });
 
         container.appendChild(customerInfo);
     }

@@ -154,9 +154,33 @@ function findMatchingEnrollments(customerWithDate) {
   return customersWithoutMatch;
 }  
 
+function displayCustomerDetails(customer) {
+    const container = document.getElementById('customerDetails');
+    container.innerHTML = '';
+  
+    const customerDetails = document.createElement('div');
+    customerDetails.innerHTML = `
+        <h3>Informations de l'enfant</h3>
+        <p><strong>Prénom</strong>: ${customer.childFirstName}</p>
+        <p><strong>Nom</strong>: ${customer.childLastName}</p>
+        <p><strong>Identifiant</strong>: ${customer.childId}</p>
+        <p><strong>Parent</strong>: ${customer.customerFirstName} ${customer.customerLastName}</p>
+        <p><strong>Identifiant du parent</strong>: ${customer.customerId}</p>
+        <p><strong>Date de stage</strong>: ${customer.dateStage}</p>
+        <ul><strong>Stages</strong>: 
+        ${customer.sta.map(sta => `<li>${sta}</li>`).join('')}
+        </ul>
+        <ul><strong>Cours à l'année</strong>:
+        ${customer.tk.map(tk => `<li>${tk}</li>`).join('')}
+        </ul>
+            `;
+    
+    container.appendChild(customerDetails);
+  }
+
 function displayStage(groupedData) {
     const container = document.getElementById('displayContainer');
-    container.innerHTML = ''; // Reset the content of the container
+    container.innerHTML = '';
 
     const t_customers = fillCustomersList(groupedData);
 
@@ -165,13 +189,17 @@ function displayStage(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `stage`; // Unique ID for each checkbox
+        checkbox.id = `stage`;
         checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `L'enfant ${t_customers[i].customerId} ${t_customers[i].childFirstName} ${t_customers[i].childLastName} a fait les stages suivants : ${t_customers[i].sta},  en date du : ${t_customers[i].dateStage} mais ne s'est pas inscrit à l'année : ${t_customers[i].tk}`;
+        label.textContent = `${t_customers[i].childFirstName} ${t_customers[i].childLastName}`;
         customerInfo.appendChild(label);
+
+        label.addEventListener('click', () => {
+            displayCustomerDetails(t_customers[i]);
+        });
 
         container.appendChild(customerInfo);
     }

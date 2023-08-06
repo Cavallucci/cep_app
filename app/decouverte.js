@@ -85,6 +85,29 @@ function findMatchingEnrollments(customersWithCD) {
   return customersWithoutMatch;
 }  
 
+function displayCustomerDetails(customer) {
+  const container = document.getElementById('customerDetails');
+  container.innerHTML = '';
+
+  const customerDetails = document.createElement('div');
+  customerDetails.innerHTML = `
+      <h3>Informations de l'enfant</h3>
+      <p><strong>Prénom</strong>: ${customer.childFirstName}</p>
+      <p><strong>Nom</strong>: ${customer.childLastName}</p>
+      <p><strong>Identifiant</strong>: ${customer.childId}</p>
+      <p><strong>Parent</strong>: ${customer.customerFirstName} ${customer.customerLastName}</p>
+      <p><strong>Identifiant du parent</strong>: ${customer.customerId}</p>
+      <ul><strong>Cours de découverte</strong>: 
+      ${customer.cd.map(cd => `<li>${cd}</li>`).join('')}
+      </ul>
+      <ul><strong>Cours à l'année</strong>:
+      ${customer.tk.map(tk => `<li>${tk}</li>`).join('')}
+      </ul>
+          `;
+  
+  container.appendChild(customerDetails);
+}
+
 function displayDecouverte(groupedData) {
     const container = document.getElementById('displayContainer');
     container.innerHTML = ''; // Reset the content of the container
@@ -101,8 +124,12 @@ function displayDecouverte(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `L'enfant ${t_customers[i].childFirstName} numéro ${t_customers[i].childId} a fait un cours de découverte : ${t_customers[i].cd}, mais ne s'est pas inscrit à l'année : ${t_customers[i].tk}`;
+        label.textContent = `${t_customers[i].childFirstName} ${t_customers[i].childLastName}`;
         customerInfo.appendChild(label);
+
+        label.addEventListener('click', () => {
+          displayCustomerDetails(t_customers[i]);
+      });
 
         container.appendChild(customerInfo);
     }

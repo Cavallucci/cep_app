@@ -24,6 +24,7 @@ function setupCheckboxListeners(t_customers) {
 async function sendEmailFacturation(customer) {
     const myHTML = fs.readFileSync("./app/emails/facturationEmail.html", "utf8");
     htmlWithCode = myHTML.replace("{{customerFirstName}}", customer.customerFirstName);
+    htmlWithCode = htmlWithCode.replace("{{totalPxVente}}", customer.totalPxVente);
 
     const mailOptions = {
       to: `${customer.customerEmail}`,
@@ -36,8 +37,10 @@ async function sendEmailFacturation(customer) {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+          return error;
         } else {
           console.log('E-mail envoyé avec succès:', info.response);
+          return info.response;
         }
       });
 }
@@ -63,10 +66,10 @@ async function sendEmailAdhesion(customerGroup) {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          alert('Erreur lors de l\'envoi de l\'e-mail :', error);
+          return error;
         } else {
           console.log('E-mail envoyé avec succès:', info.response);
-          alert('E-mail envoyé avec succès:', info.response);
+          return info.response;
         }
       });
 }
@@ -92,10 +95,10 @@ async function sendEmailDecouverte(customerGroup) {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          alert('Erreur lors de l\'envoi de l\'e-mail :', error);
+          return error;
         } else {
           console.log('E-mail envoyé avec succès:', info.response);
-          alert('E-mail envoyé avec succès:', info.response);
+          return info.response;
         }
       });
 }
@@ -121,10 +124,10 @@ async function sendEmailTest(customerGroup) {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          alert('Erreur lors de l\'envoi de l\'e-mail :', error);
+          return error;
         } else {
           console.log('E-mail envoyé avec succès:', info.response);
-          alert('E-mail envoyé avec succès:', info.response);
+          return info.response;
         }
       });
 }
@@ -150,10 +153,10 @@ async function sendEmailStage(customerGroup) {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          alert('Erreur lors de l\'envoi de l\'e-mail :', error);
+          return error;
         } else {
           console.log('E-mail envoyé avec succès:', info.response);
-          alert('E-mail envoyé avec succès:', info.response);
+          return info.response;
         }
       });
 }

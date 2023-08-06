@@ -28,10 +28,28 @@ function fillCustomersList(groupedData) {
     }
     return t_customers;
 }
+
+function displayCustomerDetails(customer) {
+    const customerDetailsContainer = document.getElementById('customerDetails');
+    customerDetailsContainer.innerHTML = '';
+
+    const customerDetails = document.createElement('div');
+    customerDetails.innerHTML = `
+        <h3>Informations du client</h3>
+        <p><strong>Nom complet</strong>: ${customer.customerFirstName} ${customer.customerLastName}</p>
+        <p><strong>Identifiant</strong>: ${customer.customerId}</p>
+        <p><strong>Total à payer</strong>: ${customer.totalPxVente}€</p>
+        <ul><strong>Cours</strong>:
+        ${customer.courses.map(courses => `<li>${courses}</li>`).join('')}
+        </ul>
+         `;
+
+    customerDetailsContainer.appendChild(customerDetails);
+}
   
 function displayFacturation(groupedData) {
     const container = document.getElementById('displayContainer');
-    container.innerHTML = ''; // Reset the content of the container
+    container.innerHTML = '';
 
     const t_customers = fillCustomersList(groupedData);
 
@@ -40,13 +58,17 @@ function displayFacturation(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `facturation`; // Unique ID for each checkbox
+        checkbox.id = `facturation`; 
         checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `Le customer ${t_customers[i].customerFirstName} ${t_customers[i].customerLastName} numéro ${t_customers[i].customerId} a un total de ${t_customers[i].totalPxVente}€ restant du pour les cours suivants : ${t_customers[i].courses}`;
+        label.textContent = `${t_customers[i].customerFirstName} ${t_customers[i].customerLastName}, ${t_customers[i].totalPxVente}€`;
         customerInfo.appendChild(label);
+
+        label.addEventListener('click', () => {
+            displayCustomerDetails(t_customers[i]);
+        });
 
         container.appendChild(customerInfo);
     }

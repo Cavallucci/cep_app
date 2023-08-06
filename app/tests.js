@@ -49,7 +49,7 @@ function fillCustomersList(groupedData) {
     const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
 
     const customerWithDate = t_customers.filter((customer) => {
-        const hasDate = customer.dateTest.some((date) => date && Math.floor((today - date) / oneDayInMilliseconds) >= 0 && Math.floor((today - date) / oneDayInMilliseconds) < 120);
+        const hasDate = customer.dateTest.some((date) => date && Math.floor((today - date) / oneDayInMilliseconds) >= 0 && Math.floor((today - date) / oneDayInMilliseconds) < 60);
         return hasDate;
     });
     
@@ -122,9 +122,32 @@ function findMatchingTK(customersWithtest) {
     return customersWithoutMatch;
 } 
 
+function displayCustomerDetails(customer) {
+  const container = document.getElementById('customerDetails');
+  container.innerHTML = '';
+
+  const customerDetails = document.createElement('div');
+  customerDetails.innerHTML = `
+      <h3>Informations de l'enfant</h3>
+      <p><strong>Prénom</strong>: ${customer.childFirstName}</p>
+      <p><strong>Nom</strong>: ${customer.childLastName}</p>
+      <p><strong>Identifiant</strong>: ${customer.childId}</p>
+      <p><strong>Parent</strong>: ${customer.customerFirstName} ${customer.customerLastName}</p>
+      <p><strong>Identifiant du parent</strong>: ${customer.customerId}</p>
+      <ul><strong>Cours de test</strong>: 
+      ${customer.tests.map(tests => `<li>${tests}</li>`).join('')}
+      </ul>
+      <ul><strong>Cours à l'année</strong>:
+      ${customer.tk.map(tk => `<li>${tk}</li>`).join('')}
+      </ul>
+          `;
+  
+  container.appendChild(customerDetails);
+}
+
 function displayTest(groupedData) {
     const container = document.getElementById('displayContainer');
-    container.innerHTML = ''; // Reset the content of the container
+    container.innerHTML = ''; 
 
     const t_customers = fillCustomersList(groupedData);
 
@@ -138,8 +161,12 @@ function displayTest(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `L'enfant ${t_customers[i].childId} ${t_customers[i].childFirstName} ${t_customers[i].childLastName} a fait les tests suivants : ${t_customers[i].tests}, mais ne s'est pas inscrit à l'année : ${t_customers[i].tk}`;
+        label.textContent = `${t_customers[i].childFirstName} ${t_customers[i].childLastName}`;
         customerInfo.appendChild(label);
+
+        label.addEventListener('click', () => {
+          displayCustomerDetails(t_customers[i]);
+      });
 
         container.appendChild(customerInfo);
     }

@@ -95,7 +95,6 @@ ipcRenderer.on('sortingError', (event, error) => {
   console.error(error);
 });
 
-// Écouter l'événement 'printSuccess'
 ipcRenderer.on('printSuccess', () => {
   alert('Impression de l\'Excel trié réussie !');
   console.log('Impression de l\'Excel trié réussie !');
@@ -124,28 +123,34 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
 
     if (userConfirmed) {
       document.getElementById('loadingMessage').style.display = 'block';
-      checkboxes.forEach(async (checkbox) => {
-        const attribute = checkbox.getAttribute('data-customer-id');
-        if (!alreadySent.includes(attribute)) {
-          if (checkbox.id === 'facturation') {
-            await facturationModule.manageFacturationEmail(checkbox, globalData);
+      try {
+        checkboxes.forEach(async (checkbox) => {
+          const attribute = checkbox.getAttribute('data-customer-id');
+          if (!alreadySent.includes(attribute)) {
+            if (checkbox.id === 'facturation') {
+              await facturationModule.manageFacturationEmail(checkbox, globalData);
+            }
+            if (checkbox.id === 'adhesion') {
+              await adhesionModule.manageAdhesionEmail(checkbox, globalData);
+            }
+            if (checkbox.id === 'decouverte') {
+              await decouverteModule.manageDecouverteEmail(checkbox, globalData);
+            }
+            if (checkbox.id === 'test') {
+              await testModule.manageTestEmail(checkbox, globalData);
+            }
+            if (checkbox.id === 'stage') {
+              await stageModule.manageStageEmail(checkbox, globalData);
+            }
+            alreadySent.push(attribute);
           }
-          if (checkbox.id === 'adhesion') {
-            await adhesionModule.manageAdhesionEmail(checkbox, globalData);
-          }
-          if (checkbox.id === 'decouverte') {
-            await decouverteModule.manageDecouverteEmail(checkbox, globalData);
-          }
-          if (checkbox.id === 'test') {
-            await testModule.manageTestEmail(checkbox, globalData);
-          }
-          if (checkbox.id === 'stage') {
-            await stageModule.manageStageEmail(checkbox, globalData);
-          }
-          alreadySent.push(attribute);
-        }
-      });
-      document.getElementById('loadingMessage').style.display = 'none';
+        });
+        document.getElementById('loadingMessage').style.display = 'none';
+        alert('Emails envoyés !');
+    } catch (error) {
+      alert(error);
+      console.error(error);
+    }
     }
   }
   else {
