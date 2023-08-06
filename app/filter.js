@@ -4,6 +4,13 @@ const fs = require('fs');
 const createWorkbook = (worksheet, filteredRows) => {
     worksheet.eachRow((row) => {
       const rowData = row.values;
+
+      for (let i = 0; i < rowData.length; i++) {
+        if (rowData[i]) {
+          rowData[i] = rowData[i].replace(/"/g, '');
+        }
+      }
+
       const statusValue = rowData[1];
       const customerId = rowData[4];
       const amountValue = rowData[9];
