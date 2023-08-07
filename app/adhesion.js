@@ -91,7 +91,7 @@ async function fillAdhesionWorksheet(worksheet, data, sortedData) {
     sortedData.forEach((rowData) => {
       let existingCustomer = data.find((data) => data.childId === rowData[18]);
   
-      if (existingCustomer) {
+      if (existingCustomer && rowData[7].startsWith('TK')) {
         worksheet.addRow(rowData);
       }
     });

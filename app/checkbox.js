@@ -1,10 +1,12 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-      user: 'laura.cllucci@gmail.com',
-      pass: 'ftyutjwvrdrdawlz',
+      user: config.SMTP_USERNAME,
+      pass: config.SMTP_PASSWORD,
     },
 });
 
@@ -22,7 +24,7 @@ function setupCheckboxListeners(t_customers) {
 }
 
 async function sendEmailFacturation(customer) {
-    const myHTML = fs.readFileSync("./app/emails/facturationEmail.html", "utf8");
+  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/facturationEmail.html'), 'utf8');
     htmlWithCode = myHTML.replace("{{customerFirstName}}", customer.customerFirstName);
     htmlWithCode = htmlWithCode.replace("{{totalPxVente}}", customer.totalPxVente);
 
@@ -49,8 +51,8 @@ async function sendEmailAdhesion(customerGroup) {
   const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
   const childFirstNames = customerGroup.map(child => child.childFirstName);
   const childLastNames = customerGroup.map(child => child.childLastName);
+  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/adhesionEmail.html'), 'utf8');
 
-    const myHTML = fs.readFileSync("./app/emails/adhesionEmail.html", "utf8");
     let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
     htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
     htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
@@ -78,8 +80,8 @@ async function sendEmailDecouverte(customerGroup) {
   const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
   const childFirstNames = customerGroup.map(child => child.childFirstName);
   const childLastNames = customerGroup.map(child => child.childLastName);
+  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/decouverteEmail.html'), 'utf8');
 
-    const myHTML = fs.readFileSync("./app/emails/decouverteEmail.html", "utf8");
     let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
     htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
     htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
@@ -107,8 +109,8 @@ async function sendEmailTest(customerGroup) {
   const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
   const childFirstNames = customerGroup.map(child => child.childFirstName);
   const childLastNames = customerGroup.map(child => child.childLastName);
+  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/testEmail.html'), 'utf8');
 
-    const myHTML = fs.readFileSync("./app/emails/testEmail.html", "utf8");
     let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
     htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
     htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
@@ -136,8 +138,8 @@ async function sendEmailStage(customerGroup) {
   const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
   const childFirstNames = customerGroup.map(child => child.childFirstName);
   const childLastNames = customerGroup.map(child => child.childLastName);
+  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/stageEmail.html'), 'utf8');
 
-    const myHTML = fs.readFileSync("./app/emails/stageEmail.html", "utf8");
     let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
     htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
     htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);

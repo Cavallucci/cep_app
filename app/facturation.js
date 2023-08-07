@@ -101,9 +101,9 @@ async function manageFacturationEmail(checkbox, globalData) {
     const checkboxFound = facturationList.find((facturationList) => facturationList.customerId === customerId);
 
     if (emailValidator.validate(checkboxFound.customerEmail)) {
-    await checkboxModule.sendEmailFacturation(checkboxFound);
+        await checkboxModule.sendEmailFacturation(checkboxFound);
     } else {
-    alert(`Le customer ${checkboxFound.customerFirstName} ${checkboxFound.customerLastName} numéro ${checkboxFound.customerId} n'a pas d'email de renseigné`);
+        alert(`Le customer ${checkboxFound.customerFirstName} ${checkboxFound.customerLastName} numéro ${checkboxFound.customerId} n'a pas d'email de renseigné`);
     }
 }
 

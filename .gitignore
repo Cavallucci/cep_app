@@ -45,6 +45,7 @@ coverage
 # API keys and secrets
 *.env
 !*example*.env
+config.json
 
 # OS metadata
 .DS_Store
