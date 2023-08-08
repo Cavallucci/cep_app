@@ -16,6 +16,11 @@ function fillCustomersList(groupedData) {
                 existingCustomer.tk.push(customerData[8]);
                 existingCustomer.tkCode.push(customerData[7]);
             }
+            else if (customerData[7] && customerData[7].startsWith('CARNET')) {
+                customerData[7] = customerData[7].replace('CARNET_', '');
+                existingCustomer.carnets.push(customerData[7]);
+                existingCustomer.tk.push(customerData[8]);
+            }
             existingCustomer.courses.push(customerData[8]);
             existingCustomer.sku.push(customerData[7]);
             existingCustomer.dateTest.push(customerData[36]);
@@ -30,6 +35,7 @@ function fillCustomersList(groupedData) {
                 customerEmail: customerData[27],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
+                carnets: [],
                 tests: [],
                 tk: [],
                 tkCode: [],
@@ -41,6 +47,11 @@ function fillCustomersList(groupedData) {
             else if (customerData[7] && customerData[7].startsWith('TK')) {
                 newCustomer.tk.push(customerData[8]);
                 newCustomer.tkCode.push(customerData[7]);
+            }
+            else if (customerData[7] && customerData[7].startsWith('CARNET')) {
+                customerData[7] = customerData[7].replace('CARNET_', '');
+                newCustomer.carnets.push(customerData[7]);
+                newCustomer.tk.push(customerData[8]);
             }
             t_customers.push(newCustomer);
         }
@@ -111,8 +122,12 @@ function findMatchingTK(customersWithtest) {
         const wordAfterTest = testWords[1];
   
         if (customer.tkCode.some((tkCourse) => tkCourse.includes(wordAfterTest))) {
-            matchedTK = true;
-            break;
+          matchedTK = true;
+          break;
+        }
+        if (customer.carnets.some((carnetCourse) => carnetCourse.includes(wordAfterTest))) {
+          matchedTK = true;
+          break;
         }
       }
       if (!matchedTK) {
@@ -138,7 +153,7 @@ function displayCustomerDetails(customer) {
       ${customer.tests.map(tests => `<li>${tests}</li>`).join('')}
       </ul>
       <ul><strong>Cours à l'année</strong>:
-      ${customer.tk.map(tk => `<li>${tk}</li>`).join('')}
+      ${customer.courses.map(courses => `<li>${courses}</li>`).join('')}
       </ul>
           `;
   

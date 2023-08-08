@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+const config = require('../config.json');
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
