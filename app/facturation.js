@@ -10,19 +10,24 @@ function fillCustomersList(groupedData) {
 
         if (existingCustomer) {
             existingCustomer.courses.push(customerData[8]);
-            existingCustomer.totalRestantDu += customerData[3];
             existingCustomer.totalPxVente += customerData[23];
+
+            if (existingCustomer.nborder.some((nborder) => nborder !== customerData[2])) {
+                existingCustomer.nborder.push(customerData[2]);
+                existingCustomer.totalRestantDu += customerData[3];
+            }
         } else {
             const newCustomer = {
                 customerId: customerData[4],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
+                nborder: [customerData[2]],
                 totalRestantDu: customerData[3],
                 courses: [customerData[8]],
                 totalPxVente: customerData[23],
                 customerEmail: customerData[27],
             };
-        if (newCustomer.totalRestantDu > 0 && newCustomer.totalPxVente > 0)
+        if (newCustomer.totalRestantDu > 0)
             t_customers.push(newCustomer);
         }
     }
@@ -38,7 +43,8 @@ function displayCustomerDetails(customer) {
         <h3>Informations du client</h3>
         <p><strong>Nom complet</strong>: ${customer.customerFirstName} ${customer.customerLastName}</p>
         <p><strong>Identifiant</strong>: ${customer.customerId}</p>
-        <p><strong>Total à payer</strong>: ${customer.totalPxVente}€</p>
+        <p><strong>Reste à payer</strong>: ${customer.totalRestantDu}€</p>
+        <p><strong>Total</strong>: ${customer.totalPxVente}€</p>
         <ul><strong>Cours</strong>:
         ${customer.courses.map(courses => `<li>${courses}</li>`).join('')}
         </ul>
@@ -63,7 +69,7 @@ function displayFacturation(groupedData) {
         customerInfo.appendChild(checkbox);
 
         const label = document.createElement('label');
-        label.textContent = `${t_customers[i].customerFirstName} ${t_customers[i].customerLastName}, ${t_customers[i].totalPxVente}€`;
+        label.textContent = `${t_customers[i].customerFirstName} ${t_customers[i].customerLastName}, ${t_customers[i].totalRestantDu}€`;
         customerInfo.appendChild(label);
 
         label.addEventListener('click', () => {
@@ -84,9 +90,9 @@ async function fillFacturationWorksheet(worksheet, data, sortedData) {
     sortedData.forEach((rowData) => {
       let existingCustomer = data.find((data) => data.customerId === rowData[4]);
   
-      if (existingCustomer  && rowData[3] > 0 && rowData[23] > 0) {
+      if (existingCustomer  && rowData[3] > 0) {
         row = worksheet.addRow(rowData);
-        row.getCell(23).fill = {
+        row.getCell(3).fill = {
             type: 'pattern',
             pattern: 'solid',
             fgColor: { argb: 'FFFFFF00' }
