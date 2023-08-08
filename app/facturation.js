@@ -9,26 +9,36 @@ function fillCustomersList(groupedData) {
         let existingCustomer = t_customers.find((t_customer) => t_customer.customerId === customerData[4]);
 
         if (existingCustomer) {
-            existingCustomer.courses.push(customerData[8]);
+            if (!existingCustomer.childCourses.has(customerData[19])) {
+                existingCustomer.childCourses.set(customerData[19], []);
+            }
+            existingCustomer.childCourses.get(customerData[19]).push(customerData[8]);
+                        
             existingCustomer.totalPxVente += customerData[23];
 
             if (existingCustomer.nborder.some((nborder) => nborder !== customerData[2])) {
                 existingCustomer.nborder.push(customerData[2]);
                 existingCustomer.totalRestantDu += customerData[3];
             }
+            if (existingCustomer.childsFirstName.some((childsFirstName) => childsFirstName !== customerData[19])) {
+                existingCustomer.childsFirstName.push(customerData[19]);
+            }
         } else {
             const newCustomer = {
                 customerId: customerData[4],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
+                childsFirstName: [customerData[19]],
                 nborder: [customerData[2]],
                 totalRestantDu: customerData[3],
-                courses: [customerData[8]],
+                childCourses: new Map([[customerData[19], [customerData[8]]]]),
                 totalPxVente: customerData[23],
                 customerEmail: customerData[27],
             };
-        if (newCustomer.totalRestantDu > 0)
-            t_customers.push(newCustomer);
+            
+            if (newCustomer.totalRestantDu > 0 && newCustomer.totalPxVente > 0) {
+                t_customers.push(newCustomer);
+            }
         }
     }
     return t_customers;
@@ -46,7 +56,10 @@ function displayCustomerDetails(customer) {
         <p><strong>Reste à payer</strong>: ${customer.totalRestantDu}€</p>
         <p><strong>Total</strong>: ${customer.totalPxVente}€</p>
         <ul><strong>Cours</strong>:
-        ${customer.courses.map(courses => `<li>${courses}</li>`).join('')}
+        ${Array.from(customer.childCourses.keys()).map(childFirstName => {
+            const course = customer.childCourses.get(childFirstName);
+            return `<li>${childFirstName}: ${course}</li>`;
+        }).join('')}
         </ul>
          `;
 

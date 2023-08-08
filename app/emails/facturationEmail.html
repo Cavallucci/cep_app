@@ -2,11 +2,22 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Club des Enfants Parisiens: Facturation</title>
+    <title>Solde restant dû et lien de paiement</title>
 </head>
 <body>
-    <h1>Facturation</h1>
-    <p>Bonjour <strong> {{customerFirstName}} </strong></p>
-    <p>Vous devez rembourser: <strong>{{totalPxVente}}</strong></p>
+    <p> Cher Parent,<br>
+        Vous avez inscrit {{votre/vos}} aux activités proposées par le Club des Enfants Parisiens, et nous
+        vous en remercions.<br>
+        Pour rappel, le montant total de vos réservations s’élève à : <strong>{{totalPxVente}}</strong> euros.<br>
+        <br>
+        Sur ce total, il reste un solde dû de <strong>{{totalRestantDu}}</strong>€ lié aux activités ci-dessous :<br>
+        <strong>{{childCourses}}</strong>
+
+        Afin de régulariser votre inscription au Club des Enfants Parisiens, nous vous serions reconnaissants
+        d’effectuer un virement équivalent au solde dû via le bouton joint, muni de votre IBAN (mandat SEPA
+        unitaire).
+        Avec tous nos remerciements
+        L’Equipe du Club
+    </p>
 </body>
 </html>

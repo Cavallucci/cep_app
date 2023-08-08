@@ -26,13 +26,25 @@ function setupCheckboxListeners(t_customers) {
 
 async function sendEmailFacturation(customer) {
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/facturationEmail.html'), 'utf8');
-    htmlWithCode = myHTML.replace("{{customerFirstName}}", customer.customerFirstName);
-    htmlWithCode = htmlWithCode.replace("{{totalPxVente}}", customer.totalPxVente);
+    htmlWithCode = myHTML.replace("{{totalPxVente}}", customer.totalPxVente);
+    htmlWithCode = htmlWithCode.replace("{{totalRestantDu}}", customer.totalRestantDu);
 
+    const list = Array.from(customer.childCourses.keys()).map(childFirstName => {
+      const course = customer.childCourses.get(childFirstName);
+      return `<li>${childFirstName}: ${course}</li>`;
+  }).join('');
+
+    htmlWithCode = htmlWithCode.replace("{{childCourses}}", list);
+    if (customer.childsFirstName.length > 1) {
+      htmlWithCode = htmlWithCode.replace("{{votre/vos}}", "vos enfants");
+    }
+    else {
+      htmlWithCode = htmlWithCode.replace("{{votre/vos}}", "votre enfant");
+    }
     const mailOptions = {
       to: `${customer.customerEmail}`,
       from: "laura.cllucci@gmail.com",
-      subject: "Club des Enfants Parisiens: Facturation",
+      subject: "Solde restant dû et lien de paiement",
       text: "Facturation",
       html: htmlWithCode,
     };

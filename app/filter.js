@@ -13,7 +13,7 @@ const createWorkbook = (worksheet, filteredRows) => {
       const pxVente = rowData[23];
       
       //rowData[27] = 'nathalie@clubdesenfantsparisiens.com';
-      rowData[27] = 'test.cep.application@laposte.net';
+      rowData[27] = 'laura.cllucci@gmail.com';
 
       if (typeof restDueValue === 'string'){
         const formattedRestDue = parseFloat(restDueValue);
