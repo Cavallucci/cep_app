@@ -133,7 +133,7 @@ function displayDecouverte(groupedData) {
 
         container.appendChild(customerInfo);
     }
-    checkboxModule.setupCheckboxListeners(t_customers);
+    //checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillDécouverteWorksheet(worksheet, data, sortedData) {

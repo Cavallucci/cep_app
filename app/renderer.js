@@ -5,6 +5,7 @@ const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
 const testModule = require('./tests');
 const checkboxModule = require('./checkbox');
+const filterModule = require('./filter');
 
 document.getElementById('fileInput').addEventListener('change', () => {
   const fileInput = document.getElementById('fileInput');
@@ -114,46 +115,42 @@ document.getElementById('selectAllCheckbox').addEventListener('change', () => {
 });
 
 document.getElementById('sendEmailButton').addEventListener('click', async () => {
-  const checkboxes = document.querySelectorAll('[type="checkbox"]:checked');
+  const checkboxesID = document.querySelectorAll('[type="checkbox"]:checked');
 
-  if (checkboxes.length > 0) {
+  if (checkboxesID.length > 0) {
+    const checkboxes = filterModule.removeDoublons(checkboxesID);
     const globalData = await ipcRenderer.invoke('get-sorted-data');
     const userConfirmed = confirm('Envoyer Email ?');
-    const alreadySent = [];
 
     if (userConfirmed) {
-      document.getElementById('loadingMessage').style.display = 'block';
-      try {
-        checkboxes.forEach(async (checkbox) => {
-          const attribute = checkbox.getAttribute('data-customer-id');
-          if (!alreadySent.includes(attribute)) {
-            if (checkbox.id === 'facturation') {
-              await facturationModule.manageFacturationEmail(checkbox, globalData);
-            }
-            if (checkbox.id === 'adhesion') {
-              await adhesionModule.manageAdhesionEmail(checkbox, globalData);
-            }
-            if (checkbox.id === 'decouverte') {
-              await decouverteModule.manageDecouverteEmail(checkbox, globalData);
-            }
-            if (checkbox.id === 'test') {
-              await testModule.manageTestEmail(checkbox, globalData);
-            }
-            if (checkbox.id === 'stage') {
-              await stageModule.manageStageEmail(checkbox, globalData);
-            }
-            alreadySent.push(attribute);
-          }
-        });
-        document.getElementById('loadingMessage').style.display = 'none';
-        alert('Emails envoyés !');
-    } catch (error) {
-      alert(error);
-      console.error(error);
+        document.getElementById('loadingMessage').style.display = 'block';
+        try {
+            const emailPromises = checkboxes.map(async (checkbox) => {
+                    if (checkbox.id === 'facturation') {
+                        await facturationModule.manageFacturationEmail(checkbox, globalData);
+                    }
+                    if (checkbox.id === 'adhesion') {
+                        await adhesionModule.manageAdhesionEmail(checkbox, globalData);
+                    }
+                    if (checkbox.id === 'decouverte') {
+                        await decouverteModule.manageDecouverteEmail(checkbox, globalData);
+                    }
+                    if (checkbox.id === 'test') {
+                        await testModule.manageTestEmail(checkbox, globalData);
+                    }
+                    if (checkbox.id === 'stage') {
+                        await stageModule.manageStageEmail(checkbox, globalData);
+                    }
+            });
+            await Promise.all(emailPromises);
+            document.getElementById('loadingMessage').style.display = 'none';
+            alert('Emails envoyés !');
+        } catch (error) {
+            alert(error);
+            console.error(error);
+        }
     }
-    }
-  }
-  else {
-    alert('Aucun client sélectionné');
+  } else {
+      alert('Aucun client sélectionné');
   }
 });

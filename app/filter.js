@@ -13,6 +13,7 @@ const createWorkbook = (worksheet, filteredRows) => {
       const pxVente = rowData[23];
       
       //rowData[27] = 'nathalie@clubdesenfantsparisiens.com';
+      //rowData[27] = 'test.cep.application@laposte.net';
       rowData[27] = 'laura.cllucci@gmail.com';
 
       if (typeof restDueValue === 'string'){
@@ -80,7 +81,21 @@ async function convertCSVtoXLSX(filePath) {
     return buffer;
   }
 
+  function removeDoublons(checkboxes) {
+    const uniqueCheckboxes = new Map();
+  
+    checkboxes.forEach(checkbox => {
+      const customerId = checkbox.getAttribute('data-customer-id');
+      if (!uniqueCheckboxes.has(customerId)) {
+        uniqueCheckboxes.set(customerId, checkbox);
+      }
+    });
+  
+    return Array.from(uniqueCheckboxes.values());
+  }
+
   module.exports = {
     createWorkbook,
-    convertCSVtoXLSX
+    convertCSVtoXLSX,
+    removeDoublons
   };

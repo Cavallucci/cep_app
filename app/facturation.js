@@ -57,8 +57,9 @@ function displayCustomerDetails(customer) {
         <p><strong>Total</strong>: ${customer.totalPxVente}€</p>
         <ul><strong>Cours</strong>:
         ${Array.from(customer.childCourses.keys()).map(childFirstName => {
-            const course = customer.childCourses.get(childFirstName);
-            return `<li>${childFirstName}: ${course}</li>`;
+            const courses = customer.childCourses.get(childFirstName);
+            const coursesList = courses.map(course => `<ul>${course}</ul>`).join('');
+            return `<li>${childFirstName}:<br> ${coursesList}</li>`;
         }).join('')}
         </ul>
          `;
@@ -91,7 +92,7 @@ function displayFacturation(groupedData) {
 
         container.appendChild(customerInfo);
     }
-    checkboxModule.setupCheckboxListeners(t_customers);
+   // checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillFacturationWorksheet(worksheet, data, sortedData) {

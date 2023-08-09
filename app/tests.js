@@ -171,7 +171,7 @@ function displayTest(groupedData) {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `test`; // Unique ID for each checkbox
+        checkbox.id = `test`;
         checkbox.setAttribute('data-customer-id', t_customers[i].customerId);
         customerInfo.appendChild(checkbox);
 
@@ -185,7 +185,7 @@ function displayTest(groupedData) {
 
         container.appendChild(customerInfo);
     }
-    checkboxModule.setupCheckboxListeners(t_customers);
+    //checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillTestWorksheet(worksheet, data, sortedData) {
@@ -234,6 +234,7 @@ async function manageTestEmail(checkbox, globalData) {
       }
   }
   if (emailValidator.validate(groupEmail[0].customerEmail)) {
+    console.log("groupEmail", groupEmail);
     await checkboxModule.sendEmailTest(groupEmail);
   } else {
     alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);

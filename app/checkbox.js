@@ -30,20 +30,23 @@ async function sendEmailFacturation(customer) {
     htmlWithCode = htmlWithCode.replace("{{totalRestantDu}}", customer.totalRestantDu);
 
     const list = Array.from(customer.childCourses.keys()).map(childFirstName => {
-      const course = customer.childCourses.get(childFirstName);
-      return `<li>${childFirstName}: ${course}</li>`;
+      const courses = customer.childCourses.get(childFirstName);
+      const coursesList = courses.map(course => `<ul>${course}</ul>`).join('');
+      return `<li>${childFirstName}:<br> ${coursesList}</li>`;
   }).join('');
 
     htmlWithCode = htmlWithCode.replace("{{childCourses}}", list);
     if (customer.childsFirstName.length > 1) {
       htmlWithCode = htmlWithCode.replace("{{votre/vos}}", "vos enfants");
+      htmlWithCode = htmlWithCode.replace("{{votre/vos}}", "vos enfants");
     }
     else {
+      htmlWithCode = htmlWithCode.replace("{{votre/vos}}", "votre enfant");
       htmlWithCode = htmlWithCode.replace("{{votre/vos}}", "votre enfant");
     }
     const mailOptions = {
       to: `${customer.customerEmail}`,
-      from: "laura.cllucci@gmail.com",
+      from: "CEP: Solde facturation <laura.cllucci@gmail.com>",
       subject: "Solde restant dû et lien de paiement",
       text: "Facturation",
       html: htmlWithCode,
@@ -63,30 +66,33 @@ async function sendEmailFacturation(customer) {
 async function sendEmailAdhesion(customerGroup) {
   const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
   const childFirstNames = customerGroup.map(child => child.childFirstName);
-  const childLastNames = customerGroup.map(child => child.childLastName);
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/adhesionEmail.html'), 'utf8');
 
-    let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
-    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
-    htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
+  let htmlWithCode = myHTML.replace("{{childFirstNames}}", childFirstNames);
+  htmlWithCode = htmlWithCode.replace("{{childFirstNames}}", childFirstNames);
+  if (childFirstNames.length > 1) {
+    htmlWithCode = htmlWithCode.replace("{{les/l'}}", "les ");
+  }
+  else {
+    htmlWithCode = htmlWithCode.replace("{{les/l'}}", "l'");
+  }
+  const mailOptions = {
+    to: `${customerEmail}`,
+    from: "CEP: Adhésion Manquante <laura.cllucci@gmail.com>",
+    subject: "Votre inscription aux activités annuelles du Club : adhésion annuelle manquante !",
+    text: "Adhésion",
+    html: htmlWithCode,
+  };
 
-    const mailOptions = {
-      to: `${customerEmail}`,
-      from: "laura.cllucci@gmail.com",
-      subject: "Club des Enfants Parisiens: Adhesion",
-      text: "Adhésion",
-      html: htmlWithCode,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          return error;
-        } else {
-          console.log('E-mail envoyé avec succès:', info.response);
-          return info.response;
-        }
-      });
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+        return error;
+      } else {
+        console.log('E-mail envoyé avec succès:', info.response);
+        return info.response;
+      }
+    });
 }
 
 async function sendEmailDecouverte(customerGroup) {
@@ -107,44 +113,62 @@ async function sendEmailDecouverte(customerGroup) {
       html: htmlWithCode,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          return error;
-        } else {
-          console.log('E-mail envoyé avec succès:', info.response);
-          return info.response;
-        }
-      });
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log('E-mail envoyé avec succès:', info.response);
+      return info.response;
+    } catch (error) {
+      console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+      throw error; 
+  }
 }
 
 async function sendEmailTest(customerGroup) {
-  const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
-  const childFirstNames = customerGroup.map(child => child.childFirstName);
-  const childLastNames = customerGroup.map(child => child.childLastName);
+  const { customerEmail } = customerGroup[0];
+  
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/testEmail.html'), 'utf8');
+  
+  if (customerGroup.length > 1) {
+    let htmlWithCode = myHTML.replace("{{vos/votre}}", "vos enfants ont");
+    htmlWithCode = htmlWithCode.replace("{{lui/leur}}", "leur");
+    htmlWithCode = htmlWithCode.replace("{{l’/les}}", "les ");
+  }
+  else {
+    let htmlWithCode = myHTML.replace("{{vos/votre}}", "votre enfant a");
+    htmlWithCode = htmlWithCode.replace("{{lui/leur}}", "lui");
+    htmlWithCode = htmlWithCode.replace("{{l’/les}}", "l'");
+  }
 
-    let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
-    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
-    htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
+  const childCoursesMap = new Map();
+  customerGroup.forEach(child => {
+      childCoursesMap.set(child.childFirstName, child.tests);
+  });
 
-    const mailOptions = {
-      to: `${customerEmail}`,
-      from: "laura.cllucci@gmail.com",
-      subject: "Club des Enfants Parisiens: Cours de test",
-      text: "Cours de test",
-      html: htmlWithCode,
-    };
+  const list = Array.from(childCoursesMap.keys()).map(childFirstName => {
+    const courses = childCoursesMap.get(childFirstName);
+    const coursesList = courses.map(course => `<ul>${course}</ul>`).join('');
+    return `<li>${childFirstName}:<br> ${coursesList}</li>`;
+}).join('');
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          return error;
-        } else {
-          console.log('E-mail envoyé avec succès:', info.response);
-          return info.response;
-        }
-      });
+  htmlWithCode = htmlWithCode.replace("{{childFirstName}}", list);
+
+  const mailOptions = {
+    to: `${customerEmail}`,
+    from: "CEP: Cours d'essai <laura.cllucci@gmail.com>",
+    subject: "Après votre cours d’essai, vous inscrire aux cours annuels 23/24?",
+    text: "Cours de test",
+    html: htmlWithCode,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+        return error;
+      } else {
+        console.log('E-mail envoyé avec succès:', info.response);
+        return info.response;
+      }
+    });
 }
 
 async function sendEmailStage(customerGroup) {
@@ -153,27 +177,27 @@ async function sendEmailStage(customerGroup) {
   const childLastNames = customerGroup.map(child => child.childLastName);
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/stageEmail.html'), 'utf8');
 
-    let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
-    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
-    htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
+  let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
+  htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
+  htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
 
-    const mailOptions = {
-      to: `${customerEmail}`,
-      from: "laura.cllucci@gmail.com",
-      subject: "Club des Enfants Parisiens: Stages",
-      text: "Stages",
-      html: htmlWithCode,
-    };
+  const mailOptions = {
+    to: `${customerEmail}`,
+    from: "laura.cllucci@gmail.com",
+    subject: "Club des Enfants Parisiens: Stages",
+    text: "Stages",
+    html: htmlWithCode,
+  };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          return error;
-        } else {
-          console.log('E-mail envoyé avec succès:', info.response);
-          return info.response;
-        }
-      });
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+        return error;
+      } else {
+        console.log('E-mail envoyé avec succès:', info.response);
+        return info.response;
+      }
+    });
 }
 
 module.exports = {

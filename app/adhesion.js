@@ -79,7 +79,7 @@ function displayAdhesion(groupedData) {
 
         container.appendChild(customerInfo);
     }
-    checkboxModule.setupCheckboxListeners(t_customers);
+    //checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillAdhesionWorksheet(worksheet, data, sortedData) {
