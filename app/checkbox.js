@@ -96,14 +96,21 @@ async function sendEmailAdhesion(customerGroup) {
 }
 
 async function sendEmailDecouverte(customerGroup) {
-  const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
-  const childFirstNames = customerGroup.map(child => child.childFirstName);
-  const childLastNames = customerGroup.map(child => child.childLastName);
+  const customerEmail = customerGroup[0];
+  const childsFirstNames = customerGroup.map(child => child.childFirstName);
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/decouverteEmail.html'), 'utf8');
 
-    let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
-    htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
-    htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
+    let htmlWithCode = myHTML.replace("{{childsFirstNames}}", childsFirstNames);
+    htmlWithCode = htmlWithCode.replace("{{mois}}", );
+
+    if (childsFirstNames.length > 1) {
+      htmlWithCode = htmlWithCode.replace("{{vos/votre}}", "vos enfants");
+      htmlWithCode = htmlWithCode.replace("{{a/ont}}", "ont");
+    }
+    else {
+      htmlWithCode = htmlWithCode.replace("{{vos/votre}}", "votre enfant");
+      htmlWithCode = htmlWithCode.replace("{{a/ont}}", "a");
+    }
 
     const mailOptions = {
       to: `${customerEmail}`,

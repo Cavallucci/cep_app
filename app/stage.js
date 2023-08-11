@@ -87,10 +87,10 @@ function findMatchingDate(customersWithSTA) {
 
 function replaceDateStage(date) {
 
-    let dateSTA = date.split('_'); //TOUSS22
-    let yearSTA = dateSTA[1].slice(-2); //22
-    let completeYearSTA = `20${yearSTA}`; //2022
-    let monthSTA = dateSTA[1].slice(0, -2); //TOUSS
+    let dateSTA = date.split('_');
+    let yearSTA = dateSTA[1].slice(-2); 
+    let completeYearSTA = `20${yearSTA}`;
+    let monthSTA = dateSTA[1].slice(0, -2);
     let daySTA = '01';
 
     if (monthSTA == "TOUSS") {

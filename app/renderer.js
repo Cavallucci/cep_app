@@ -129,16 +129,16 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
                     if (checkbox.id === 'facturation') {
                         await facturationModule.manageFacturationEmail(checkbox, globalData);
                     }
-                    if (checkbox.id === 'adhesion') {
+                    else if (checkbox.id === 'adhesion') {
                         await adhesionModule.manageAdhesionEmail(checkbox, globalData);
                     }
-                    if (checkbox.id === 'decouverte') {
+                    else if (checkbox.id === 'decouverte') {
                         await decouverteModule.manageDecouverteEmail(checkbox, globalData);
                     }
-                    if (checkbox.id === 'test') {
+                    else if (checkbox.id === 'test') {
                         await testModule.manageTestEmail(checkbox, globalData);
                     }
-                    if (checkbox.id === 'stage') {
+                    else if (checkbox.id === 'stage') {
                         await stageModule.manageStageEmail(checkbox, globalData);
                     }
             });

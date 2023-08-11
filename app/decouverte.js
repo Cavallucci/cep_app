@@ -11,6 +11,7 @@ function fillCustomersList(groupedData) {
         if (existingCustomer) {
             if (customerData[7] && customerData[7].startsWith('CD')) {
                 existingCustomer.cd.push(customerData[8]);
+                existingCustomer.month.push(customerData[7]);
             }
             else if (customerData[7] && customerData[7].startsWith('TK')) {
                 existingCustomer.tk.push(customerData[8]);
@@ -28,11 +29,13 @@ function fillCustomersList(groupedData) {
                 customerEmail: customerData[27],
                 courses: [customerData[8]],
                 sku: [customerData[7]],
+                month: [],
                 cd: [],
                 tk: [],
             };
             if (customerData[7] && customerData[7].startsWith('CD')) {
                 newCustomer.cd.push(customerData[8]);
+                newCustomer.month.push(customerData[7]);
             }
             else if (customerData[7] && customerData[7].startsWith('TK')) {
                 newCustomer.tk.push(customerData[8]);
@@ -45,13 +48,92 @@ function fillCustomersList(groupedData) {
         return hasCDDSKU;
     });
 
-    const customerWithMatch = findMatchingEnrollments(customerWithCD);
+    const customerWithMonth = findMatchingMonth(customerWithCD);
+
+    const customerWithMatch = findMatchingEnrollments(customerWithMonth);
 
     return customerWithMatch;
 }
 
 function removeDiacritics(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function findMatchingMonth(customerWithCD) {
+  const customersWithoutMatch = [];
+  const customerWithMonth = [];
+  let mostRecentDate = new Date(0);
+  let today = new Date();
+
+  for (const customer of customerWithCD) {
+      for (const month of customer.month) {
+        completeMonthCD = replaceMonthCD(month);
+        customer.month = completeMonthCD;
+        if (completeMonthCD > mostRecentDate && completeMonthCD < today) {
+          mostRecentDate = completeMonthCD;
+        }
+      }
+      customersWithoutMatch.push(customer);
+  }
+  for (const customer of customersWithoutMatch) {
+    const customerDate = new Date(customer.month);
+    customerDate.setHours(0, 0, 0, 0);
+
+    const recentDate = new Date(mostRecentDate);
+    recentDate.setHours(0, 0, 0, 0);
+
+    if (customerDate.getTime() === recentDate.getTime()) {
+      customerWithMonth.push(customer);
+    }
+  }
+  return customerWithMonth;
+}
+
+function replaceMonthCD(month) {
+  let monthCD;
+  const monthLower = month.toLowerCase();
+  let year = month.slice(-4);
+  let day = '01';
+
+  if (monthLower.includes('janv')) {
+    monthCD = "01";
+  }
+  else if (monthLower.includes('fev')) {
+    monthCD = "02";
+  }
+  else if (monthLower.includes('mars')) {
+    monthCD = "03";
+  }
+  else if (monthLower.includes('avr')) {
+    monthCD = "04";
+  }
+  else if (monthLower.includes('mai')) {
+    monthCD = "05";
+  }
+  else if (monthLower.includes('juin')) {
+    monthCD = "06";
+  }
+  else if (monthLower.includes('juil')) {
+    monthCD = "07";
+  }
+  else if (monthLower.includes('aout')) {
+    monthCD = "08";
+  }
+  else if (monthLower.includes('sept')) {
+    monthCD = "09";
+  }
+  else if (monthLower.includes('oct')) {
+    monthCD = "10";
+  }
+  else if (monthLower.includes('nov')) {
+    monthCD = "11";
+  }
+  else if (monthLower.includes('dec')) {
+    monthCD = "12";
+  }
+
+  const completeDateCD = new Date(`${year}-${monthCD}-${day}`);
+  return completeDateCD;
 }
   
 function findMatchingEnrollments(customersWithCD) {
@@ -97,6 +179,7 @@ function displayCustomerDetails(customer) {
       <p><strong>Identifiant</strong>: ${customer.childId}</p>
       <p><strong>Parent</strong>: ${customer.customerFirstName} ${customer.customerLastName}</p>
       <p><strong>Identifiant du parent</strong>: ${customer.customerId}</p>
+      <p><strong>Dade de découverte</strong>: ${customer.month}</p>
       <ul><strong>Cours de découverte</strong>: 
       ${customer.cd.map(cd => `<li>${cd}</li>`).join('')}
       </ul>
