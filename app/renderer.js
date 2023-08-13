@@ -4,8 +4,9 @@ const adhesionModule = require('./adhesion');
 const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
 const testModule = require('./tests');
-const checkboxModule = require('./checkbox');
 const filterModule = require('./filter');
+
+let dateAsk = new Date(0);
 
 document.getElementById('fileInput').addEventListener('change', () => {
   const fileInput = document.getElementById('fileInput');
@@ -17,6 +18,19 @@ document.getElementById('fileInput').addEventListener('change', () => {
     ipcRenderer.send('sortExcelFile', filePath);
   }
 });
+
+document.getElementById('dateInput').addEventListener('change', async () => {
+  const dateInput = document.getElementById('dateInput');
+  const date = new Date(dateInput.value);
+  if (date.getTime() !== 0) {
+//    document.getElementById('dateInputContainer').style.display = 'none';
+    dateAsk = date;
+//    ipcRenderer.send('dateInput', date);
+    const groupedData = await ipcRenderer.invoke('get-sorted-data');
+    testModule.displayTest(groupedData);
+  }
+});
+
 
 document.getElementById('printButton').addEventListener('click', async () => {
   const fileInput = document.getElementById('fileInput');
@@ -59,7 +73,12 @@ function handleOptionChange(radioButton, groupedData) {
       decouverteModule.displayDecouverte(groupedData);
       break;
     case 'test':
-      testModule.displayTest(groupedData);
+      if (dateAsk.getTime() !== 0) {
+        testModule.displayTest(groupedData);
+      }
+      else {
+        document.getElementById('dateInputContainer').style.display = 'block';
+      }
       break;
     case 'stage':
       stageModule.displayStage(groupedData);

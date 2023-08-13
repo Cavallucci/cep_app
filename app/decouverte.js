@@ -114,7 +114,7 @@ function replaceMonthCD(month) {
     monthCD = "06";
   }
   else if (monthLower.includes('juil')) {
-    monthCD = "07";
+    monthCD = "06";
   }
   else if (monthLower.includes('aout')) {
     monthCD = "08";

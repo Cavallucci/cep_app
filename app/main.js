@@ -9,6 +9,7 @@ const testModule = require('./tests');
 
 let mainWindow;
 let sortedData = [];
+let dateAsk = new Date(0);
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -44,6 +45,14 @@ app.on('activate', () => {
 
 ipcMain.handle('get-sorted-data', (event) => {
   return sortedData;
+});
+
+ipcMain.on('dateInput', (event, date) => {
+  dateAsk = date;
+});
+
+ipcMain.on('get-date', (event) => {
+  return dateAsk;
 });
 
 ipcMain.on('sortExcelFile', async (event, filePath) => {

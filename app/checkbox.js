@@ -68,18 +68,24 @@ async function sendEmailAdhesion(customerGroup) {
   const childFirstNames = customerGroup.map(child => child.childFirstName);
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/adhesionEmail.html'), 'utf8');
 
-  let htmlWithCode = myHTML.replace("{{childFirstNames}}", childFirstNames);
-  htmlWithCode = htmlWithCode.replace("{{childFirstNames}}", childFirstNames);
+  let htmlWithCode = myHTML.replace("{{childFirstNames}}", childFirstNames.join(' et '));
+  htmlWithCode = htmlWithCode.replace("{{childFirstNames}}", childFirstNames.join(' et '));
+  htmlWithCode = htmlWithCode.replace("{{childFirstNames}}", childFirstNames.join(' et '));
+
   if (childFirstNames.length > 1) {
     htmlWithCode = htmlWithCode.replace("{{les/l'}}", "les ");
+    htmlWithCode = htmlWithCode.replace("{{cette/ces}}", "ces adhésions n'ont");
+    htmlWithCode = htmlWithCode.replace("{{ée/ées}}", "ées");
   }
   else {
     htmlWithCode = htmlWithCode.replace("{{les/l'}}", "l'");
+    htmlWithCode = htmlWithCode.replace("{{cette/ces}}", "cette adhésion n'a");
+    htmlWithCode = htmlWithCode.replace("{{ée/ées}}", "ée");
   }
   const mailOptions = {
     to: `${customerEmail}`,
     from: "CEP: Adhésion Manquante <laura.cllucci@gmail.com>",
-    subject: "Votre inscription aux activités annuelles du Club : adhésion annuelle manquante !",
+    subject: "Votre inscription aux activités 2023/2024 du Club : adhésion(s) annuelle(s) manquante(s) !",
     text: "Adhésion",
     html: htmlWithCode,
   };
@@ -96,26 +102,34 @@ async function sendEmailAdhesion(customerGroup) {
 }
 
 async function sendEmailDecouverte(customerGroup) {
-  const customerEmail = customerGroup[0];
+  const { customerEmail , month}= customerGroup[0];
   const childsFirstNames = customerGroup.map(child => child.childFirstName);
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/decouverteEmail.html'), 'utf8');
 
     let htmlWithCode = myHTML.replace("{{childsFirstNames}}", childsFirstNames);
-    htmlWithCode = htmlWithCode.replace("{{mois}}", );
+    htmlWithCode = htmlWithCode.replace("{{childsFirstNames}}", childsFirstNames);
+
+    const date = new Date(month);
+    const monthString = date.toLocaleString('default', { month: 'long' });
+    htmlWithCode = htmlWithCode.replace("{{mois}}", monthString);
 
     if (childsFirstNames.length > 1) {
-      htmlWithCode = htmlWithCode.replace("{{vos/votre}}", "vos enfants");
+      htmlWithCode = htmlWithCode.replace("{{vos/votre}}", "Vos enfants");
       htmlWithCode = htmlWithCode.replace("{{a/ont}}", "ont");
+      htmlWithCode = htmlWithCode.replace("{{lui/leur}}", "leur");
+      htmlWithCode = htmlWithCode.replace("{{l’/les}}", "les ");
     }
     else {
-      htmlWithCode = htmlWithCode.replace("{{vos/votre}}", "votre enfant");
+      htmlWithCode = htmlWithCode.replace("{{vos/votre}}", "Votre enfant");
       htmlWithCode = htmlWithCode.replace("{{a/ont}}", "a");
+      htmlWithCode = htmlWithCode.replace("{{lui/leur}}", "lui");
+      htmlWithCode = htmlWithCode.replace("{{l’/les}}", "l'");
     }
 
     const mailOptions = {
       to: `${customerEmail}`,
-      from: "laura.cllucci@gmail.com",
-      subject: "Club des Enfants Parisiens: Cours de découverte",
+      from: "CEP: Cours de découverte <laura.cllucci@gmail.com>",
+      subject: "Cours de découverte : envie de vous inscrire aux cours annuels 23/24?",
       text: "Cours de découverte",
       html: htmlWithCode,
     };
@@ -132,16 +146,16 @@ async function sendEmailDecouverte(customerGroup) {
 
 async function sendEmailTest(customerGroup) {
   const { customerEmail } = customerGroup[0];
-  
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/testEmail.html'), 'utf8');
-  
+  let htmlWithCode;
+
   if (customerGroup.length > 1) {
-    let htmlWithCode = myHTML.replace("{{vos/votre}}", "vos enfants ont");
+    htmlWithCode = myHTML.replace("{{vos/votre}}", "vos enfants ont");
     htmlWithCode = htmlWithCode.replace("{{lui/leur}}", "leur");
     htmlWithCode = htmlWithCode.replace("{{l’/les}}", "les ");
   }
   else {
-    let htmlWithCode = myHTML.replace("{{vos/votre}}", "votre enfant a");
+    htmlWithCode = myHTML.replace("{{vos/votre}}", "votre enfant a");
     htmlWithCode = htmlWithCode.replace("{{lui/leur}}", "lui");
     htmlWithCode = htmlWithCode.replace("{{l’/les}}", "l'");
   }
@@ -179,19 +193,24 @@ async function sendEmailTest(customerGroup) {
 }
 
 async function sendEmailStage(customerGroup) {
-  const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
-  const childFirstNames = customerGroup.map(child => child.childFirstName);
-  const childLastNames = customerGroup.map(child => child.childLastName);
+  const { customerEmail } = customerGroup[0];
+ // const childFirstNames = customerGroup.map(child => child.childFirstName);
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/stageEmail.html'), 'utf8');
+  let htmlWithCode;
 
-  let htmlWithCode = myHTML.replace("{{customerFirstName}}", customerFirstName);
-  htmlWithCode = htmlWithCode.replace("{{childFirstName}}", childFirstNames);
-  htmlWithCode = htmlWithCode.replace("{{childLastName}}", childLastNames);
+  if (customerGroup.length > 1) {
+    htmlWithCode = myHTML.replace("{{votre/vos}}", "vos enfants ont");
+    htmlWithCode = htmlWithCode.replace("{{il/ils}}", "ils ont");
+  }
+  else {
+    htmlWithCode = myHTML.replace("{{votre/vos}}", "votre enfant a");
+    htmlWithCode = htmlWithCode.replace("{{il/ils}}", "il a");
+  }
 
   const mailOptions = {
     to: `${customerEmail}`,
-    from: "laura.cllucci@gmail.com",
-    subject: "Club des Enfants Parisiens: Stages",
+    from: "CEP: Stages <laura.cllucci@gmail.com>",
+    subject: "Retrouver les activités de stages de vacances sous forme de cours annuels 23/24",
     text: "Stages",
     html: htmlWithCode,
   };

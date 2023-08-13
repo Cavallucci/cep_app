@@ -23,7 +23,7 @@ function fillCustomersList(groupedData) {
             }
             existingCustomer.courses.push(customerData[8]);
             existingCustomer.sku.push(customerData[7]);
-            existingCustomer.dateTest.push(customerData[36]);
+            existingCustomer.dateTest.push(new Date(customerData[36]));
         } else {
             const newCustomer = {
                 childId: customerData[18],
@@ -39,7 +39,7 @@ function fillCustomersList(groupedData) {
                 tests: [],
                 tk: [],
                 tkCode: [],
-                dateTest: [customerData[36]],
+                dateTest: [new Date(customerData[36])],
             };
             if (customerData[7] && customerData[7].startsWith('TEST')) {
                 newCustomer.tests.push(customerData[8]);
@@ -57,10 +57,11 @@ function fillCustomersList(groupedData) {
         }
     }
     let today = new Date();
-    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+    let dateAsk = document.getElementById('dateInput').value;
+    dateAsk = new Date(dateAsk);
 
     const customerWithDate = t_customers.filter((customer) => {
-        const hasDate = customer.dateTest.some((date) => date && Math.floor((today - date) / oneDayInMilliseconds) >= 0 && Math.floor((today - date) / oneDayInMilliseconds) < 60);
+        const hasDate = customer.dateTest.some((date) => date && date <= today && date >= dateAsk);
         return hasDate;
     });
     
@@ -185,7 +186,6 @@ function displayTest(groupedData) {
 
         container.appendChild(customerInfo);
     }
-    //checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillTestWorksheet(worksheet, data, sortedData) {
