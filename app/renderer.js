@@ -22,12 +22,21 @@ document.getElementById('fileInput').addEventListener('change', () => {
 document.getElementById('dateInput').addEventListener('change', async () => {
   const dateInput = document.getElementById('dateInput');
   const date = new Date(dateInput.value);
-  if (date.getTime() !== 0) {
-//    document.getElementById('dateInputContainer').style.display = 'none';
+  if (dateAsk.getTime() !== 0 || date.getTime() !== 0) {
     dateAsk = date;
-//    ipcRenderer.send('dateInput', date);
     const groupedData = await ipcRenderer.invoke('get-sorted-data');
     testModule.displayTest(groupedData);
+  }
+});
+
+document.addEventListener('displayBlock', async () => {
+  if (dateAsk.getTime() !== 0) {
+    const groupedData = await ipcRenderer.invoke('get-sorted-data');
+    testModule.displayTest(groupedData);
+  }
+  else {
+    const container = document.getElementById('displayContainer');
+    container.innerHTML = '';
   }
 });
 
@@ -58,7 +67,7 @@ function handleOptionChange(radioButton, groupedData) {
   document.querySelectorAll('.option-label').forEach((label) => {
     label.classList.remove('active');
   });
-
+  document.getElementById('dateInputContainer').style.display = 'none';
   const selectedLabel = radioButton.closest('.option-label');
   selectedLabel.classList.add('active');
 
@@ -73,12 +82,9 @@ function handleOptionChange(radioButton, groupedData) {
       decouverteModule.displayDecouverte(groupedData);
       break;
     case 'test':
-      if (dateAsk.getTime() !== 0) {
-        testModule.displayTest(groupedData);
-      }
-      else {
         document.getElementById('dateInputContainer').style.display = 'block';
-      }
+        const customEvent = new Event('displayBlock');
+        document.dispatchEvent(customEvent);
       break;
     case 'stage':
       stageModule.displayStage(groupedData);
