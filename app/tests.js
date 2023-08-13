@@ -1,5 +1,7 @@
 const checkboxModule = require('./checkbox');
 const emailValidator = require('email-validator');
+const fs = require('fs');
+const path = require('path');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -234,11 +236,34 @@ async function manageTestEmail(checkbox, globalData) {
       }
   }
   if (emailValidator.validate(groupEmail[0].customerEmail)) {
-    console.log("groupEmail", groupEmail);
-    await checkboxModule.sendEmailTest(groupEmail);
+    let storeLinks = new Map();
+    storeLinks = await getStoreLinks();
+    console.log(storeLinks);
+    //await checkboxModule.sendEmailTest(groupEmail);
   } else {
     alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
     }  
+}
+
+async function getStoreLinks() {
+  try {
+    const data = await fs.promises.readFile(path.join(__dirname, 'links/tests.txt'), 'utf8');
+    const lines = data.split('\n');
+    const dataMap = new Map();
+
+    lines.forEach(line => {
+      const parts = line.split('\t');
+      if (parts.length === 2) {
+        const key = parts[0];
+        const url = parts[1];
+        dataMap.set(key, url);
+      }
+    });
+    return dataMap;
+  } catch (err) {
+    console.error('Erreur lors de la lecture du fichier :', err);
+    throw err;
+  }
 }
 
 module.exports = {

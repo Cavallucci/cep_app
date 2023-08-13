@@ -58,3 +58,4 @@ pids
 tmp
 *.config.js
 /icons
+/app/links

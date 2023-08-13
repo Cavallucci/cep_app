@@ -47,14 +47,6 @@ ipcMain.handle('get-sorted-data', (event) => {
   return sortedData;
 });
 
-ipcMain.on('dateInput', (event, date) => {
-  dateAsk = date;
-});
-
-ipcMain.on('get-date', (event) => {
-  return dateAsk;
-});
-
 ipcMain.on('sortExcelFile', async (event, filePath) => {
   try {
     let filteredRows = [];
