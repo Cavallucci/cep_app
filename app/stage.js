@@ -1,5 +1,7 @@
 const checkboxModule = require('./checkbox');
 const emailValidator = require('email-validator');
+const fs = require('fs');
+const path = require('path');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -120,12 +122,13 @@ function removeDiacritics(str) {
 function findMatchingEnrollments(customerWithDate) {
     const customersWithoutMatch = [];
     const stageList = [
-        'boxe', 'yoga', 'skate', 'chant', 'theatre', 'danse', 'poterie', 'hip hop',
+        'boxe', 'batterie', 'yoga', 'skate', 'chant', 'capoeira', 'theatre', 'danse', 'poterie', 'hip hop',
         'couture', 'dessin', 'gym', 'taekwondo', 'street art', 'cuisine', 'zumba',
         'programmation', 'echecs', 'piano', 'guitare', 'peinture', 'kid boxing',
-        'trapeze', 'cirque',
+        'trapeze', 'cirque', 'coaching', 'multidanses', 'multisports', 'self defense',
+        'eveil', 'expression corporelle', 'déjeuner', 'self defense',
     ];
-      
+
     for (const customer of customerWithDate) {
         const newListOfStage = [];
         let matchedTK = false;
@@ -257,11 +260,35 @@ async function manageStageEmail(checkbox, globalData) {
         }
     }
     if (emailValidator.validate(groupEmail[0].customerEmail)) {
-        await checkboxModule.sendEmailStage(groupEmail);
+        let storeLinks = [];
+        storeLinks = await getListToPrint(groupEmail);
+        await checkboxModule.sendEmailStage(groupEmail, storeLinks);
     } else {
         alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
         }  
 }
+
+async function getListToPrint(customerGroup) {
+    try {
+      const stagesData = await fs.promises.readFile(path.join(__dirname, 'links/stages.json'), 'utf8');
+      const parsedStagesData = JSON.parse(stagesData);
+  
+      for (const customer of customerGroup) {
+        for (const staAccents of customer.sta) {
+            const sta = removeDiacritics(staAccents).toLowerCase();
+            const lastSpaceIndex = sta.lastIndexOf(' ');
+            const age = sta.slice(lastSpaceIndex - 1);
+            const stageInfo = parsedStagesData.some(entry => sta.includes(entry.activ));
+            console.log("activ = ", parsedStagesData.activ);
+            console.log("stageInfo = ", stageInfo);
+        }
+      }
+      // prendre l'âge dans sta
+      // trouver tous les mots clés dans sta
+    } catch (error) {
+      console.error("Error reading stages data:", error);
+    }
+  }
 
 module.exports = {
     displayStage,

@@ -205,9 +205,8 @@ async function sendEmailTest(customerGroup, storeLinks) {
     });
 }
 
-async function sendEmailStage(customerGroup) {
+async function sendEmailStage(customerGroup, listToPrint) {
   const { customerEmail } = customerGroup[0];
- // const childFirstNames = customerGroup.map(child => child.childFirstName);
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/stageEmail.html'), 'utf8');
   let htmlWithCode;
 
@@ -219,6 +218,8 @@ async function sendEmailStage(customerGroup) {
     htmlWithCode = myHTML.replace("{{votre/vos}}", "votre enfant a");
     htmlWithCode = htmlWithCode.replace("{{il/ils}}", "il a");
   }
+
+  //htmlWithCode = htmlWithCode.replace("{{stageLinks}}", listToPrint.join('<br>'));
 
   const mailOptions = {
     to: `${customerEmail}`,
