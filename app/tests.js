@@ -238,8 +238,7 @@ async function manageTestEmail(checkbox, globalData) {
   if (emailValidator.validate(groupEmail[0].customerEmail)) {
     let storeLinks = new Map();
     storeLinks = await getStoreLinks();
-    console.log(storeLinks);
-    //await checkboxModule.sendEmailTest(groupEmail);
+    await checkboxModule.sendEmailTest(groupEmail, storeLinks);
   } else {
     alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
     }  

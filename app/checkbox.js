@@ -144,18 +144,18 @@ async function sendEmailDecouverte(customerGroup) {
   }
 }
 
-async function sendEmailTest(customerGroup) {
+async function sendEmailTest(customerGroup, storeLinks) {
   const { customerEmail } = customerGroup[0];
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/testEmail.html'), 'utf8');
   let htmlWithCode;
 
   if (customerGroup.length > 1) {
-    htmlWithCode = myHTML.replace("{{vos/votre}}", "vos enfants ont");
+    htmlWithCode = myHTML.replace("{{vos/votre}}", "Vos enfants ont");
     htmlWithCode = htmlWithCode.replace("{{lui/leur}}", "leur");
     htmlWithCode = htmlWithCode.replace("{{l’/les}}", "les ");
   }
   else {
-    htmlWithCode = myHTML.replace("{{vos/votre}}", "votre enfant a");
+    htmlWithCode = myHTML.replace("{{vos/votre}}", "Votre enfant a");
     htmlWithCode = htmlWithCode.replace("{{lui/leur}}", "lui");
     htmlWithCode = htmlWithCode.replace("{{l’/les}}", "l'");
   }
@@ -173,6 +173,19 @@ async function sendEmailTest(customerGroup) {
 
   htmlWithCode = htmlWithCode.replace("{{childFirstName}}", list);
 
+  const linksForSkus = [];
+  for (const customer of customerGroup) {
+    for (const testCourse of customer.sku) {
+      const testWords = testCourse.split('_');
+      const wordAfterTest = testWords[1];
+      console.log("wordAfterTest = ", wordAfterTest);
+      if (storeLinks.has(wordAfterTest)) {
+        linksForSkus.push(`<a href="${storeLinks.get(wordAfterTest)}">${testCourse}</a>`);
+      }
+    }
+  }
+  htmlWithCode = htmlWithCode.replace("{{storeLinks}}", linksForSkus.join('<br>'));
+  
   const mailOptions = {
     to: `${customerEmail}`,
     from: "CEP: Cours d'essai <laura.cllucci@gmail.com>",
