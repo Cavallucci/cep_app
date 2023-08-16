@@ -212,14 +212,16 @@ async function sendEmailStage(customerGroup, listToPrint) {
 
   if (customerGroup.length > 1) {
     htmlWithCode = myHTML.replace("{{votre/vos}}", "vos enfants ont");
-    htmlWithCode = htmlWithCode.replace("{{il/ils}}", "ils ont");
+    htmlWithCode = htmlWithCode.replace("{{il/ils}}", "ils ont adoré leurs");
+    htmlWithCode = htmlWithCode.replace("{{a/ont}}", "ont");
   }
   else {
     htmlWithCode = myHTML.replace("{{votre/vos}}", "votre enfant a");
-    htmlWithCode = htmlWithCode.replace("{{il/ils}}", "il a");
+    htmlWithCode = htmlWithCode.replace("{{il/ils}}", "il a adoré ses");
+    htmlWithCode = htmlWithCode.replace("{{a/ont}}", "a");
   }
 
-  //htmlWithCode = htmlWithCode.replace("{{stageLinks}}", listToPrint.join('<br>'));
+  htmlWithCode = htmlWithCode.replace("{{stageLinks}}", listToPrint.join('<br>'));
 
   const mailOptions = {
     to: `${customerEmail}`,

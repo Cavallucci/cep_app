@@ -272,19 +272,24 @@ async function getListToPrint(customerGroup) {
     try {
       const stagesData = await fs.promises.readFile(path.join(__dirname, 'links/stages.json'), 'utf8');
       const parsedStagesData = JSON.parse(stagesData);
+      const listToPrint = [];
   
-      for (const customer of customerGroup) {
-        for (const staAccents of customer.sta) {
-            const sta = removeDiacritics(staAccents).toLowerCase();
-            const lastSpaceIndex = sta.lastIndexOf(' ');
-            const age = sta.slice(lastSpaceIndex - 1);
-            const stageInfo = parsedStagesData.some(entry => sta.includes(entry.activ));
-            console.log("activ = ", parsedStagesData.activ);
-            console.log("stageInfo = ", stageInfo);
+        for (const customer of customerGroup) {
+            for (const staAccents of customer.sta) {
+                const lastSpaceIndex = staAccents.lastIndexOf(' ');
+                const age = staAccents.slice(lastSpaceIndex - 3);
+                const staWords = staAccents.split(' ');
+                for (const word of staWords) {
+                const sta = removeDiacritics(word).toLowerCase();
+                    const stage = parsedStagesData.find(entry => sta.includes(entry.activ.toLowerCase()));
+                    if (stage && stage[age] && stage[age] !== '') {
+                        const lien = stage[age];
+                        listToPrint.push(`<a href="${lien}">${stage.activ}</a>`);
+                    }
+                }
+            }
         }
-      }
-      // prendre l'âge dans sta
-      // trouver tous les mots clés dans sta
+        return listToPrint;
     } catch (error) {
       console.error("Error reading stages data:", error);
     }
