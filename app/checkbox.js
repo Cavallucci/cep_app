@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
-const config = require('../config.json');
+const config = require(path.join(__dirname, '../config.json'));
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -128,7 +128,7 @@ async function sendEmailDecouverte(customerGroup) {
 
     const mailOptions = {
       to: `${customerEmail}`,
-      from: "CEP: Cours de découverte <laura.cllucci@gmail.com>",
+      from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
       subject: "Cours de découverte : envie de vous inscrire aux cours annuels 23/24?",
       text: "Cours de découverte",
       html: htmlWithCode,
@@ -226,21 +226,29 @@ async function sendEmailStage(customerGroup, listToPrint) {
 
   const mailOptions = {
     to: `${customerEmail}`,
-    from: "CEP: Stages <laura.cllucci@gmail.com>",
+    from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
     subject: "Retrouvez les activités de stages de vacances sous forme de cours annuels 23/24",
     text: "Stages",
     html: htmlWithCode,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-        return error;
-      } else {
-        console.log('E-mail envoyé avec succès:', info.response);
-        return info.response;
-      }
+  try {
+    const info = await new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
+          reject(error);
+        } else {
+          console.log('E-mail envoyé avec succès:', info.response);
+          resolve(info.response);
+        }
+      });
     });
+
+    return info;
+  } catch (error) {
+    return error;
+  }
 }
 
 module.exports = {

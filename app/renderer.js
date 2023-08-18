@@ -148,33 +148,46 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
     const userConfirmed = confirm('Envoyer Email ?');
 
     if (userConfirmed) {
-        document.getElementById('loadingMessage').style.display = 'block';
-        try {
-            const emailPromises = checkboxes.map(async (checkbox) => {
-                    if (checkbox.id === 'facturation') {
-                        await facturationModule.manageFacturationEmail(checkbox, globalData);
-                    }
-                    else if (checkbox.id === 'adhesion') {
-                        await adhesionModule.manageAdhesionEmail(checkbox, globalData);
-                    }
-                    else if (checkbox.id === 'decouverte') {
-                        await decouverteModule.manageDecouverteEmail(checkbox, globalData);
-                    }
-                    else if (checkbox.id === 'test') {
-                        await testModule.manageTestEmail(checkbox, globalData);
-                    }
-                    else if (checkbox.id === 'stage') {
-                        await stageModule.manageStageEmail(checkbox, globalData);
-                    }
-            });
-            await Promise.all(emailPromises);
-            document.getElementById('loadingMessage').style.display = 'none';
-            alert('Emails envoyés !');
-        } catch (error) {
-            alert(error);
-            console.error(error);
+      document.getElementById('loadingMessage').style.display = 'block';
+    
+      let isSending = false; // Variable pour indiquer si un envoi est en cours
+    
+      try {
+        for (const checkbox of checkboxes) {
+          if (!isSending) {
+            isSending = true; 
+            let module;
+    
+            if (checkbox.id === 'facturation') {
+              module = facturationModule;
+            } else if (checkbox.id === 'adhesion') {
+              module = adhesionModule;
+            } else if (checkbox.id === 'decouverte') {
+              module = decouverteModule;
+            } else if (checkbox.id === 'test') {
+              module = testModule;
+            } else if (checkbox.id === 'stage') {
+              module = stageModule;
+            }
+    
+            try {
+              await module.manageEmail(checkbox, globalData); 
+              await new Promise(resolve => setTimeout(resolve, 3000)); 
+            } catch (error) {
+              alert(error);
+              console.error(error);
+            }
+            isSending = false;
+          }
         }
-    }
+    
+        document.getElementById('loadingMessage').style.display = 'none';
+        alert('Emails envoyés !');
+      } catch (error) {
+        alert(error);
+        console.error(error);
+      }
+    }  
   } else {
       alert('Aucun client sélectionné');
   }

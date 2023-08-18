@@ -254,6 +254,7 @@ async function manageDecouverteEmail(checkbox, globalData) {
       }
   }
   if (emailValidator.validate(groupEmail[0].customerEmail)) {
+    console.log("nombre de mail = ", groupEmail.length);
     await checkboxModule.sendEmailDecouverte(groupEmail);
   } else {
     alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);

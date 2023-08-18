@@ -249,7 +249,7 @@ async function fillStageWorksheet(worksheet, data, sortedData) {
     });
 }
 
-async function manageStageEmail(checkbox, globalData) {
+async function manageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const stageList = stageModule.fillCustomersList(globalData);
 
@@ -305,5 +305,5 @@ module.exports = {
     displayStage,
     fillCustomersList,
     fillStageWorksheet,
-    manageStageEmail
+    manageEmail
   };
