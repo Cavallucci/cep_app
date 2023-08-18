@@ -106,8 +106,8 @@ async function sendEmailDecouverte(customerGroup) {
   const childsFirstNames = customerGroup.map(child => child.childFirstName);
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/decouverteEmail.html'), 'utf8');
 
-    let htmlWithCode = myHTML.replace("{{childsFirstNames}}", childsFirstNames);
-    htmlWithCode = htmlWithCode.replace("{{childsFirstNames}}", childsFirstNames);
+    let htmlWithCode = myHTML.replace("{{childsFirstNames}}", childsFirstNames.join(' et '));
+    htmlWithCode = htmlWithCode.replace("{{childsFirstNames}}", childsFirstNames.join(' et '));
 
     const date = new Date(month);
     const monthString = date.toLocaleString('default', { month: 'long' });
@@ -174,13 +174,14 @@ async function sendEmailTest(customerGroup, storeLinks) {
   htmlWithCode = htmlWithCode.replace("{{childFirstName}}", list);
 
   const linksForSkus = [];
+  const courses = [];
   for (const customer of customerGroup) {
     for (const testCourse of customer.sku) {
       const testWords = testCourse.split('_');
       const wordAfterTest = testWords[1];
-      console.log("wordAfterTest = ", wordAfterTest);
-      if (storeLinks.has(wordAfterTest)) {
-        linksForSkus.push(`<a href="${storeLinks.get(wordAfterTest)}">${testCourse}</a>`);
+      if (storeLinks.has(wordAfterTest) && !courses.includes(testCourse)) {
+        courses.push(testCourse);
+        linksForSkus.push(`<a href="${storeLinks.get(wordAfterTest)}">${storeLinks.get(wordAfterTest)}</a>`);
       }
     }
   }
@@ -189,7 +190,7 @@ async function sendEmailTest(customerGroup, storeLinks) {
   const mailOptions = {
     to: `${customerEmail}`,
     from: "CEP: Cours d'essai <laura.cllucci@gmail.com>",
-    subject: "Après votre cours d’essai, vous inscrire aux cours annuels 23/24?",
+    subject: "Après votre cours d’essai, inscriptions aux cours annuels 23/24?",
     text: "Cours de test",
     html: htmlWithCode,
   };
@@ -226,7 +227,7 @@ async function sendEmailStage(customerGroup, listToPrint) {
   const mailOptions = {
     to: `${customerEmail}`,
     from: "CEP: Stages <laura.cllucci@gmail.com>",
-    subject: "Retrouver les activités de stages de vacances sous forme de cours annuels 23/24",
+    subject: "Retrouvez les activités de stages de vacances sous forme de cours annuels 23/24",
     text: "Stages",
     html: htmlWithCode,
   };

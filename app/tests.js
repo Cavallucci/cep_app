@@ -231,17 +231,20 @@ async function manageTestEmail(checkbox, globalData) {
 
   let groupEmail = [];
   for (const test of testList) {
-      if (test.customerId === customerId) {
+    console.log("carnets = ", test.carnets);
+      if (test.customerId === customerId && test.carnets.length === 0) {
           groupEmail.push(test);
       }
   }
-  if (emailValidator.validate(groupEmail[0].customerEmail)) {
-    let storeLinks = new Map();
-    storeLinks = await getStoreLinks();
-    await checkboxModule.sendEmailTest(groupEmail, storeLinks);
-  } else {
-    alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
-    }  
+  if (groupEmail.length > 0) {
+    if (emailValidator.validate(groupEmail[0].customerEmail)) {
+      let storeLinks = new Map();
+      storeLinks = await getStoreLinks();
+      await checkboxModule.sendEmailTest(groupEmail, storeLinks);
+    } else {
+      alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+    }
+  } 
 }
 
 async function getStoreLinks() {

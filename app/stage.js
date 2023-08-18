@@ -273,15 +273,16 @@ async function getListToPrint(customerGroup) {
       const stagesData = await fs.promises.readFile(path.join(__dirname, 'links/stages.json'), 'utf8');
       const parsedStagesData = JSON.parse(stagesData);
       const listToPrint = [];
+      const listWithoutDouble = [];
   
         for (const customer of customerGroup) {
             for (const staAccents of customer.sta) {
-                const lastSpaceIndex = staAccents.lastIndexOf(' ');
-                const age = staAccents.slice(lastSpaceIndex - 3);
+                const age = staAccents.match(/\d+\/\d+ ans/g);
+                
                 const staWords = staAccents.split(' ');
                 for (const word of staWords) {
-                const sta = removeDiacritics(word).toLowerCase();
-                    const stage = parsedStagesData.find(entry => sta.includes(entry.activ.toLowerCase()));
+                    const sta = removeDiacritics(word).toLowerCase();
+                    const stage = parsedStagesData.find(entry => sta.includes(removeDiacritics(entry.activ).toLowerCase()));
                     if (stage && stage[age] && stage[age] !== '') {
                         const lien = stage[age];
                         listToPrint.push(`<a href="${lien}">${stage.activ}</a>`);
@@ -289,7 +290,12 @@ async function getListToPrint(customerGroup) {
                 }
             }
         }
-        return listToPrint;
+        for (list of listToPrint) {
+            if (!listWithoutDouble.includes(list)) {
+                listWithoutDouble.push(list);
+            }
+        }
+        return listWithoutDouble;
     } catch (error) {
       console.error("Error reading stages data:", error);
     }

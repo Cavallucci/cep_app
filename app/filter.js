@@ -12,9 +12,9 @@ const createWorkbook = (worksheet, filteredRows) => {
       const dateTest = rowData[33];
       const pxVente = rowData[23];
       
-      //rowData[27] = 'nathalie@clubdesenfantsparisiens.com';
+      rowData[27] = 'nathalie@clubdesenfantsparisiens.com';
       //rowData[27] = 'test.cep.application@laposte.net';
-      rowData[27] = 'laura.cllucci@gmail.com';
+      //rowData[27] = 'laura.cllucci@gmail.com';
 
       if (typeof restDueValue === 'string'){
         const formattedRestDue = parseFloat(restDueValue);
@@ -32,7 +32,8 @@ const createWorkbook = (worksheet, filteredRows) => {
           rowData[36] = extractedDate;
         }
       }
-      if (customerId != '917' && statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0) {
+      //customerId != '917' && 
+      if (statusValue !== 'canceled' && statusValue !== 'closed' && amountValue > 0) {
           filteredRows.push(rowData);
       }
     });
