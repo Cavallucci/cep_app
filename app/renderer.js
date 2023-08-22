@@ -154,7 +154,7 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
     
       try {
         for (const checkbox of checkboxes) {
-          if (!isSending) {
+          if (!isSending && checkbox.id !== 'selectAllCheckbox') {
             isSending = true; 
             let module;
     

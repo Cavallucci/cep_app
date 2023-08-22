@@ -243,7 +243,7 @@ async function fillDécouverteWorksheet(worksheet, data, sortedData) {
     }
   });
 }
-async function manageDecouverteEmail(checkbox, globalData) {
+async function manageEmail(checkbox, globalData) {
   const customerId = checkbox.getAttribute('data-customer-id');
   const decouverteList = decouverteModule.fillCustomersList(globalData);
   
@@ -265,5 +265,5 @@ module.exports = {
     displayDecouverte,
     fillCustomersList,
     fillDécouverteWorksheet,
-    manageDecouverteEmail
+    manageEmail
   };
