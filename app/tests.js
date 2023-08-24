@@ -225,13 +225,12 @@ async function fillTestWorksheet(worksheet, data, sortedData) {
     });
   }
 
-async function manageTestEmail(checkbox, globalData) {
+async function manageEmail(checkbox, globalData) {
   const customerId = checkbox.getAttribute('data-customer-id');
   const testList = testModule.fillCustomersList(globalData);
 
   let groupEmail = [];
   for (const test of testList) {
-    console.log("carnets = ", test.carnets);
       if (test.customerId === customerId && test.carnets.length === 0) {
           groupEmail.push(test);
       }
@@ -240,7 +239,12 @@ async function manageTestEmail(checkbox, globalData) {
     if (emailValidator.validate(groupEmail[0].customerEmail)) {
       let storeLinks = new Map();
       storeLinks = await getStoreLinks();
-      await checkboxModule.sendEmailTest(groupEmail, storeLinks);
+      try {
+        const response = await checkboxModule.sendEmailTest(groupEmail, storeLinks);
+        return response;
+      } catch (error) {
+        throw error;
+      }
     } else {
       alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
     }
@@ -272,5 +276,5 @@ module.exports = {
     displayTest,
     fillCustomersList,
     fillTestWorksheet,
-    manageTestEmail
+    manageEmail
   };

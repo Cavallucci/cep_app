@@ -79,7 +79,6 @@ function displayAdhesion(groupedData) {
 
         container.appendChild(customerInfo);
     }
-    //checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillAdhesionWorksheet(worksheet, data, sortedData) {
@@ -97,7 +96,7 @@ async function fillAdhesionWorksheet(worksheet, data, sortedData) {
     });
   }
 
-async function manageAdhesionEmail(checkbox, globalData) {
+async function manageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const adhesionList = adhesionModule.fillCustomersList(globalData);
 
@@ -107,11 +106,17 @@ async function manageAdhesionEmail(checkbox, globalData) {
             groupEmail.push(adhesion);
         }
     }
-
-    if (emailValidator.validate(groupEmail[0].customerEmail)) {
-        await checkboxModule.sendEmailAdhesion(groupEmail);
-    } else {
-        alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+    if (groupEmail.length > 0) {
+        if (emailValidator.validate(groupEmail[0].customerEmail)) {
+            try {
+                const response = await checkboxModule.sendEmailAdhesion(groupEmail);
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        } else {
+            alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+        }
     }
 }
 
@@ -119,5 +124,5 @@ module.exports = {
     displayAdhesion,
     fillCustomersList,
     fillAdhesionWorksheet,
-    manageAdhesionEmail
+    manageEmail
   };

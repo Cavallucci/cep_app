@@ -4,25 +4,14 @@ const path = require('path');
 const config = require(path.join(__dirname, '../config.json'));
 
 const transporter = nodemailer.createTransport({
+    pool: true,
     service: 'Gmail',
     auth: {
       user: config.SMTP_USERNAME,
       pass: config.SMTP_PASSWORD,
     },
+    name: 'clubdesenfantsparisiens.com',
 });
-
-function setupCheckboxListeners(t_customers) {
-    const checkboxes = document.querySelectorAll('[type="checkbox"]');
-    checkboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', () => {
-            if (checkbox.checked) {
-                const customerId = checkbox.getAttribute('data-customer-id'); 
-                const customer = t_customers.find((customer) => customer.customerId === customerId);
-                console.log('Customer email :', customer.customerEmail);
-            }
-        });
-    });
-}
 
 async function sendEmailFacturation(customer) {
   const myHTML = fs.readFileSync(path.join(__dirname, 'emails/facturationEmail.html'), 'utf8');
@@ -46,21 +35,21 @@ async function sendEmailFacturation(customer) {
     }
     const mailOptions = {
       to: `${customer.customerEmail}`,
-      from: "CEP: Solde facturation <laura.cllucci@gmail.com>",
+      from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
       subject: "Solde restant dû et lien de paiement",
       text: "Facturation",
       html: htmlWithCode,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    return new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          return error;
+          reject(error);
         } else {
-          console.log('E-mail envoyé avec succès:', info.response);
-          return info.response;
+          resolve(info.response);
         }
       });
+    });
 }
 
 async function sendEmailAdhesion(customerGroup) {
@@ -90,15 +79,15 @@ async function sendEmailAdhesion(customerGroup) {
     html: htmlWithCode,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-        return error;
+        reject(error);
       } else {
-        console.log('E-mail envoyé avec succès:', info.response);
-        return info.response;
+        resolve(info.response);
       }
     });
+  });
 }
 
 async function sendEmailDecouverte(customerGroup) {
@@ -134,14 +123,15 @@ async function sendEmailDecouverte(customerGroup) {
       html: htmlWithCode,
     };
 
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log('E-mail envoyé avec succès:', info.response);
-      return info.response;
-    } catch (error) {
-      console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-      throw error; 
-  }
+    return new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(info.response);
+        }
+      });
+    });
 }
 
 async function sendEmailTest(customerGroup, storeLinks) {
@@ -195,15 +185,15 @@ async function sendEmailTest(customerGroup, storeLinks) {
     html: htmlWithCode,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-        return error;
+        reject(error);
       } else {
-        console.log('E-mail envoyé avec succès:', info.response);
-        return info.response;
+        resolve(info.response);
       }
     });
+  });
 }
 
 async function sendEmailStage(customerGroup, listToPrint) {
@@ -212,12 +202,12 @@ async function sendEmailStage(customerGroup, listToPrint) {
   let htmlWithCode;
 
   if (customerGroup.length > 1) {
-    htmlWithCode = myHTML.replace("{{votre/vos}}", "vos enfants ont");
+    htmlWithCode = myHTML.replace("{{votre/vos}}", "Vos enfants ont");
     htmlWithCode = htmlWithCode.replace("{{il/ils}}", "ils ont adoré leurs");
     htmlWithCode = htmlWithCode.replace("{{a/ont}}", "ont");
   }
   else {
-    htmlWithCode = myHTML.replace("{{votre/vos}}", "votre enfant a");
+    htmlWithCode = myHTML.replace("{{votre/vos}}", "Votre enfant a");
     htmlWithCode = htmlWithCode.replace("{{il/ils}}", "il a adoré ses");
     htmlWithCode = htmlWithCode.replace("{{a/ont}}", "a");
   }
@@ -232,27 +222,18 @@ async function sendEmailStage(customerGroup, listToPrint) {
     html: htmlWithCode,
   };
 
-  try {
-    const info = await new Promise((resolve, reject) => {
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
-          reject(error);
-        } else {
-          console.log('E-mail envoyé avec succès:', info.response);
-          resolve(info.response);
-        }
-      });
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(info.response);
+      }
     });
-
-    return info;
-  } catch (error) {
-    return error;
-  }
+  });
 }
 
 module.exports = {
-    setupCheckboxListeners,
     sendEmailFacturation,
     sendEmailAdhesion,
     sendEmailDecouverte,

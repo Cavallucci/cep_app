@@ -206,7 +206,6 @@ function displayStage(groupedData) {
 
         container.appendChild(customerInfo);
     }
-    checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillStageWorksheet(worksheet, data, sortedData) {
@@ -259,13 +258,20 @@ async function manageEmail(checkbox, globalData) {
             groupEmail.push(stage);
         }
     }
-    if (emailValidator.validate(groupEmail[0].customerEmail)) {
-        let storeLinks = [];
-        storeLinks = await getListToPrint(groupEmail);
-        await checkboxModule.sendEmailStage(groupEmail, storeLinks);
-    } else {
-        alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
-        }  
+    if (groupEmail.length > 0) {
+        if (emailValidator.validate(groupEmail[0].customerEmail)) {
+            let storeLinks = [];
+            storeLinks = await getListToPrint(groupEmail);
+            try {
+                const response = await checkboxModule.sendEmailStage(groupEmail, storeLinks);
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        } else {
+            alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+        }
+    }
 }
 
 async function getListToPrint(customerGroup) {

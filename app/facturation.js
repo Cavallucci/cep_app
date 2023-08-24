@@ -92,7 +92,6 @@ function displayFacturation(groupedData) {
 
         container.appendChild(customerInfo);
     }
-   // checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillFacturationWorksheet(worksheet, data, sortedData) {
@@ -115,21 +114,26 @@ async function fillFacturationWorksheet(worksheet, data, sortedData) {
     });
 }
 
-async function manageFacturationEmail(checkbox, globalData) {
+async function manageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const facturationList = facturationModule.fillCustomersList(globalData);
     const checkboxFound = facturationList.find((facturationList) => facturationList.customerId === customerId);
 
     if (emailValidator.validate(checkboxFound.customerEmail)) {
-        await checkboxModule.sendEmailFacturation(checkboxFound);
-    } else {
+        try {
+          const response = await checkboxModule.sendEmailFacturation(checkboxFound);
+          return response;
+        } catch (error) {
+          throw error;
+        }
+      } else {
         alert(`Le customer ${checkboxFound.customerFirstName} ${checkboxFound.customerLastName} numéro ${checkboxFound.customerId} n'a pas d'email de renseigné`);
-    }
+      }
 }
 
 module.exports = {
     displayFacturation,
     fillCustomersList,
-    manageFacturationEmail,
+    manageEmail,
     fillFacturationWorksheet
   };

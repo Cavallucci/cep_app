@@ -150,8 +150,36 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
     if (userConfirmed) {
       document.getElementById('loadingMessage').style.display = 'block';
     
-      let isSending = false; // Variable pour indiquer si un envoi est en cours
-    
+      let isSending = false;
+      let lenght = checkboxes.length;
+
+      let time = 0;
+      if (lenght < 50) {
+        time = 1000;
+      }
+      else if (lenght < 100) {
+        time = 2000;
+      }
+      else if (lenght < 200) {
+        time = 3000;
+      }
+      else if (lenght < 300 ) {
+        time = 4000;
+      }
+      else if (lenght < 400) {
+        time = 5000;
+      }
+      else if (lenght < 500) {
+        time = 6000;
+      }
+      else if (lenght > 500) {
+        time = 7000;
+      }
+      totalTime = (time / 1000) * lenght;
+      totalTime = Math.floor(totalTime / 60);
+      alert('Vous êtes sur le point d\'envoyer ' + lenght + ' emails, temps estimé : ' + totalTime + ' minutes \n Veuillez ne pas fermer l\'application');
+
+
       try {
         for (const checkbox of checkboxes) {
           if (!isSending && checkbox.id !== 'selectAllCheckbox') {
@@ -171,8 +199,15 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
             }
     
             try {
-              await module.manageEmail(checkbox, globalData); 
-              await new Promise(resolve => setTimeout(resolve, 3000)); 
+              await module.manageEmail(checkbox, globalData).then(response => {
+                console.log(response);
+              }
+              ).catch(error => {
+                console.error(error);
+                customerID = checkbox.getAttribute('data-customer-id');
+                alert('Erreur lors de l\'envoi de l\'email au customerID ' + customerID);
+              });
+              await new Promise(resolve => setTimeout(resolve, time)); 
             } catch (error) {
               alert(error);
               console.error(error);
@@ -182,7 +217,7 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
         }
     
         document.getElementById('loadingMessage').style.display = 'none';
-        alert('Emails envoyés !');
+        alert('Fin d\'envois !');
       } catch (error) {
         alert(error);
         console.error(error);

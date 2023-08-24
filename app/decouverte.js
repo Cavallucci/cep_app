@@ -216,7 +216,6 @@ function displayDecouverte(groupedData) {
 
         container.appendChild(customerInfo);
     }
-    //checkboxModule.setupCheckboxListeners(t_customers);
 }
 
 async function fillDécouverteWorksheet(worksheet, data, sortedData) {
@@ -253,12 +252,18 @@ async function manageEmail(checkbox, globalData) {
           groupEmail.push(decouverte);
       }
   }
-  if (emailValidator.validate(groupEmail[0].customerEmail)) {
-    console.log("nombre de mail = ", groupEmail.length);
-    await checkboxModule.sendEmailDecouverte(groupEmail);
-  } else {
-    alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
-    }  
+  if (groupEmail.length > 0) {
+    if (emailValidator.validate(groupEmail[0].customerEmail)) {
+      try {
+          const response = await checkboxModule.sendEmailDecouverte(groupEmail);
+          return response;
+      } catch (error) {
+          throw error;
+      }
+    } else {
+      alert(`Email du client ${groupEmail[0].customerFirstName} ${groupEmail[0].customerLastName} numéro ${groupEmail[0].customerId} erroné`);
+      }
+    }
 }
 
 module.exports = {
