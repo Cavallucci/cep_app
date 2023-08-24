@@ -311,5 +311,6 @@ module.exports = {
     displayStage,
     fillCustomersList,
     fillStageWorksheet,
-    manageEmail
+    manageEmail,
+    replaceDateStage
   };

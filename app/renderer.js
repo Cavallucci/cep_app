@@ -5,6 +5,7 @@ const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
 const testModule = require('./tests');
 const filterModule = require('./filter');
+const docsModule = require('./docs');
 
 let dateAsk = new Date(0);
 
@@ -37,6 +38,21 @@ document.addEventListener('displayBlock', async () => {
   else {
     const container = document.getElementById('displayContainer');
     container.innerHTML = '';
+  }
+});
+
+document.getElementById('printDoc').addEventListener('click', async () => {
+  const fileInput = document.getElementById('fileInput');
+
+  if (fileInput.files.length > 0) {
+    const filePath = fileInput.files[0].path;
+    const globalData = await ipcRenderer.invoke('get-sorted-data');
+
+    const stageList = docsModule.customerFillList(globalData);
+
+    ipcRenderer.send('printDocFile', filePath, stageList);
+  } else {
+    alert('Aucun fichier sélectionné');
   }
 });
 
@@ -152,30 +168,8 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
     
       let isSending = false;
       let lenght = checkboxes.length;
-
-      let time = 0;
-      if (lenght < 50) {
-        time = 1000;
-      }
-      else if (lenght < 100) {
-        time = 2000;
-      }
-      else if (lenght < 200) {
-        time = 3000;
-      }
-      else if (lenght < 300 ) {
-        time = 4000;
-      }
-      else if (lenght < 400) {
-        time = 5000;
-      }
-      else if (lenght < 500) {
-        time = 6000;
-      }
-      else if (lenght > 500) {
-        time = 7000;
-      }
-      totalTime = (time / 1000) * lenght;
+      let time = filterModule.setTimeWaiting(lenght);
+      let totalTime = (time / 1000) * lenght;
       totalTime = Math.floor(totalTime / 60);
       alert('Vous êtes sur le point d\'envoyer ' + lenght + ' emails, temps estimé : ' + totalTime + ' minutes \n Veuillez ne pas fermer l\'application');
 

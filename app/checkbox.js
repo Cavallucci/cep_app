@@ -11,6 +11,9 @@ const transporter = nodemailer.createTransport({
       pass: config.SMTP_PASSWORD,
     },
     name: 'clubdesenfantsparisiens.com',
+    tls: {
+      rejectUnauthorized: false
+    }
 });
 
 async function sendEmailFacturation(customer) {

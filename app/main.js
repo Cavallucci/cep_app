@@ -6,6 +6,8 @@ const adhesionModule = require('./adhesion');
 const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
 const testModule = require('./tests');
+const docsModule = require('./docs');
+const docx = require('docx');
 
 let mainWindow;
 let sortedData = [];
@@ -117,6 +119,35 @@ ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
 
     event.sender.send('printSuccess');
   } catch (error) {
+    console.error('Erreur lors de l\'impression des données :', error);
+    event.sender.send('printError', 'Erreur lors de l\'impression des données : ' + error.message);
+  }
+});
+
+ipcMain.on('printDocFile', async (event, filePath, stageList) => {
+  if (!stageList) {
+    event.sender.send('printError', 'Pas de liste de stage à imprimer !');
+    return;
+  }
+  try {
+    let newFilePath = '';
+      
+    if (filePath.endsWith('.xlsx')) {
+      newFilePath = filePath.replace('.xlsx', '_stageAccueil.docx');
+    } else if (filePath.endsWith('.csv')) {
+      newFilePath = filePath.replace('.csv', '_stageAccueil.docx');
+    } else {
+      catchError('Format de fichier non pris en charge :', fileExtension);
+      event.sender.send('sortingError', 'Format de fichier non pris en charge : ' + fileExtension);
+    }
+    const workbook = new docx.Document( { sections: [] } );
+    workbook = await docsModule.fillAccueilDoc(workbook, stageList, sortedData);
+
+    await workbook.docx.writeFile(newFilePath);
+
+    event.sender.send('printSuccess');
+
+  }catch (error) {
     console.error('Erreur lors de l\'impression des données :', error);
     event.sender.send('printError', 'Erreur lors de l\'impression des données : ' + error.message);
   }

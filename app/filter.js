@@ -14,7 +14,7 @@ const createWorkbook = (worksheet, filteredRows) => {
       
       //rowData[27] = 'nathalie@clubdesenfantsparisiens.com';
       //rowData[27] = 'test.cep.application@laposte.net';
-      rowData[27] = 'laura.cllucci@gmail.com';
+      //rowData[27] = 'laura.cllucci@gmail.com';
 
       if (typeof restDueValue === 'string'){
         const formattedRestDue = parseFloat(restDueValue);
@@ -95,8 +95,36 @@ async function convertCSVtoXLSX(filePath) {
     return Array.from(uniqueCheckboxes.values());
   }
 
+  function setTimeWaiting(lenght) {
+      let time = 0;
+
+      if (lenght < 50) {
+        time = 1000;
+      }
+      else if (lenght < 100) {
+        time = 2000;
+      }
+      else if (lenght < 200) {
+        time = 3000;
+      }
+      else if (lenght < 300 ) {
+        time = 4000;
+      }
+      else if (lenght < 400) {
+        time = 5000;
+      }
+      else if (lenght < 500) {
+        time = 6000;
+      }
+      else if (lenght > 500) {
+        time = 7000;
+      }
+      return time;
+  }
+
   module.exports = {
     createWorkbook,
     convertCSVtoXLSX,
-    removeDoublons
+    removeDoublons,
+    setTimeWaiting
   };
