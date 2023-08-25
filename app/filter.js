@@ -122,9 +122,15 @@ async function convertCSVtoXLSX(filePath) {
       return time;
   }
 
+  function formatDate(date) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('fr-FR', options);
+  }
+
   module.exports = {
     createWorkbook,
     convertCSVtoXLSX,
     removeDoublons,
-    setTimeWaiting
+    setTimeWaiting,
+    formatDate
   };

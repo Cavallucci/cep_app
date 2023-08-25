@@ -8,6 +8,12 @@ const stageModule = require('./stage');
 const testModule = require('./tests');
 const docsModule = require('./docs');
 const docx = require('docx');
+const fs = require('fs');
+const path = require('path');
+const downloadManager = require('electron-download-manager');
+
+const downloadsPath = app.getPath('downloads');
+downloadManager.register({ downloadFolder: downloadsPath });
 
 let mainWindow;
 let sortedData = [];
@@ -124,28 +130,25 @@ ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
   }
 });
 
-ipcMain.on('printDocFile', async (event, filePath, stageList) => {
+ipcMain.on('printDocFile', async (event, dateDoc1, dateDoc2, stageList) => {
   if (!stageList) {
     event.sender.send('printError', 'Pas de liste de stage à imprimer !');
     return;
   }
   try {
-    let newFilePath = '';
-      
-    if (filePath.endsWith('.xlsx')) {
-      newFilePath = filePath.replace('.xlsx', '_stageAccueil.docx');
-    } else if (filePath.endsWith('.csv')) {
-      newFilePath = filePath.replace('.csv', '_stageAccueil.docx');
-    } else {
-      catchError('Format de fichier non pris en charge :', fileExtension);
-      event.sender.send('sortingError', 'Format de fichier non pris en charge : ' + fileExtension);
-    }
     const workbook = new docx.Document( { sections: [] } );
-    workbook = await docsModule.fillAccueilDoc(workbook, stageList, sortedData);
-
-    await workbook.docx.writeFile(newFilePath);
-
-    event.sender.send('printSuccess');
+    await docsModule.fillAccueilDoc(workbook, stageList, sortedData);
+    
+    const fileName = path.join(downloadsPath, `planning_accueil_semaine_${filterModule.formatDate(dateDoc1)}_au_${filterModule.formatDate(dateDoc2)}.docx`);    docx.Packer.toBuffer(workbook).then((buffer) => {
+      fs.writeFileSync(fileName, buffer, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Fichier enregistré dans le dossier Téléchargements.');
+        }
+      });
+    });
+    event.sender.send('printDocSuccess');
 
   }catch (error) {
     console.error('Erreur lors de l\'impression des données :', error);

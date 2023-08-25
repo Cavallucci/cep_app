@@ -8,6 +8,8 @@ const filterModule = require('./filter');
 const docsModule = require('./docs');
 
 let dateAsk = new Date(0);
+let dateDoc1 = new Date(0);
+let dateDoc2 = new Date(0);
 
 document.getElementById('fileInput').addEventListener('change', () => {
   const fileInput = document.getElementById('fileInput');
@@ -30,6 +32,48 @@ document.getElementById('dateInput').addEventListener('change', async () => {
   }
 });
 
+document.getElementById('dateInputDoc1').addEventListener('change', async () => {
+  const dateInput = document.getElementById('dateInputDoc1');
+  const date = new Date(dateInput.value);
+  dateDoc1 = date;
+  if (dateDoc1.getTime() !== 0 && dateDoc2.getTime() !== 0) {
+  //|| (date.getTime() !== 0 && dateDoc2.getTime() !== 0)) {
+   // dateDoc1 = date;
+   const userConfirmed = confirm('Imprimer Doc pour stage du \n'
+   + filterModule.formatDate(dateDoc1) + ' au ' + filterModule.formatDate(dateDoc2) + ' ?');
+
+    if (userConfirmed) {
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files.length > 0) {
+        const filePath = fileInput.files[0].path;
+        const groupedData = await ipcRenderer.invoke('get-sorted-data');
+        const stageList = docsModule.customerFillList(groupedData);
+        ipcRenderer.send('printDocFile', dateDoc1, dateDoc2, stageList);
+      }
+    }
+  }
+});
+
+document.getElementById('dateInputDoc2').addEventListener('change', async () => {
+  const dateInput = document.getElementById('dateInputDoc2');
+  const date = new Date(dateInput.value);
+  dateDoc2 = date;
+  if (dateDoc2.getTime() !== 0 && dateDoc1.getTime() !== 0) {
+    const userConfirmed = confirm('Imprimer Doc pour stage du \n'
+     + filterModule.formatDate(dateDoc1) + ' au ' + filterModule.formatDate(dateDoc2) + ' ?');
+
+    if (userConfirmed) {
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files.length > 0) {
+        const filePath = fileInput.files[0].path;
+        const groupedData = await ipcRenderer.invoke('get-sorted-data');
+        const stageList = docsModule.customerFillList(groupedData);
+        ipcRenderer.send('printDocFile', filePath, stageList);
+      }
+    }
+  }
+});
+
 document.addEventListener('displayBlock', async () => {
   if (dateAsk.getTime() !== 0) {
     const groupedData = await ipcRenderer.invoke('get-sorted-data');
@@ -46,11 +90,12 @@ document.getElementById('printDoc').addEventListener('click', async () => {
 
   if (fileInput.files.length > 0) {
     const filePath = fileInput.files[0].path;
-    const globalData = await ipcRenderer.invoke('get-sorted-data');
 
-    const stageList = docsModule.customerFillList(globalData);
+    const container = document.getElementById('displayContainer');
+    container.innerHTML = '';
+    document.getElementById('dateInputContainer1').style.display = 'block';
+    document.getElementById('dateInputContainer2').style.display = 'block';
 
-    ipcRenderer.send('printDocFile', filePath, stageList);
   } else {
     alert('Aucun fichier sélectionné');
   }
@@ -140,6 +185,13 @@ ipcRenderer.on('sortingError', (event, error) => {
 ipcRenderer.on('printSuccess', () => {
   alert('Impression de l\'Excel trié réussie !');
   console.log('Impression de l\'Excel trié réussie !');
+});
+
+ipcRenderer.on('printDocSuccess', () => {
+  alert('Fichier enregistré dans le dossier Téléchargements.');
+  console.log('Fichier enregistré dans le dossier Téléchargements.');
+  document.getElementById('dateInputContainer1').style.display = 'none';
+  document.getElementById('dateInputContainer2').style.display = 'none';
 });
 
 ipcRenderer.on('printError', (event, error) => {

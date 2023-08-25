@@ -1012,6 +1012,11 @@
     "simple-update-notifier" "2.0.0"
     "yargs" "^17.6.2"
 
+"electron-download-manager@^2.1.2":
+  "integrity" "sha512-9v8aeMVZTX69NjEveKlKfTlJY74twpKktTXrmDI+UcQHZg7FtwuqxWw0ZNrjtVAOBcVNKzwG4ekn44B+xhz1tg=="
+  "resolved" "https://registry.npmjs.org/electron-download-manager/-/electron-download-manager-2.1.2.tgz"
+  "version" "2.1.2"
+
 "electron-prompt@^1.7.0":
   "integrity" "sha512-IfqJYEgcRO6NuyPROo8AtdkAiZ6N9I1lQEf4dJAkPuhV5YgOHdmLqZJf6OXumZJfzrjpzCM5jHeYOrhGdgbnEA=="
   "resolved" "https://registry.npmjs.org/electron-prompt/-/electron-prompt-1.7.0.tgz"

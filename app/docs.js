@@ -83,7 +83,11 @@ function fillAccueilDoc(workbook, stageList, sortedData) {
       alignment: docx.AlignmentType.CENTER,
       spacing: { before: 200, after: 200 },
     });
-    workbook.addParagraph(title);
+
+    workbook.addSection({
+        children: [title]
+      })
+    //workbook.addParagraph(title);
   
     // Ajouter le tableau avec les noms et prénoms
     // const table = new docx.Table({
@@ -110,7 +114,7 @@ function fillAccueilDoc(workbook, stageList, sortedData) {
     //   ],
     // });
   
-    workbook.addTable(table);
+    //workbook.addTable(table);
   }
   
 
