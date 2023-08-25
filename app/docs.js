@@ -28,13 +28,19 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
                 staName: customerData[8],
                 dateStage: customerData[7],
                 childs: [],
-                age: customerData[7].match(/\d+\/\d+ ans/g),
+                age: customerData[8].match(/\d+\/\d+ ans/g),
                 debut: customerData[16],
                 fin: customerData[17],
                 salle1: customerData[10],
                 salle2: customerData[11] ? customerData[11] : null,
-                prof1: new Map(customerData[12],customerData[13]),
-                prof2: new Map(customerData[14],customerData[15]) ? customerData[14] : null,
+                prof1: {
+                    id: customerData[12],
+                    nom: customerData[13]
+                },
+                prof2: customerData[14] ? {
+                    id: customerData[14],
+                    nom: customerData[15]
+                } : null,
             };
             const child = {
                 childId: customerData[18],
@@ -60,15 +66,15 @@ async function findMatchingDate(t_stages, dateDoc1, dateDoc2) {
 
     for (const stage of t_stages) { //STA_TOUSS22_24OCT_018_2022
         completeDateSTA = replaceDateStage(stage.dateStage);
+        stage.dateStage = completeDateSTA;
         completeDateSTA.setHours(0, 0, 0, 0);
         dateDoc1.setHours(0, 0, 0, 0);
         dateDoc2.setHours(0, 0, 0, 0);
         if (completeDateSTA >= dateDoc1 && completeDateSTA <= dateDoc2) {
-            customersWithoutMatch.push(customer);
-            break;
+            t_stagesMatch.push(stage);
         }
     }
-    return customersWithoutMatch;
+    return t_stagesMatch;
 }
 
 function replaceDateStage(date) { //STA_ETE23_28AOUT_019_2022
@@ -139,8 +145,6 @@ async function fillAccueilDoc(downloadsPath, stageList, sortedData, dateDoc1, da
       ],
       alignment: docx.AlignmentType.CENTER,
     });
-
-    console.log("listStage=", stageList);
 
     const table = new docx.Table({
         width: {
