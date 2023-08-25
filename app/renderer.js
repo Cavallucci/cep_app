@@ -37,8 +37,6 @@ document.getElementById('dateInputDoc1').addEventListener('change', async () => 
   const date = new Date(dateInput.value);
   dateDoc1 = date;
   if (dateDoc1.getTime() !== 0 && dateDoc2.getTime() !== 0) {
-  //|| (date.getTime() !== 0 && dateDoc2.getTime() !== 0)) {
-   // dateDoc1 = date;
    const userConfirmed = confirm('Imprimer Doc pour stage du \n'
    + filterModule.formatDate(dateDoc1) + ' au ' + filterModule.formatDate(dateDoc2) + ' ?');
 
@@ -47,7 +45,7 @@ document.getElementById('dateInputDoc1').addEventListener('change', async () => 
       if (fileInput.files.length > 0) {
         const filePath = fileInput.files[0].path;
         const groupedData = await ipcRenderer.invoke('get-sorted-data');
-        const stageList = docsModule.customerFillList(groupedData);
+        const stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
         ipcRenderer.send('printDocFile', dateDoc1, dateDoc2, stageList);
       }
     }
@@ -67,8 +65,8 @@ document.getElementById('dateInputDoc2').addEventListener('change', async () => 
       if (fileInput.files.length > 0) {
         const filePath = fileInput.files[0].path;
         const groupedData = await ipcRenderer.invoke('get-sorted-data');
-        const stageList = docsModule.customerFillList(groupedData);
-        ipcRenderer.send('printDocFile', filePath, stageList);
+        const stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
+        ipcRenderer.send('printDocFile', dateDoc1, dateDoc2, stageList);
       }
     }
   }
@@ -86,19 +84,10 @@ document.addEventListener('displayBlock', async () => {
 });
 
 document.getElementById('printDoc').addEventListener('click', async () => {
-  const fileInput = document.getElementById('fileInput');
-
-  if (fileInput.files.length > 0) {
-    const filePath = fileInput.files[0].path;
-
     const container = document.getElementById('displayContainer');
     container.innerHTML = '';
     document.getElementById('dateInputContainer1').style.display = 'block';
     document.getElementById('dateInputContainer2').style.display = 'block';
-
-  } else {
-    alert('Aucun fichier sélectionné');
-  }
 });
 
 

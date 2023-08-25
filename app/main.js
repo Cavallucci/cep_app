@@ -136,18 +136,28 @@ ipcMain.on('printDocFile', async (event, dateDoc1, dateDoc2, stageList) => {
     return;
   }
   try {
-    const workbook = new docx.Document( { sections: [] } );
-    await docsModule.fillAccueilDoc(workbook, stageList, sortedData);
+    // const workbook = new docx.Document({
+    //   sections: [{
+    //     properties: {
+    //       page: {
+    //         orientation: docx.PageOrientation.LANDSCAPE,
+    //       },
+    //     },
+    //     children: []
+    //   }]
+    // });
+    // await docsModule.fillAccueilDoc(workbook, stageList, sortedData, dateDoc1, dateDoc2);
     
-    const fileName = path.join(downloadsPath, `planning_accueil_semaine_${filterModule.formatDate(dateDoc1)}_au_${filterModule.formatDate(dateDoc2)}.docx`);    docx.Packer.toBuffer(workbook).then((buffer) => {
-      fs.writeFileSync(fileName, buffer, (err) => {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log('Fichier enregistré dans le dossier Téléchargements.');
-        }
-      });
-    });
+    // const fileName = path.join(downloadsPath, `planning_accueil_semaine_${filterModule.formatDate(dateDoc1)}_au_${filterModule.formatDate(dateDoc2)}.docx`);    docx.Packer.toBuffer(workbook).then((buffer) => {
+    //   fs.writeFileSync(fileName, buffer, (err) => {
+    //     if (err) {
+    //       console.error(err);
+    //     } else {
+    //       console.log('Fichier enregistré dans le dossier Téléchargements.');
+    //     }
+    //   });
+    // });
+    await docsModule.fillAccueilDoc(downloadsPath, stageList, sortedData, dateDoc1, dateDoc2);
     event.sender.send('printDocSuccess');
 
   }catch (error) {
