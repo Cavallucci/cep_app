@@ -32,9 +32,9 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
                 debut: customerData[16],
                 fin: customerData[17],
                 salle1: customerData[10],
-                salle2: customerData[11],
+                salle2: customerData[11] ? customerData[11] : null,
                 prof1: new Map(customerData[12],customerData[13]),
-                prof2:new Map(customerData[14],customerData[15]),
+                prof2: new Map(customerData[14],customerData[15]) ? customerData[14] : null,
             };
             const child = {
                 childId: customerData[18],
