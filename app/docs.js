@@ -132,62 +132,43 @@ function replaceDateStage(date) { //STA_ETE23_28AOUT_019_2022
     return completeDateSTA
 }
 
-async function fillAccueilDoc(downloadsPath, stageList, sortedData, dateDoc1, dateDoc2) {
-    const title = new docx.Paragraph({
-      children: [
-        new docx.TextRun({
-          text: `STAGES du ${filterModule.formatDate(dateDoc1)} au ${filterModule.formatDate(dateDoc2)}`.toUpperCase(),
-          bold: true,
-          font: 'Calibri',
-          size: `24pt`,
-          color: '#0070c0',
-        }),
-      ],
-      alignment: docx.AlignmentType.CENTER,
-    });
+async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
+    const title = addTitle(dateDoc1, dateDoc2);
 
     const matchingChildren = [];
 
-    for (const stage of listPendingProcessing) {
-        const childrenWithStatus = stage.childs.filter(child => {
-            return child.status === 'Pending' || child.status === 'Processing';
-        });
-
-        if (childrenWithStatus.length > 0) {
-            matchingChildren.push({
-            customerFirstName: stage.customerFirstName,
-            customerLastName: stage.customerLastName,
-            });
+    for (const stage of stageList) {
+        for (const child of stage.childs) {
+            if ((child.status === 'pending' || child.status === 'processing') &&
+                !matchingChildren.some(existingChild => 
+                    existingChild.customerFirstName === child.customerFirstName &&
+                    existingChild.customerLastName === child.customerLastName
+                )) {
+                matchingChildren.push(child);
+            }
         }
     }
-
-    const table = new docx.Table({
-        width: {
-            size: 30,
-            type: docx.WidthType.PERCENTAGE,
-        },
-        rows: [
-            new docx.TableRow({
+    
+    let table = '';
+    if (matchingChildren.length > 0) {
+        table = withoutPaimentTable(matchingChildren);
+    } else {
+        table = new docx.Paragraph({
             children: [
-                new docx.TableCell({
-                    children: [new docx.Paragraph('Non réglé ou à checker')],
+                new docx.TextRun({
+                    text: `Aucun non réglé à checker`,
+                    font: 'Calibri',
+                    size: `14pt`,
                 }),
             ],
-        }),
-        ...matchingChildren.map(stage => {
-            return new docx.TableRow({
-                children: [
-                    new docx.TableCell({
-                        children: [new docx.Paragraph(stage.customerFirstName)],
-                    }),
-                    new docx.TableCell({
-                        children: [new docx.Paragraph(stage.customerLastName)],
-                    }),
-                ],
-            });
-        }),
-      ],
-    });
+        });
+    }
+
+    const aReplacer = aReplacerTable();
+    const header = addHeader();
+    const footer = addFooter();
+    const planning = planningTable(stageList);
+
 
     const doc = new docx.Document({
       sections: [{
@@ -198,7 +179,13 @@ async function fillAccueilDoc(downloadsPath, stageList, sortedData, dateDoc1, da
                 },
             },
         },
-        children: [title, table]
+        headers: {
+            default: header,
+        },
+        footers: {
+            default: footer,
+        },
+        children: [title, table, aReplacer]
       }]
     });
 
@@ -213,7 +200,459 @@ async function fillAccueilDoc(downloadsPath, stageList, sortedData, dateDoc1, da
         });
     });
   }
-  
+
+function addTitle(dateDoc1, dateDoc2) {
+    return new docx.Paragraph({
+        children: [
+            new docx.TextRun({
+                text: `STAGES du ${filterModule.formatDate(dateDoc1)} au ${filterModule.formatDate(dateDoc2)}`.toUpperCase(),
+                bold: true,
+                font: 'Calibri',
+                size: `24pt`,
+                color: '#0070c0',
+            }),
+            new docx.TextRun({ break: 3 }),
+        ],
+        alignment: docx.AlignmentType.CENTER,
+    });
+}
+
+function addHeader() {
+    return new docx.Header({
+        children: [
+            new docx.Paragraph({
+                children: [
+                    new docx.TextRun({
+                        text: 'version accueil',
+                        font: 'Calibri',
+                        size: `11pt`,
+                        bold: true,
+                    }),
+                ],
+                alignment: docx.AlignmentType.RIGHT,
+            }),
+            new docx.Paragraph({
+                children: [
+                    new docx.ImageRun({
+                        data: fs.readFileSync(path.join(__dirname, '../icons/logo_docs.png')),
+                        transformation: {
+                            width: 189,
+                            height: 102,
+                        },
+                        alignment: docx.AlignmentType.LEFT,
+                    }),
+                ],
+            }),
+        ],
+    });
+}
+
+function addFooter() {
+    return new docx.Footer({
+        children: [
+            new docx.Paragraph({
+                children: [
+                    new docx.TextRun({
+                        text: 'Page ',
+                        font: 'Calibri',
+                        size: `10pt`,
+                    }),
+                    docx.PageNumber.CURRENT,
+                    new docx.TextRun({
+                        text: ' sur ',
+                        font: 'Calibri',
+                        size: `10pt`,
+                    }),
+                    docx.PageNumber.TOTAL_PAGES,
+                    new docx.TextRun({
+                        text: ' - ',
+                        font: 'Calibri',
+                        size: `10pt`,
+                    }),
+                    new docx.TextRun({
+                        text: 'Planning accueil',
+                        font: 'Calibri',
+                        size: `10pt`,
+                    }),
+                ],
+                alignment: docx.AlignmentType.CENTER,
+            }),
+        ],
+    });
+}
+
+function aReplacerTable() {
+    return new docx.Table({
+        width: {
+            size: 100,
+            type: docx.WidthType.PERCENTAGE,
+        },
+        rows: [
+            new docx.TableRow({
+                children: [
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: 'Enfants à replacer',
+                                    font: 'Calibri',
+                                    size: `16pt`,
+                                    bold: true,
+                                }),
+                            ],
+                        })],
+                    }),
+                ],
+            }),
+            new docx.TableRow({
+                children: [
+                    new docx.TableCell({ children: [
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: 'Prénom',
+                                    font: 'Calibri',
+                                    size: `11pt`,
+                                    bold: true,
+                                }),
+                            ],
+                        }),
+                    ]}),
+                    new docx.TableCell({ children: [
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: 'Nom',
+                                    font: 'Calibri',
+                                    size: `11pt`,
+                                    bold: true,
+                                }),
+                            ],
+                        }),
+                    ]}),
+                    new docx.TableCell({ children: [
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: 'Date de naissance',
+                                    font: 'Calibri',
+                                    size: `11pt`,
+                                    bold: true,
+                                }),
+                            ],
+                        }),
+                    ]}),
+                    new docx.TableCell({ children: [
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: 'Commentaire',
+                                    font: 'Calibri',
+                                    size: `11pt`,
+                                    bold: true,
+                                }),
+                            ],
+                        }),
+                    ]}),
+                ],
+            }),
+            new docx.TableRow({
+                children: [
+                    new docx.TableCell({ children: []}),
+                    new docx.TableCell({ children: []}),
+                    new docx.TableCell({ children: []}),
+                    new docx.TableCell({ children: []}),
+                ],
+            }),
+        ],
+    });
+}
+
+function withoutPaimentTable(matchingChildren) {
+    return new docx.Paragraph({
+        children: [
+            new docx.Table({
+            width: {
+                size: 30,
+                type: docx.WidthType.PERCENTAGE,
+            },
+            rows: [
+                new docx.TableRow({
+                    children: [
+                        new docx.TableCell({
+                            children: [
+                                new docx.Paragraph({
+                                    children: [
+                                        new docx.TextRun({
+                                            text: 'Non réglé ou à checker',
+                                            font: 'Calibri',
+                                            size: `16pt`,
+                                            bold: true,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                         }),
+                    ],
+                }),
+                ...matchingChildren.map(stage => {
+                    return new docx.TableRow({
+                        children: [
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: stage.customerFirstName,
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                                color: '#ff0000',
+                                            }),
+                                        ],
+                                    })
+                                ],                             
+                            }),
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: stage.customerLastName,
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                                color: '#ff0000',
+                                            }),
+                                        ],
+                                    })
+                                ],
+                            }),
+                        ],
+                    });
+                }),
+            ],
+            }),
+        ],
+    });
+}
+
+function planningTable( stageList) {
+    const header = headerPlanningTable();
+    return new docx.Paragraph({
+        children: [
+            new docx.Table({
+            width: {
+                size: 100,
+                type: docx.WidthType.PERCENTAGE,
+            },
+            rows: [
+                header,
+                ...stageList.map(stage => {
+                    return new docx.TableRow({
+                        children: [
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: stage.age,
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                            }),
+                                        ],
+                                    })
+                                ],                             
+                            }),
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: stage.staName,
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                            }),
+                                        ],
+                                    })
+                                ],
+                            }),
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `${filterModule.formatDate(stage.debut)} - ${filterModule.formatDate(stage.fin)}`,
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                            }),
+                                        ],
+                                    })
+                                ],
+                            }),
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: stage.salle1,
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                            }),
+                                        ],
+                                    })
+                                ],
+                            }),
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: stage.salle2 ? stage.salle2 : '',
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                            }),
+                                        ],
+                                    })
+                                ],
+                            }),
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: stage.prof1.nom,
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                            }),
+                                        ],
+                                    })
+                                ],
+                            }),
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            new docx.TextRun({
+                                                text: stage.prof2 ? stage.prof2.nom : '',
+                                                font: 'Calibri',
+                                                size: `11pt`,
+                                            }),
+                                        ],
+                                    })
+                                ],
+                            }),
+                        ],
+                    });
+                }),
+            ],
+        }),
+    ],
+});
+}
+
+function headerPlanningTable() {
+        return new docx.TableRow({
+        children: [
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({
+                                text: 'Age',
+                                font: 'Calibri',
+                                size: `16pt`,
+                                bold: true,
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({
+                                text: 'Intitulé',
+                                font: 'Calibri',
+                                size: `11pt`,
+                                bold: true,
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({
+                                text: 'Horaires',
+                                font: 'Calibri',
+                                size: `11pt`,
+                                bold: true,
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({
+                                text: 'Salle 1',
+                                font: 'Calibri',
+                                size: `11pt`,
+                                bold: true,
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({
+                                text: 'Salle 2',
+                                font: 'Calibri',
+                                size: `11pt`,
+                                bold: true,
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({
+                                text: 'Prof 1',
+                                font: 'Calibri',
+                                size: `11pt`,
+                                bold: true,
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({
+                                text: 'Prof 2',
+                                font: 'Calibri',
+                                size: `11pt`,
+                                bold: true,
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+        ],
+    }),
+}
 
 module.exports = {
     customerFillList,

@@ -157,7 +157,7 @@ ipcMain.on('printDocFile', async (event, dateDoc1, dateDoc2, stageList) => {
     //     }
     //   });
     // });
-    await docsModule.fillAccueilDoc(downloadsPath, stageList, sortedData, dateDoc1, dateDoc2);
+    await docsModule.fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2);
     event.sender.send('printDocSuccess');
 
   }catch (error) {
