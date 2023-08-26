@@ -155,11 +155,7 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     } else {
         table = new docx.Paragraph({
             children: [
-                new docx.TextRun({
-                    text: `Aucun non réglé à checker`,
-                    font: 'Calibri',
-                    size: `14pt`,
-                }),
+                addText('Aucun non réglé à checker', true, `14pt`),
             ],
         });
     }
@@ -167,7 +163,9 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     const aReplacer = aReplacerTable();
     const header = addHeader();
     const footer = addFooter();
-    const planning = planningTable(stageList);
+
+    const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
+    const planning = planningTable(stageListWithoutJC);
 
 
     const doc = new docx.Document({
@@ -222,12 +220,7 @@ function addHeader() {
         children: [
             new docx.Paragraph({
                 children: [
-                    new docx.TextRun({
-                        text: 'version accueil',
-                        font: 'Calibri',
-                        size: `11pt`,
-                        bold: true,
-                    }),
+                    addText('version accueil', true, `11pt`),
                 ],
                 alignment: docx.AlignmentType.RIGHT,
             }),
@@ -252,28 +245,12 @@ function addFooter() {
         children: [
             new docx.Paragraph({
                 children: [
-                    new docx.TextRun({
-                        text: 'Page ',
-                        font: 'Calibri',
-                        size: `10pt`,
-                    }),
+                    addText('Page ', false, `10pt`),
                     docx.PageNumber.CURRENT,
-                    new docx.TextRun({
-                        text: ' sur ',
-                        font: 'Calibri',
-                        size: `10pt`,
-                    }),
+                    addText(' sur ', false, `10pt`),
                     docx.PageNumber.TOTAL_PAGES,
-                    new docx.TextRun({
-                        text: ' - ',
-                        font: 'Calibri',
-                        size: `10pt`,
-                    }),
-                    new docx.TextRun({
-                        text: 'Planning accueil',
-                        font: 'Calibri',
-                        size: `10pt`,
-                    }),
+                    addText(' - ', false, `10pt`),
+                    addText('Planning accueil', false, `10pt`),
                 ],
                 alignment: docx.AlignmentType.CENTER,
             }),
@@ -295,12 +272,7 @@ function aReplacerTable() {
                     new docx.TableCell({
                         children: [new docx.Paragraph({
                             children: [
-                                new docx.TextRun({
-                                    text: 'Enfants à replacer',
-                                    font: 'Calibri',
-                                    size: `16pt`,
-                                    bold: true,
-                                }),
+                                addText('Enfants à replacer', true, `16pt`),
                             ],
                         })],
                     }),
@@ -311,48 +283,28 @@ function aReplacerTable() {
                     new docx.TableCell({ children: [
                         new docx.Paragraph({
                             children: [
-                                new docx.TextRun({
-                                    text: 'Prénom',
-                                    font: 'Calibri',
-                                    size: `11pt`,
-                                    bold: true,
-                                }),
+                                addText('Prénom', true, `11pt`),
                             ],
                         }),
                     ]}),
                     new docx.TableCell({ children: [
                         new docx.Paragraph({
                             children: [
-                                new docx.TextRun({
-                                    text: 'Nom',
-                                    font: 'Calibri',
-                                    size: `11pt`,
-                                    bold: true,
-                                }),
+                                addText('Nom', true, `11pt`),
                             ],
                         }),
                     ]}),
                     new docx.TableCell({ children: [
                         new docx.Paragraph({
                             children: [
-                                new docx.TextRun({
-                                    text: 'Date de naissance',
-                                    font: 'Calibri',
-                                    size: `11pt`,
-                                    bold: true,
-                                }),
+                                addText('Date de naissance', true, `11pt`),
                             ],
                         }),
                     ]}),
                     new docx.TableCell({ children: [
                         new docx.Paragraph({
                             children: [
-                                new docx.TextRun({
-                                    text: 'Commentaire',
-                                    font: 'Calibri',
-                                    size: `11pt`,
-                                    bold: true,
-                                }),
+                                addText('Commentaire', true, `11pt`),
                             ],
                         }),
                     ]}),
@@ -388,12 +340,7 @@ function withoutPaimentTable(matchingChildren) {
                             children: [
                                 new docx.Paragraph({
                                     children: [
-                                        new docx.TextRun({
-                                            text: 'Non réglé ou à checker',
-                                            font: 'Calibri',
-                                            size: `16pt`,
-                                            bold: true,
-                                        }),
+                                        addText('Non réglé ou à checker', true, `16pt`),
                                     ],
                                 }),
                             ],
@@ -407,6 +354,7 @@ function withoutPaimentTable(matchingChildren) {
                                 children: [
                                     new docx.Paragraph({ 
                                         children: [
+                                            addText(stage.customerFirstName, false, `11pt`, '#ff0000'),
                                             new docx.TextRun({
                                                 text: stage.customerFirstName,
                                                 font: 'Calibri',
@@ -421,12 +369,7 @@ function withoutPaimentTable(matchingChildren) {
                                 children: [
                                     new docx.Paragraph({ 
                                         children: [
-                                            new docx.TextRun({
-                                                text: stage.customerLastName,
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                                color: '#ff0000',
-                                            }),
+                                            addText(stage.customerLastName, false, `11pt`, '#ff0000'),
                                         ],
                                     })
                                 ],
@@ -442,18 +385,129 @@ function withoutPaimentTable(matchingChildren) {
 
 function planningTable(stageList) {
     const globalTable = new docx.Paragraph({
-        children: [ ],
+        children: [],
     });
     const headerRow = headerPlanningTable();
+    const headerChildTables = headerChildTable();
     for (const stage of stageList) {
         const stageRow = stagePlanningTable(stage);
         globalTable.addChildElement(headerRow);
         globalTable.addChildElement(stageRow);
+        globalTable.addChildElement(addCellYellow());
+
+        globalTable.addChildElement(headerChildTables);
+        const childTable = childRowTable(stage.childs);
+        globalTable.addChildElement(childTable);
+
+        globalTable.addChildElement(new docx.Table({
+            width: {
+                size: 100,
+                type: docx.WidthType.PERCENTAGE,
+            },
+            rows: [
+                new docx.TableRow({
+                    children: [
+                        new docx.TableCell({
+                            children: [
+                                new docx.Paragraph({ 
+                                    children: [ 
+                                        new docx.TextRun({ break: 2 }),
+                                    ],
+                                })
+                            ],
+                        }),
+                    ],
+                }),
+            ],
+        }));
     }
     return globalTable;
 }
 
- function stagePlanningTable(stage) {  
+function childRowTable(childs) {
+    return new docx.Table({
+        width: {
+            size: 100,
+            type: docx.WidthType.PERCENTAGE,
+        },
+        rows: [
+            ...childs.map(child => {
+                return new docx.TableRow({
+                    children: [
+                        new docx.TableCell({
+                            children: [
+                                new docx.Paragraph({ 
+                                    children: [
+                                        addText(child.childFirstName, false, `11pt`),
+                                    ],
+                                })
+                            ],
+                        }),
+                        new docx.TableCell({
+                            children: [
+                                new docx.Paragraph({ 
+                                    children: [
+                                        addText(child.childLastName, false, `11pt`),
+                                    ],
+                                })
+                            ],
+                        }),
+                        new docx.TableCell({
+                            children: [
+                                new docx.Paragraph({ 
+                                    children: [
+                                        addText(child.birth, false, `11pt`),
+                                    ],
+                                })
+                            ],
+                        }),
+                        new docx.TableCell({
+                            children: [ new docx.Paragraph({ children: [ ],})],
+                        }),
+                        new docx.TableCell({
+                            children: [ new docx.Paragraph({ children: [ ],})],
+                        }),
+                        new docx.TableCell({
+                            children: [ new docx.Paragraph({ children: [ ],})],
+                        }),
+                        new docx.TableCell({
+                            children: [ new docx.Paragraph({ children: [ ],})],
+                        }),
+                        new docx.TableCell({
+                            children: [ new docx.Paragraph({ children: [ ],})],
+                        }),
+                        new docx.TableCell({
+                            children: [ new docx.Paragraph({ children: [ ],})],
+                        }),
+                    ],
+                });
+            }),
+        ],
+    });
+}
+
+function addCellYellow() {
+    return new docx.Table({
+        width: {
+            size: 100,
+            type: docx.WidthType.PERCENTAGE,
+        },
+        rows: [
+            new docx.TableRow({
+                children: [
+                    new docx.TableCell({
+                        shading: {
+                            fill: 'ffff00',
+                        },
+                        children: [],
+                    }),
+                ],
+            }),
+        ],
+    });
+}
+
+function stagePlanningTable(stage) {  
     return  new docx.Table({
         width: {
             size: 100,
@@ -463,92 +517,85 @@ function planningTable(stageList) {
         new docx.TableRow({
         children: [
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({ 
                         children: [
-                            new docx.TextRun({
-                                text: stage.age,
-                                font: 'Calibri',
-                                size: `11pt`,
-                            }),
+                            addText(stage.age[0], true, `13pt`),
                         ],
                     })
                 ],                             
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({ 
                         children: [
-                            new docx.TextRun({
-                                text: stage.staName,
-                                font: 'Calibri',
-                                size: `11pt`,
-                            }),
+                            addText(stage.staName, true, `13pt`),
                         ],
                     })
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({ 
                         children: [
-                            new docx.TextRun({
-                                text: `${stage.debut} - ${stage.fin}`,
-                                font: 'Calibri',
-                                size: `11pt`,
-                            }),
+                            addText(`${stage.debut} - ${stage.fin}`, true, `13pt`),
                         ],
                     })
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({ 
                         children: [
-                            new docx.TextRun({
-                                text: stage.salle1,
-                                font: 'Calibri',
-                                size: `11pt`,
-                            }),
+                            addText(stage.salle1, true, `13pt`),
                         ],
                     })
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({ 
                         children: [
-                            new docx.TextRun({
-                                text: stage.salle2 ? stage.salle2 : '',
-                                font: 'Calibri',
-                                size: `11pt`,
-                            }),
+                            addText(stage.salle2 ? stage.salle2 : '', true, `13pt`),
                         ],
                     })
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({ 
                         children: [
-                            new docx.TextRun({
-                                text: stage.prof1.nom,
-                                font: 'Calibri',
-                                size: `11pt`,
-                            }),
+                            addText(stage.prof1.nom, true, `13pt`),
                         ],
                     })
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({ 
                         children: [
-                            new docx.TextRun({
-                                text: stage.prof2 ? stage.prof2.nom : '',
-                                font: 'Calibri',
-                                size: `11pt`,
-                            }),
+                            addText(stage.prof2 ? stage.prof2.nom : '', true, `13pt`),
                         ],
                     })
                 ],
@@ -569,99 +616,85 @@ function headerPlanningTable() {
             new docx.TableRow({
             children: [
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({
-                                text: 'Age',
-                                font: 'Calibri',
-                                size: `11pt`,
-                                bold: true,
-                            }),
+                            addText('Age', true, `13pt`),
                         ],
                     }),
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({
-                                text: 'Intitulé',
-                                font: 'Calibri',
-                                size: `11pt`,
-                                bold: true,
-                            }),
+                            addText('Intitulé', true, `13pt`),
                         ],
                     }),
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({
-                                text: 'Horaires',
-                                font: 'Calibri',
-                                size: `11pt`,
-                                bold: true,
-                            }),
+                            addText('Horaires', true, `13pt`),
                         ],
                     }),
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({
-                                text: 'Salle 1',
-                                font: 'Calibri',
-                                size: `11pt`,
-                                bold: true,
-                            }),
+                            addText('Salle 1', true, `13pt`),
                         ],
                     }),
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({
-                                text: 'Salle 2',
-                                font: 'Calibri',
-                                size: `11pt`,
-                                bold: true,
-                            }),
+                            addText('Salle 2', true, `13pt`),
                         ],
                     }),
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({
-                                text: 'Prof 1',
-                                font: 'Calibri',
-                                size: `11pt`,
-                                bold: true,
-                            }),
+                            addText('Prof 1', true, `13pt`),
                         ],
                     }),
                 ],
             }),
             new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
                 children: [
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({
-                                text: 'Prof 2',
-                                font: 'Calibri',
-                                size: `11pt`,
-                                bold: true,
-                            }),
+                            addText('Prof 2', true, `13pt`),
                         ],
                     }),
                 ],
@@ -669,6 +702,112 @@ function headerPlanningTable() {
             ],
         }),
         ],
+    });
+}
+
+function headerChildTable() {
+    return  new docx.Table({
+        width: {
+            size: 100,
+            type: docx.WidthType.PERCENTAGE,
+        },
+        rows: [
+            new docx.TableRow({
+            children: [
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Prénom', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Nom', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Date de naissance', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Commentaires', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Lundi', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Mardi', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Mercredi', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Jeudi', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({
+                        children: [
+                            addText('Vendredi', true, `11pt`),
+                        ],
+                    }),
+                ],
+            }),
+            ],
+        }),
+        ],
+    });
+}
+
+function addText(text, bold, size, color) {
+    return new docx.TextRun({
+        text: text,
+        font: 'Calibri',
+        size: size,
+        bold: bold,
+        color: color ? color : null,
     });
 }
 
