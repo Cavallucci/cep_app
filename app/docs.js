@@ -213,7 +213,7 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     });
   }
 
-function sortStage(stageList) {
+  function sortStage(stageList) {
     const stageListSort = stageList.sort((a, b) => {
         if (a.debut < b.debut) {
             return -1;
@@ -221,6 +221,17 @@ function sortStage(stageList) {
         if (a.debut > b.debut) {
             return 1;
         }
+
+        const ageA = parseInt(a.age[0]);
+        const ageB = parseInt(b.age[0]); 
+
+        if (ageA < ageB) {
+            return -1;
+        }
+        if (ageA > ageB) {
+            return 1;
+        }
+
         return 0;
     });
     return stageListSort;
