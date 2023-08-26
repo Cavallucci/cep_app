@@ -185,7 +185,7 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
         footers: {
             default: footer,
         },
-        children: [title, table, aReplacer]
+        children: [title, table, aReplacer, planning]
       }]
     });
 
@@ -282,7 +282,9 @@ function addFooter() {
 }
 
 function aReplacerTable() {
-    return new docx.Table({
+    return new docx.Paragraph({
+        children: [
+        new docx.Table({
         width: {
             size: 100,
             type: docx.WidthType.PERCENTAGE,
@@ -365,6 +367,9 @@ function aReplacerTable() {
                 ],
             }),
         ],
+    }),
+    new docx.TextRun({ break: 3 }),
+    ],
     });
 }
 
@@ -435,123 +440,134 @@ function withoutPaimentTable(matchingChildren) {
     });
 }
 
-function planningTable( stageList) {
-    const header = headerPlanningTable();
-    return new docx.Paragraph({
+function planningTable(stageList) {
+    const globalTable = new docx.Paragraph({
+        children: [ ],
+    });
+    const headerRow = headerPlanningTable();
+    for (const stage of stageList) {
+        const stageRow = stagePlanningTable(stage);
+        globalTable.addChildElement(headerRow);
+        globalTable.addChildElement(stageRow);
+    }
+    return globalTable;
+}
+
+ function stagePlanningTable(stage) {  
+    return  new docx.Table({
+        width: {
+            size: 100,
+            type: docx.WidthType.PERCENTAGE,
+        },
+        rows: [
+        new docx.TableRow({
         children: [
-            new docx.Table({
-            width: {
-                size: 100,
-                type: docx.WidthType.PERCENTAGE,
-            },
-            rows: [
-                header,
-                ...stageList.map(stage => {
-                    return new docx.TableRow({
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({ 
                         children: [
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            new docx.TextRun({
-                                                text: stage.age,
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                            }),
-                                        ],
-                                    })
-                                ],                             
-                            }),
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            new docx.TextRun({
-                                                text: stage.staName,
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                            }),
-                                        ],
-                                    })
-                                ],
-                            }),
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            new docx.TextRun({
-                                                text: `${filterModule.formatDate(stage.debut)} - ${filterModule.formatDate(stage.fin)}`,
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                            }),
-                                        ],
-                                    })
-                                ],
-                            }),
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            new docx.TextRun({
-                                                text: stage.salle1,
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                            }),
-                                        ],
-                                    })
-                                ],
-                            }),
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            new docx.TextRun({
-                                                text: stage.salle2 ? stage.salle2 : '',
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                            }),
-                                        ],
-                                    })
-                                ],
-                            }),
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            new docx.TextRun({
-                                                text: stage.prof1.nom,
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                            }),
-                                        ],
-                                    })
-                                ],
-                            }),
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            new docx.TextRun({
-                                                text: stage.prof2 ? stage.prof2.nom : '',
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                            }),
-                                        ],
-                                    })
-                                ],
+                            new docx.TextRun({
+                                text: stage.age,
+                                font: 'Calibri',
+                                size: `11pt`,
                             }),
                         ],
-                    });
-                }),
-            ],
-        }),
+                    })
+                ],                             
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({ 
+                        children: [
+                            new docx.TextRun({
+                                text: stage.staName,
+                                font: 'Calibri',
+                                size: `11pt`,
+                            }),
+                        ],
+                    })
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({ 
+                        children: [
+                            new docx.TextRun({
+                                text: `${stage.debut} - ${stage.fin}`,
+                                font: 'Calibri',
+                                size: `11pt`,
+                            }),
+                        ],
+                    })
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({ 
+                        children: [
+                            new docx.TextRun({
+                                text: stage.salle1,
+                                font: 'Calibri',
+                                size: `11pt`,
+                            }),
+                        ],
+                    })
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({ 
+                        children: [
+                            new docx.TextRun({
+                                text: stage.salle2 ? stage.salle2 : '',
+                                font: 'Calibri',
+                                size: `11pt`,
+                            }),
+                        ],
+                    })
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({ 
+                        children: [
+                            new docx.TextRun({
+                                text: stage.prof1.nom,
+                                font: 'Calibri',
+                                size: `11pt`,
+                            }),
+                        ],
+                    })
+                ],
+            }),
+            new docx.TableCell({
+                children: [
+                    new docx.Paragraph({ 
+                        children: [
+                            new docx.TextRun({
+                                text: stage.prof2 ? stage.prof2.nom : '',
+                                font: 'Calibri',
+                                size: `11pt`,
+                            }),
+                        ],
+                    })
+                ],
+            }),
+        ],
+    }),
     ],
-});
+    });
 }
 
 function headerPlanningTable() {
-        return new docx.TableRow({
-        children: [
+    return  new docx.Table({
+        width: {
+            size: 100,
+            type: docx.WidthType.PERCENTAGE,
+        },
+        rows: [
+            new docx.TableRow({
+            children: [
             new docx.TableCell({
                 children: [
                     new docx.Paragraph({
@@ -559,7 +575,7 @@ function headerPlanningTable() {
                             new docx.TextRun({
                                 text: 'Age',
                                 font: 'Calibri',
-                                size: `16pt`,
+                                size: `11pt`,
                                 bold: true,
                             }),
                         ],
@@ -650,8 +666,10 @@ function headerPlanningTable() {
                     }),
                 ],
             }),
+            ],
+        }),
         ],
-    }),
+    });
 }
 
 module.exports = {
