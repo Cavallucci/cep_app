@@ -146,6 +146,21 @@ async function fillAccueilDoc(downloadsPath, stageList, sortedData, dateDoc1, da
       alignment: docx.AlignmentType.CENTER,
     });
 
+    const matchingChildren = [];
+
+    for (const stage of listPendingProcessing) {
+        const childrenWithStatus = stage.childs.filter(child => {
+            return child.status === 'Pending' || child.status === 'Processing';
+        });
+
+        if (childrenWithStatus.length > 0) {
+            matchingChildren.push({
+            customerFirstName: stage.customerFirstName,
+            customerLastName: stage.customerLastName,
+            });
+        }
+    }
+
     const table = new docx.Table({
         width: {
             size: 30,
@@ -159,14 +174,14 @@ async function fillAccueilDoc(downloadsPath, stageList, sortedData, dateDoc1, da
                 }),
             ],
         }),
-        ...stageList.map(stage => {
+        ...matchingChildren.map(stage => {
             return new docx.TableRow({
                 children: [
                     new docx.TableCell({
-                        children: [new docx.Paragraph(stage.staName)],
+                        children: [new docx.Paragraph(stage.customerFirstName)],
                     }),
                     new docx.TableCell({
-                        children: [new docx.Paragraph(stage.age)],
+                        children: [new docx.Paragraph(stage.customerLastName)],
                     }),
                 ],
             });
