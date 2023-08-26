@@ -58,6 +58,19 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
 
     const customerWithDate = await findMatchingDate(t_stages, dateDoc1, dateDoc2); 
 
+    for (const stage of customerWithDate) {
+        const ageSort = stage.childs.sort((a, b) => {
+            if (a.birth < b.birth) {
+                return -1;
+            }
+            if (a.birth > b.birth) {
+                return 1;
+            }
+            return 0;
+        });
+        stage.childs = ageSort;
+    }
+
     return customerWithDate;
 }
 
@@ -165,7 +178,8 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     const footer = addFooter();
 
     const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
-    const planning = planningTable(stageListWithoutJC);
+    const stageListSort = sortStage(stageListWithoutJC);
+    const planning = planningTable(stageListSort);
 
 
     const doc = new docx.Document({
@@ -198,6 +212,19 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
         });
     });
   }
+
+function sortStage(stageList) {
+    const stageListSort = stageList.sort((a, b) => {
+        if (a.debut < b.debut) {
+            return -1;
+        }
+        if (a.debut > b.debut) {
+            return 1;
+        }
+        return 0;
+    });
+    return stageListSort;
+}
 
 function addTitle(dateDoc1, dateDoc2) {
     return new docx.Paragraph({
