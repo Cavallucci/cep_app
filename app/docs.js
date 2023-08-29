@@ -16,7 +16,7 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
                 childId: customerData[18],
                 childFirstName: customerData[19],
                 childLastName: customerData[20],
-                birth: customerData[21],
+                birth: formatDateFrench(customerData[21]),
                 status: customerData[1],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
@@ -46,7 +46,7 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
                 childId: customerData[18],
                 childFirstName: customerData[19],
                 childLastName: customerData[20],
-                birth: customerData[21],
+                birth: formatDateFrench(customerData[21]),
                 status: customerData[1],
                 customerFirstName: customerData[5],
                 customerLastName: customerData[6],
@@ -72,6 +72,17 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
     }
 
     return customerWithDate;
+}
+
+function formatDateFrench(dateStr) {
+    const parts = dateStr.split('-'); 
+    if (parts.length === 3) {
+        const day = parts[2];
+        const month = parts[1];
+        const year = parts[0];
+        return `${day}/${month}/${year}`;
+    }
+    return dateStr; 
 }
 
 async function findMatchingDate(t_stages, dateDoc1, dateDoc2) {
@@ -427,6 +438,12 @@ function planningTable(stageList) {
         globalTable.push(headerChildTables);
         const childTable = childRowTable(stage.childs);
         globalTable.push(childTable);
+        const nbChilds = stage.childs.length;
+        if (nbChilds < 10) {
+            const nbDiff = 10 - nbChilds;
+            const childTableVide = childRowTableVide(nbDiff);
+            globalTable.push(childTableVide);
+        }
 
         globalTable.push(new docx.Table({
             width: {
@@ -513,6 +530,54 @@ function childRowTable(childs) {
             }),
         ],
     });
+    return table;
+}
+
+function childRowTableVide(nbChilds) {
+    const rows = [];
+    for (let i = 0; i < nbChilds; i++) {
+        const row = new docx.TableRow({
+            children: [
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+                new docx.TableCell({
+                    children: [new docx.Paragraph({ children: [] })],
+                }),
+            ],
+        });
+        rows.push(row);
+    }
+
+    const table = new docx.Table({
+        width: {
+            size: 100,
+            type: docx.WidthType.PERCENTAGE,
+        },
+        rows: rows,
+    });
+
     return table;
 }
 
@@ -838,7 +903,7 @@ function headerChildTable() {
 function addText(text, bold, size, color) {
     const table = new docx.TextRun({
         text: text,
-        font: 'Calibri',
+        font: 'Ludica 12',
         size: size,
         bold: bold,
         color: color ? color : null,
