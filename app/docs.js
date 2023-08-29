@@ -29,8 +29,8 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
                 dateStage: customerData[7],
                 childs: [],
                 age: customerData[8].match(/\d+\/\d+ ans/g),
-                debut: customerData[16],
-                fin: customerData[17],
+                debut: formatTime(customerData[16]),
+                fin: formatTime(customerData[17]),
                 salle1: customerData[10],
                 salle2: customerData[11] ? customerData[11] : null,
                 prof1: {
@@ -72,6 +72,13 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
     }
 
     return customerWithDate;
+}
+
+function formatTime(timeStr) {
+    const [hours, minutes] = timeStr.split(':');
+    const formattedHours = hours.padStart(2, '0');
+    const formattedMinutes = minutes.padStart(2, '0');
+    return `${formattedHours}:${formattedMinutes}`;
 }
 
 function formatDateFrench(dateStr) {
