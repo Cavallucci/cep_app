@@ -86,10 +86,15 @@ document.addEventListener('displayBlock', async () => {
 document.getElementById('printDoc').addEventListener('click', async () => {
     const container = document.getElementById('displayContainer');
     container.innerHTML = '';
-    document.getElementById('dateInputContainer1').style.display = 'block';
-    document.getElementById('dateInputContainer2').style.display = 'block';
+    document.getElementById('printDocOptions').style.display = 'block';
 });
 
+document.getElementById('printDocAccueil').addEventListener('click', async () => {
+  const container = document.getElementById('displayContainer');
+  container.innerHTML = '';  
+  document.getElementById('dateInputContainer1').style.display = 'block';
+  document.getElementById('dateInputContainer2').style.display = 'block';
+});
 
 document.getElementById('printButton').addEventListener('click', async () => {
   const fileInput = document.getElementById('fileInput');

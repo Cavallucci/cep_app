@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <title>CEP Application</title>
 </head>
@@ -15,38 +16,44 @@
 
   <main class="main container pt-4">
     <input type="file" id="fileInput" accept=".xlsx, .csv" class="file-input form-control mb-3">
-    <button id="printButton" class="action-button btn btn-primary mb-3">Imprimer Excel</button>
-    <button id="printDoc" class="action-button btn btn-primary mb-3">Imprimer Doc</button>
-
-
+    
+    <button id="printButton" class="action-button btn btn-success mb-3">
+      <img src="../icons/icons8-excel-24.png" alt="Excel" class="icon">
+      Imprimer Excel
+    </button>
+    <button id="printDoc" class="action-button btn btn-primary mb-3">
+      <img src="../icons/icons8-word-24.png" alt="Word" class="icon">
+      Plannings
+    </button>
+  
     <div class="checkbox-container form-check mb-3">
       <input type="checkbox" id="selectAllCheckbox" class="form-check-input">
       <label for="selectAllCheckbox" class="checkbox-label form-check-label">Cocher tout</label>
     </div>
     
     <div class="options-container btn-group-toggle mb-3" data-toggle="buttons">
-      <label class="option-label btn btn-secondary active">
+      <label class="option-label btn btn-outline-primary active">
         <input type="radio" name="options" id="facturation" autocomplete="off" checked>
         Facturation
       </label>
-      <label class="option-label btn btn-secondary">
+      <label class="option-label btn btn-outline-primary">
         <input type="radio" name="options" id="adhesion" autocomplete="off">
         Adhésion
       </label>
-      <label class="option-label btn btn-secondary">
+      <label class="option-label btn btn-outline-primary">
         <input type="radio" name="options" id="decouverte" autocomplete="off">
         Découverte
       </label>
-      <label class="option-label btn btn-secondary">
+      <label class="option-label btn btn-outline-primary">
         <input type="radio" name="options" id="test" autocomplete="off">
         Test
       </label>
-      <label class="option-label btn btn-secondary">
+      <label class="option-label btn btn-outline-primary">
         <input type="radio" name="options" id="stage" autocomplete="off">
         Stage
       </label>
-    </div>
-
+    </div>    
+  
     <div class="d-flex justify-content-end">
       <button id="sendEmailButton" class="action-button btn btn-primary mb-3">Envoyer les emails</button>
     </div>
@@ -55,6 +62,13 @@
     <div id="dateInputContainer" style="display: none;">
       <label for="dateInput">Sélectionnez la date à partir de laquelle trier :</label>
       <input type="date" id="dateInput">
+    </div>
+
+    <div id="printDocOptions" style="display: none">
+      <button id="printDocAccueil" class="button-88" role="button">Accueil</button>
+      <!-- <button id="printDocAccueil" class="action-button btn btn-primary mb-3">Accueil</button> -->
+      <button id="printDocProf" class="action-button btn btn-primary mb-3">Professeurs</button>
+      <button id="printDocBafa" class="action-button btn btn-primary mb-3">BAFA</button>
     </div>
     
     <div id="dateInputContainer1" style="display: none;">
@@ -76,7 +90,7 @@
               <div id="customerDetails" class="customer-details"></div>
           </div>
       </div>
-  </div>
+    </div>
   
   </main>
 
