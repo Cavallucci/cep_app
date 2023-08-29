@@ -162,25 +162,28 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
         }
     }
     
-    let table = '';
-    if (matchingChildren.length > 0) {
-        table = withoutPaimentTable(matchingChildren);
-    } else {
-        table = new docx.Paragraph({
-            children: [
-                addText('Aucun non réglé à checker', true, `14pt`),
-            ],
-        });
-    }
+    // let table = '';
+    // if (matchingChildren.length > 0) {
+    const table = withoutPaimentTable(matchingChildren);
+    // } else {
+    //     table = new docx.Paragraph({
+    //         children: [
+    //             addText('Aucun non réglé à checker', true, `14pt`),
+    //         ],
+    //     });
+    // }
 
     const aReplacer = aReplacerTable();
     const header = addHeader();
     const footer = addFooter();
-
     const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
     const stageListSort = sortStage(stageListWithoutJC);
     const planning = planningTable(stageListSort);
-
+    const ligneVide = new docx.Paragraph({
+        children: [
+            new docx.TextRun({ break: 2 }),
+        ],
+    });
 
     const doc = new docx.Document({
       sections: [{
@@ -197,21 +200,71 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
         footers: {
             default: footer,
         },
-        children: [title, table, aReplacer, planning]
+        children: [title, ligneVide, table, ligneVide, aReplacer,ligneVide, ligneVide, ligneVide, ligneVide, ...planning]
       }]
     });
 
-    const fileName = path.join(downloadsPath, `planning_accueil_semaine_${filterModule.formatDate(dateDoc1)}_au_${filterModule.formatDate(dateDoc2)}.docx`);
-    docx.Packer.toBuffer(doc).then((buffer) => {
+    const fileName = path.join(downloadsPath, `planning_accueil_semaine_${filterModule.formatDate(dateDoc1)}_au_${filterModule.formatDate(dateDoc2)}.doc`);
+    docx.Packer.toBase64String(doc).then((base64String) => {
+        const buffer = Buffer.from(base64String, 'base64');
         fs.writeFileSync(fileName, buffer, (err) => {
             if (err) {
-            console.error(err);
+                console.error(err);
             } else {
-            console.log('Fichier enregistré dans le dossier Téléchargements.');
+                console.log('Fichier enregistré dans le dossier Téléchargements.');
             }
         });
     });
   }
+
+  function withoutPaimentTable(matchingChildren) {
+    const table = new docx.Table({
+            width: {
+                size: 30,
+                type: docx.WidthType.PERCENTAGE,
+            },
+            rows: [
+                new docx.TableRow({
+                    children: [
+                        new docx.TableCell({
+                            children: [
+                                new docx.Paragraph({
+                                    children: [
+                                        addText('Non réglé ou à checker', true, `16pt`),
+                                    ],
+                                }),
+                            ],
+                         }),
+                    ],
+                }),
+                ...matchingChildren.map(stage => {
+                    return new docx.TableRow({
+                        children: [
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            addText(stage.customerFirstName, false, `11pt`, '#ff0000'),
+                                        ],
+                                    })
+                                ],                             
+                            }),
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [
+                                            addText(stage.customerLastName, false, `11pt`, '#ff0000'),
+                                        ],
+                                    })
+                                ],
+                            }),
+                        ],
+                    });
+                }),
+            ],
+            });
+    return table;
+}
 
   function sortStage(stageList) {
     const stageListSort = stageList.sort((a, b) => {
@@ -238,7 +291,7 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
 }
 
 function addTitle(dateDoc1, dateDoc2) {
-    return new docx.Paragraph({
+    const title = new docx.Paragraph({
         children: [
             new docx.TextRun({
                 text: `STAGES du ${filterModule.formatDate(dateDoc1)} au ${filterModule.formatDate(dateDoc2)}`.toUpperCase(),
@@ -251,6 +304,7 @@ function addTitle(dateDoc1, dateDoc2) {
         ],
         alignment: docx.AlignmentType.CENTER,
     });
+    return title;
 }
 
 function addHeader() {
@@ -297,9 +351,7 @@ function addFooter() {
 }
 
 function aReplacerTable() {
-    return new docx.Paragraph({
-        children: [
-        new docx.Table({
+    const table = new docx.Table({
         width: {
             size: 100,
             type: docx.WidthType.PERCENTAGE,
@@ -357,87 +409,26 @@ function aReplacerTable() {
                 ],
             }),
         ],
-    }),
-    new docx.TextRun({ break: 3 }),
-    ],
     });
-}
-
-function withoutPaimentTable(matchingChildren) {
-    return new docx.Paragraph({
-        children: [
-            new docx.Table({
-            width: {
-                size: 30,
-                type: docx.WidthType.PERCENTAGE,
-            },
-            rows: [
-                new docx.TableRow({
-                    children: [
-                        new docx.TableCell({
-                            children: [
-                                new docx.Paragraph({
-                                    children: [
-                                        addText('Non réglé ou à checker', true, `16pt`),
-                                    ],
-                                }),
-                            ],
-                         }),
-                    ],
-                }),
-                ...matchingChildren.map(stage => {
-                    return new docx.TableRow({
-                        children: [
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            addText(stage.customerFirstName, false, `11pt`, '#ff0000'),
-                                            new docx.TextRun({
-                                                text: stage.customerFirstName,
-                                                font: 'Calibri',
-                                                size: `11pt`,
-                                                color: '#ff0000',
-                                            }),
-                                        ],
-                                    })
-                                ],                             
-                            }),
-                            new docx.TableCell({
-                                children: [
-                                    new docx.Paragraph({ 
-                                        children: [
-                                            addText(stage.customerLastName, false, `11pt`, '#ff0000'),
-                                        ],
-                                    })
-                                ],
-                            }),
-                        ],
-                    });
-                }),
-            ],
-            }),
-        ],
-    });
+    return table;
 }
 
 function planningTable(stageList) {
-    const globalTable = new docx.Paragraph({
-        children: [],
-    });
+    const globalTable = [];
+
     const headerRow = headerPlanningTable();
     const headerChildTables = headerChildTable();
     for (const stage of stageList) {
         const stageRow = stagePlanningTable(stage);
-        globalTable.addChildElement(headerRow);
-        globalTable.addChildElement(stageRow);
-        globalTable.addChildElement(addCellYellow());
+        globalTable.push(headerRow);
+        globalTable.push(stageRow);
+        globalTable.push(addCellYellow());
 
-        globalTable.addChildElement(headerChildTables);
+        globalTable.push(headerChildTables);
         const childTable = childRowTable(stage.childs);
-        globalTable.addChildElement(childTable);
+        globalTable.push(childTable);
 
-        globalTable.addChildElement(new docx.Table({
+        globalTable.push(new docx.Table({
             width: {
                 size: 100,
                 type: docx.WidthType.PERCENTAGE,
@@ -463,7 +454,7 @@ function planningTable(stageList) {
 }
 
 function childRowTable(childs) {
-    return new docx.Table({
+    const table = new docx.Table({
         width: {
             size: 100,
             type: docx.WidthType.PERCENTAGE,
@@ -522,10 +513,11 @@ function childRowTable(childs) {
             }),
         ],
     });
+    return table;
 }
 
 function addCellYellow() {
-    return new docx.Table({
+    const table = new docx.Table({
         width: {
             size: 100,
             type: docx.WidthType.PERCENTAGE,
@@ -543,10 +535,11 @@ function addCellYellow() {
             }),
         ],
     });
+    return table;
 }
 
 function stagePlanningTable(stage) {  
-    return  new docx.Table({
+    const table = new docx.Table({
         width: {
             size: 100,
             type: docx.WidthType.PERCENTAGE,
@@ -642,10 +635,11 @@ function stagePlanningTable(stage) {
     }),
     ],
     });
+    return table;
 }
 
 function headerPlanningTable() {
-    return  new docx.Table({
+    const table = new docx.Table({
         width: {
             size: 100,
             type: docx.WidthType.PERCENTAGE,
@@ -741,10 +735,11 @@ function headerPlanningTable() {
         }),
         ],
     });
+    return table;
 }
 
 function headerChildTable() {
-    return  new docx.Table({
+    const table = new docx.Table({
         width: {
             size: 100,
             type: docx.WidthType.PERCENTAGE,
@@ -837,16 +832,18 @@ function headerChildTable() {
         }),
         ],
     });
+    return table;
 }
 
 function addText(text, bold, size, color) {
-    return new docx.TextRun({
+    const table = new docx.TextRun({
         text: text,
         font: 'Calibri',
         size: size,
         bold: bold,
         color: color ? color : null,
     });
+    return table;
 }
 
 module.exports = {
