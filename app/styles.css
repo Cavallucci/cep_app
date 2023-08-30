@@ -6,10 +6,9 @@
   font-weight: 500;
   font-size: 16px;
   padding: 0.7em 1.4em 0.7em 1.1em;
-  color: white;
-  background: #5354ad49;
+  color: rgb(21, 0, 255);
+  background: #4090ff5d;
   border: none;
-  box-shadow: 0 0.7em 1.5em -0.5em #14a73e98;
   letter-spacing: 0.05em;
   border-radius: 20em;
   cursor: pointer;
@@ -19,9 +18,17 @@
 }
 
 .button-88:hover {
-  box-shadow: 0 0.5em 1.5em -0.5em #14a73e98;
+  box-shadow: 0 0.5em 1.5em -0.5em #0026ff98;
 }
 
 .button-88:active {
-  box-shadow: 0 0.3em 1em -0.5em #14a73e98;
+  box-shadow: 0 0.3em 1em -0.5em #0026ff98;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }

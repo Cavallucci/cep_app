@@ -179,24 +179,15 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
             }
         }
     }
-    
-    // let table = '';
-    // if (matchingChildren.length > 0) {
     const table = withoutPaimentTable(matchingChildren);
-    // } else {
-    //     table = new docx.Paragraph({
-    //         children: [
-    //             addText('Aucun non réglé à checker', true, `14pt`),
-    //         ],
-    //     });
-    // }
-
     const aReplacer = aReplacerTable();
     const header = addHeader();
     const footer = addFooter();
     const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
+    const stageWithJC = stageList.find(stage => stage.staName.startsWith('Journée continue'));
+    const childListWithJC = stageWithJC.childs;
     const stageListSort = sortStage(stageListWithoutJC);
-    const planning = planningTable(stageListSort);
+    const planning = planningTable(stageListSort, childListWithJC);
     const ligneVide = new docx.Paragraph({
         children: [
             new docx.TextRun({ break: 2 }),
@@ -236,6 +227,14 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
   }
 
   function withoutPaimentTable(matchingChildren) {
+    if (matchingChildren.length === 0) {
+        const paragraph = new docx.Paragraph({
+            children: [
+                addText('Aucun non réglé à checker', true, `14pt`),
+            ],
+        });
+        return paragraph;
+    }
     const table = new docx.Table({
             width: {
                 size: 30,
@@ -431,7 +430,7 @@ function aReplacerTable() {
     return table;
 }
 
-function planningTable(stageList) {
+function planningTable(stageList, childListWithJC) {
     const globalTable = [];
 
     const headerRow = headerPlanningTable();
@@ -443,7 +442,7 @@ function planningTable(stageList) {
         globalTable.push(addCellYellow());
 
         globalTable.push(headerChildTables);
-        const childTable = childRowTable(stage.childs);
+        const childTable = childRowTable(stage.childs, childListWithJC);
         globalTable.push(childTable);
         const nbChilds = stage.childs.length;
         if (nbChilds < 10) {
@@ -477,7 +476,7 @@ function planningTable(stageList) {
     return globalTable;
 }
 
-function childRowTable(childs) {
+function childRowTable(childs, childListWithJC) {
     const table = new docx.Table({
         width: {
             size: 100,
@@ -485,18 +484,29 @@ function childRowTable(childs) {
         },
         rows: [
             ...childs.map(child => {
+                console.log("child = ", child);
+                console.log("list = ", childListWithJC);
+                const isChildInJCList = childListWithJC.some(item => item.childId === child.childId);
+                
+                const backgroundColor = isChildInJCList ? '#ffff00' : undefined;
                 return new docx.TableRow({
                     children: [
                         new docx.TableCell({
+                            shading: {
+                                fill: backgroundColor,
+                            },
                             children: [
                                 new docx.Paragraph({ 
                                     children: [
                                         addText(child.childFirstName, false, `11pt`),
                                     ],
-                                })
+                                }),
                             ],
                         }),
                         new docx.TableCell({
+                            shading: {
+                                fill: backgroundColor,
+                            },
                             children: [
                                 new docx.Paragraph({ 
                                     children: [
@@ -506,6 +516,9 @@ function childRowTable(childs) {
                             ],
                         }),
                         new docx.TableCell({
+                            shading: {
+                                fill: backgroundColor,
+                            },
                             children: [
                                 new docx.Paragraph({ 
                                     children: [
