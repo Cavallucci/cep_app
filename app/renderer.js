@@ -6,6 +6,7 @@ const stageModule = require('./stage');
 const testModule = require('./tests');
 const filterModule = require('./filter');
 const docsModule = require('./docs');
+const accueilDocModule = require('./accueilDoc');
 
 let dateAsk = new Date(0);
 let dateDoc1 = new Date(0);
@@ -20,6 +21,13 @@ document.getElementById('fileInput').addEventListener('change', () => {
     document.getElementById('loadingMessage').style.display = 'block';
     ipcRenderer.send('sortExcelFile', filePath);
   }
+});
+
+document.getElementById('fileDocInput').addEventListener('change', () => {
+  const fileInput = document.getElementById('fileDocInput');
+  const filePath = fileInput.files[0].path;
+  document.getElementById('loadingMessage').style.display = 'block';
+  ipcRenderer.send('sortDocFile', filePath);
 });
 
 document.getElementById('dateInput').addEventListener('change', async () => {
@@ -37,18 +45,7 @@ document.getElementById('dateInputDoc1').addEventListener('change', async () => 
   const date = new Date(dateInput.value);
   dateDoc1 = date;
   if (dateDoc1.getTime() !== 0 && dateDoc2.getTime() !== 0) {
-   const userConfirmed = confirm('Imprimer Doc pour stage du \n'
-   + filterModule.formatDate(dateDoc1) + ' au ' + filterModule.formatDate(dateDoc2) + ' ?');
-
-    if (userConfirmed) {
-      const fileInput = document.getElementById('fileInput');
-      if (fileInput.files.length > 0) {
-        const filePath = fileInput.files[0].path;
-        const groupedData = await ipcRenderer.invoke('get-sorted-data');
-        const stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
-        ipcRenderer.send('printDocFile', dateDoc1, dateDoc2, stageList);
-      }
-    }
+    document.getElementById('printDocOptions').style.display = 'block';
   }
 });
 
@@ -56,19 +53,8 @@ document.getElementById('dateInputDoc2').addEventListener('change', async () => 
   const dateInput = document.getElementById('dateInputDoc2');
   const date = new Date(dateInput.value);
   dateDoc2 = date;
-  if (dateDoc2.getTime() !== 0 && dateDoc1.getTime() !== 0) {
-    const userConfirmed = confirm('Imprimer Doc pour stage du \n'
-     + filterModule.formatDate(dateDoc1) + ' au ' + filterModule.formatDate(dateDoc2) + ' ?');
-
-    if (userConfirmed) {
-      const fileInput = document.getElementById('fileInput');
-      if (fileInput.files.length > 0) {
-        const filePath = fileInput.files[0].path;
-        const groupedData = await ipcRenderer.invoke('get-sorted-data');
-        const stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
-        ipcRenderer.send('printDocFile', dateDoc1, dateDoc2, stageList);
-      }
-    }
+  if (dateDoc1.getTime() !== 0 && dateDoc2.getTime() !== 0) {
+    document.getElementById('printDocOptions').style.display = 'block';
   }
 });
 
@@ -86,14 +72,38 @@ document.addEventListener('displayBlock', async () => {
 document.getElementById('printDoc').addEventListener('click', async () => {
     const container = document.getElementById('displayContainer');
     container.innerHTML = '';
-    document.getElementById('printDocOptions').style.display = 'block';
+    document.getElementById('fileWithComments').style.display = 'none';
+    document.getElementById('dateInputContainer1').style.display = 'block';
+    document.getElementById('dateInputContainer2').style.display = 'block';
 });
 
 document.getElementById('printDocAccueil').addEventListener('click', async () => {
-  const container = document.getElementById('displayContainer');
-  container.innerHTML = '';  
-  document.getElementById('dateInputContainer1').style.display = 'block';
-  document.getElementById('dateInputContainer2').style.display = 'block';
+  if (dateDoc1.getTime() !== 0 && dateDoc2.getTime() !== 0) {
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files.length > 0) {
+        const groupedData = await ipcRenderer.invoke('get-sorted-data');
+        const stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
+        const editableTable = accueilDocModule.generateEditableTable(stageList);
+
+        const container = document.getElementById('document-preview');
+        container.style.display = 'block';
+        container.innerHTML = '';
+        container.appendChild(editableTable);
+
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'Enregistrer les modifications';
+        saveButton.addEventListener('click', () => {
+        const newstageList = accueilDocModule.newStageList(editableTable, stageList);
+        ipcRenderer.send('printDocAccueil', dateDoc1, dateDoc2, newstageList);
+      });
+
+      container.appendChild(saveButton);
+       }
+  }
+});
+
+document.getElementById('printDocProf').addEventListener('click', async () => {
+
 });
 
 document.getElementById('printButton').addEventListener('click', async () => {
@@ -184,8 +194,6 @@ ipcRenderer.on('printSuccess', () => {
 ipcRenderer.on('printDocSuccess', () => {
   alert('Fichier enregistré dans le dossier Téléchargements.');
   console.log('Fichier enregistré dans le dossier Téléchargements.');
-  document.getElementById('dateInputContainer1').style.display = 'none';
-  document.getElementById('dateInputContainer2').style.display = 'none';
 });
 
 ipcRenderer.on('printError', (event, error) => {

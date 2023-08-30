@@ -404,7 +404,7 @@
   "resolved" "https://registry.npmjs.org/@webpack-cli/serve/-/serve-2.0.5.tgz"
   "version" "2.0.5"
 
-"@xmldom/xmldom@^0.8.8":
+"@xmldom/xmldom@^0.8.10", "@xmldom/xmldom@^0.8.8":
   "integrity" "sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw=="
   "resolved" "https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.8.10.tgz"
   "version" "0.8.10"
@@ -970,6 +970,13 @@
     "nanoid" "^4.0.2"
     "xml" "^1.0.1"
     "xml-js" "^1.6.8"
+
+"docxtemplater@^3.38.0":
+  "integrity" "sha512-FsMN1FFzLyhFmXn0wrnLhHVPHAYWXHmzpGNyh8ZURYVEvURd6Rp2Zpacn3KH7LOyWTdnKEzvJUFdQ7wmEFxfzg=="
+  "resolved" "https://registry.npmjs.org/docxtemplater/-/docxtemplater-3.38.0.tgz"
+  "version" "3.38.0"
+  dependencies:
+    "@xmldom/xmldom" "^0.8.10"
 
 "dotenv-expand@^5.1.0":
   "integrity" "sha512-YXQl1DSa4/PQyRfgrv6aoNjhasp/p4qs9FjJ4q4cQk+8m4r6k4ZSiEyytKG8f8W9gi8WsQtIObNmKd+tMzNTmA=="
@@ -1932,6 +1939,11 @@
   "resolved" "https://registry.npmjs.org/p-try/-/p-try-2.2.0.tgz"
   "version" "2.2.0"
 
+"pako@^2.1.0":
+  "integrity" "sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug=="
+  "resolved" "https://registry.npmjs.org/pako/-/pako-2.1.0.tgz"
+  "version" "2.1.0"
+
 "pako@~1.0.2":
   "integrity" "sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw=="
   "resolved" "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz"
@@ -1966,6 +1978,13 @@
   "integrity" "sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ=="
   "resolved" "https://registry.npmjs.org/picocolors/-/picocolors-1.0.0.tgz"
   "version" "1.0.0"
+
+"pizzip@^3.1.4":
+  "integrity" "sha512-08yol1Of5Og1E0a1R56c+Z1jVkvfTEBUouwG9WYwCqpj8BjdcpEpLgZsrdLFNQYRgtxK0OOe0JpmBWJdrPr6Dg=="
+  "resolved" "https://registry.npmjs.org/pizzip/-/pizzip-3.1.4.tgz"
+  "version" "3.1.4"
+  dependencies:
+    "pako" "^2.1.0"
 
 "pkg-dir@^4.2.0":
   "integrity" "sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ=="

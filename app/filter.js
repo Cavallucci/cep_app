@@ -127,10 +127,11 @@ async function convertCSVtoXLSX(filePath) {
     return date.toLocaleDateString('fr-FR', options);
   }
 
+  
   module.exports = {
     createWorkbook,
     convertCSVtoXLSX,
     removeDoublons,
     setTimeWaiting,
-    formatDate
+    formatDate,
   };

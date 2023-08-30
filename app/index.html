@@ -64,11 +64,10 @@
       <input type="date" id="dateInput">
     </div>
 
-    <div id="printDocOptions" style="display: none;">
+    <div id="fileWithComments" style="display: none; margin-top: 20px;">
       <div class="flex-container">
-        <button id="printDocAccueil" class="button-88" role="button">Accueil</button>
-        <button id="printDocProf" class="button-88">Professeurs</button>
-        <button id="printDocBafa" class="button-88">BAFA</button>
+        <label for="fileDocInput">Sélectionnez le fichier avec les commentaires :</label>
+        <input type="file" id="fileDocInput" accept=".docx" class="file-input form-control mb-3">
       </div>
     </div>
     
@@ -86,6 +85,15 @@
       </div>
     </div>
     
+    <div id="printDocOptions" style="display: none;">
+      <div class="flex-container">
+        <button id="printDocAccueil" class="button-88" role="button">Accueil</button>
+        <button id="printDocProf" class="button-88">Professeurs</button>
+        <button id="printDocBafa" class="button-88">BAFA</button>
+      </div>
+    </div>
+
+    <div id="document-preview" style="display: none"></div>
 
     <div class="container pt-4">
       <div class="row">

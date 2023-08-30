@@ -91,6 +91,46 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
   }
 });
 
+ipcMain.on('sortDocFile', async (event, filePath) => {
+  try {
+    let filteredRows = [];
+
+    if (filePath.endsWith('.docx')) {
+      const PizZip = require("pizzip");
+      const Docxtemplater = require("docxtemplater");
+      
+      const fs = require("fs");
+      const path = require("path");
+      
+      const content = fs.readFileSync(
+          path.resolve(__dirname, filePath),
+          "binary"
+      );
+      
+      const zip = new PizZip(content);
+      
+      const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+      });
+
+      console.log(doc.getFullText());
+    }
+
+    if (filteredRows.length > 0) {
+      event.sender.send('sortingSuccess', filteredRows);
+
+      sortedData = filteredRows;
+    }
+    else {
+      event.sender.send('sortingError', 'Aucune donnée');
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement du document :', error);
+    event.sender.send('sortingError', 'Erreur lors du chargement du document : ' + error.message);
+  }
+});
+
 ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
   if (!sortedData) {
     event.sender.send('printError', 'Veuillez d\'abord trier le fichier Excel !');
@@ -130,7 +170,7 @@ ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
   }
 });
 
-ipcMain.on('printDocFile', async (event, dateDoc1, dateDoc2, stageList) => {
+ipcMain.on('printDocAccueil', async (event, dateDoc1, dateDoc2, stageList) => {
   if (!stageList) {
     event.sender.send('printError', 'Pas de liste de stage à imprimer !');
     return;

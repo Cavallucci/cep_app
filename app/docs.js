@@ -27,6 +27,7 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
                 staSku: customerData[7],
                 staName: customerData[8],
                 dateStage: customerData[7],
+                commentaire: '',
                 childs: [],
                 age: customerData[8].match(/\d+\/\d+ ans/g),
                 debut: formatTime(customerData[16]),
@@ -439,7 +440,7 @@ function planningTable(stageList, childListWithJC) {
         const stageRow = stagePlanningTable(stage);
         globalTable.push(headerRow);
         globalTable.push(stageRow);
-        globalTable.push(addCellYellow());
+        globalTable.push(addCellYellow(stage.commentaire));
 
         globalTable.push(headerChildTables);
         const childTable = childRowTable(stage.childs, childListWithJC);
@@ -484,10 +485,8 @@ function childRowTable(childs, childListWithJC) {
         },
         rows: [
             ...childs.map(child => {
-                console.log("child = ", child);
-                console.log("list = ", childListWithJC);
                 const isChildInJCList = childListWithJC.some(item => item.childId === child.childId);
-                
+
                 const backgroundColor = isChildInJCList ? '#ffff00' : undefined;
                 return new docx.TableRow({
                     children: [
@@ -601,7 +600,7 @@ function childRowTableVide(nbChilds) {
     return table;
 }
 
-function addCellYellow() {
+function addCellYellow(comment) {
     const table = new docx.Table({
         width: {
             size: 100,
@@ -614,7 +613,13 @@ function addCellYellow() {
                         shading: {
                             fill: 'ffff00',
                         },
-                        children: [],
+                        children: [
+                            new docx.Paragraph({ 
+                                children: [
+                                    addText(comment, true, `11pt`),
+                                ],
+                            })
+                        ],
                     }),
                 ],
             }),
@@ -933,5 +938,6 @@ function addText(text, bold, size, color) {
 
 module.exports = {
     customerFillList,
-    fillAccueilDoc
+    fillAccueilDoc,
+    sortStage,
   };
