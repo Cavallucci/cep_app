@@ -77,7 +77,7 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
     headerData = headerRow.values;
 
     if (filteredRows.length > 0) {
-      event.sender.send('sortingSuccess', filteredRows);
+      event.sender.send('sortingSuccess');
 
       filteredRows.unshift(headerData);
       sortedData = filteredRows;

@@ -72,6 +72,7 @@ document.addEventListener('displayBlock', async () => {
 document.getElementById('printDoc').addEventListener('click', async () => {
     const container = document.getElementById('displayContainer');
     container.innerHTML = '';
+    document.getElementById('containerPlanningStage').style.display = 'block';
     document.getElementById('fileWithComments').style.display = 'none';
     document.getElementById('dateInputContainer1').style.display = 'block';
     document.getElementById('dateInputContainer2').style.display = 'block';
@@ -93,8 +94,8 @@ document.getElementById('printDocAccueil').addEventListener('click', async () =>
         const saveButton = document.createElement('button');
         saveButton.textContent = 'Enregistrer les modifications';
         saveButton.addEventListener('click', () => {
-        const newstageList = accueilDocModule.newStageList(editableTable, stageList);
-        ipcRenderer.send('printDocAccueil', dateDoc1, dateDoc2, newstageList);
+          const newstageList = accueilDocModule.newStageList(editableTable, stageList);
+          ipcRenderer.send('printDocAccueil', dateDoc1, dateDoc2, newstageList);
       });
 
       container.appendChild(saveButton);
@@ -129,6 +130,7 @@ document.getElementById('printButton').addEventListener('click', async () => {
 });
 
 function handleOptionChange(radioButton, groupedData) {
+  document.getElementById('containerPlanningStage').style.display = 'none';
   document.querySelectorAll('.option-label').forEach((label) => {
     label.classList.remove('active');
   });
@@ -159,9 +161,13 @@ function handleOptionChange(radioButton, groupedData) {
   }
 }
 
-ipcRenderer.on('sortingSuccess', (event, groupedData) => {
-  document.getElementById('loadingMessage').style.display = 'none';
-
+document.getElementById('buttonRelances').addEventListener('click', async () => {
+  console.log('heyyyyyyyy');
+  document.getElementById('containerFeuillesAppel').style.display = 'none';
+  console.log('not waiting');
+  document.getElementById('containerRelances').style.display = 'block';
+  groupedData = await ipcRenderer.invoke('get-sorted-data');
+  console.log('groupedData = ', groupedData);
   if (groupedData.length > 0) {
     const radioGroup = document.getElementsByName("options");
 
@@ -179,6 +185,15 @@ ipcRenderer.on('sortingSuccess', (event, groupedData) => {
   } else {
     alert('Aucune donnée détectée');
   }
+});
+
+document.getElementById('buttonFeuillesAppel').addEventListener('click', async () => {
+  document.getElementById('containerRelances').style.display = 'none';
+  document.getElementById('containerFeuillesAppel').style.display = 'block';
+});
+
+ipcRenderer.on('sortingSuccess', (event) => {
+  document.getElementById('loadingMessage').style.display = 'none';
 });
 
 ipcRenderer.on('sortingError', (event, error) => {
@@ -275,3 +290,7 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
       alert('Aucun client sélectionné');
   }
 });
+
+module.exports = {
+  handleOptionChange,
+};
