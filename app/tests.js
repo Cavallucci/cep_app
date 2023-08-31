@@ -80,13 +80,20 @@ function fillCustomersList(groupedData) {
 }
 
 function extractDateTest(dateTest) {
-    if (dateTest !== undefined && typeof dateTest === 'string' && dateTest.startsWith('Date de votre test')) {
+    if (dateTest && typeof dateTest === 'string' && dateTest.startsWith('Date de votre test')) {
         const dateTestWords = dateTest.split(':'); //Date de votre test : : 22/04/2023 à 14h00,
         const dateTestString = dateTestWords.slice(-1);//[' : 22/04/2023 à 14h00,']
         const dateTestString2 = dateTestString[0].split(' ');
         const dateTestString3 = dateTestString2[1];//['22/04/2023']
+        const dateTestString4 = dateTestString3.split('/');
+        
+        const day = dateTestString4[0];
+        const month = dateTestString4[1];
+        const year = dateTestString4[2];
 
-        return new Date(dateTestString3);
+        const date = new Date(year, month - 1, day);
+        date.setHours(0, 0, 0, 0);
+        return date;
     }
     return null;
 }

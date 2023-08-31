@@ -54,6 +54,8 @@ function fillCourseList(groupedData) {
     });
 
     let today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
     const nomJourAujourdhui = joursSemaine[today.getDay()];
     const listWithDay = customersWithTK.filter((customer) => {
@@ -65,6 +67,9 @@ function fillCourseList(groupedData) {
             return true;
         }
         if (customer.sku.startsWith('TEST')) {
+            if (customer.sku === 'TEST_TK212_2022') {
+                console.log(customer);
+            }
             if (customer.testDate && customer.testDate.getDate() === today.getDate()) {
                 return true;
             }
