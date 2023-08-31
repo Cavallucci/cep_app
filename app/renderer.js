@@ -7,6 +7,7 @@ const testModule = require('./tests');
 const filterModule = require('./filter');
 const docsModule = require('./docs');
 const accueilDocModule = require('./accueilDoc');
+const todayCourseModule = require('./todayCourse');
 
 let dateAsk = new Date(0);
 let dateDoc1 = new Date(0);
@@ -161,13 +162,21 @@ function handleOptionChange(radioButton, groupedData) {
   }
 }
 
+document.getElementById('printTodayCourse').addEventListener('click', async() => {
+  try {
+    const groupedData = await ipcRenderer.invoke('get-sorted-data');
+    await todayCourseModule.printTodayCourse(groupedData);
+  }
+  catch (error) {
+    alert(error);
+    console.error(error);
+  }
+});
+
 document.getElementById('buttonRelances').addEventListener('click', async () => {
-  console.log('heyyyyyyyy');
   document.getElementById('containerFeuillesAppel').style.display = 'none';
-  console.log('not waiting');
   document.getElementById('containerRelances').style.display = 'block';
-  groupedData = await ipcRenderer.invoke('get-sorted-data');
-  console.log('groupedData = ', groupedData);
+  const groupedData = await ipcRenderer.invoke('get-sorted-data');
   if (groupedData.length > 0) {
     const radioGroup = document.getElementsByName("options");
 

@@ -55,6 +55,10 @@ ipcMain.handle('get-sorted-data', (event) => {
   return sortedData;
 });
 
+ipcMain.handle('get-download-path', (event) => {
+  return downloadsPath;
+});
+
 ipcMain.on('sortExcelFile', async (event, filePath) => {
   try {
     let filteredRows = [];
@@ -133,7 +137,7 @@ ipcMain.on('sortDocFile', async (event, filePath) => {
 
 ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
   if (!sortedData) {
-    event.sender.send('printError', 'Veuillez d\'abord trier le fichier Excel !');
+    event.sender.send('printError', 'Veuillez d\'abord entrer un fichier Excel !');
     return;
   }
   try {

@@ -25,7 +25,7 @@ function fillCustomersList(groupedData) {
             }
             existingCustomer.courses.push(customerData[8]);
             existingCustomer.sku.push(customerData[7]);
-            existingCustomer.dateTest.push(new Date(customerData[36]));
+            existingCustomer.dateTest.push(extractDateTest(customerData[33]));
         } else {
             const newCustomer = {
                 childId: customerData[18],
@@ -41,7 +41,7 @@ function fillCustomersList(groupedData) {
                 tests: [],
                 tk: [],
                 tkCode: [],
-                dateTest: [new Date(customerData[36])],
+                dateTest: [extractDateTest(customerData[33])] //Date de votre test : : 22/04/2023 à 14h00,
             };
             if (customerData[7] && customerData[7].startsWith('TEST')) {
                 newCustomer.tests.push(customerData[8]);
@@ -77,6 +77,18 @@ function fillCustomersList(groupedData) {
     const customerWithMatch = findMatchingEnrollments(customerWithMatchTK);
 
     return customerWithMatch;
+}
+
+function extractDateTest(dateTest) {
+    if (dateTest !== undefined && typeof dateTest === 'string' && dateTest.startsWith('Date de votre test')) {
+        const dateTestWords = dateTest.split(':'); //Date de votre test : : 22/04/2023 à 14h00,
+        const dateTestString = dateTestWords.slice(-1);//[' : 22/04/2023 à 14h00,']
+        const dateTestString2 = dateTestString[0].split(' ');
+        const dateTestString3 = dateTestString2[1];//['22/04/2023']
+
+        return new Date(dateTestString3);
+    }
+    return null;
 }
 
 function removeDiacritics(str) {
@@ -276,5 +288,6 @@ module.exports = {
     displayTest,
     fillCustomersList,
     fillTestWorksheet,
-    manageEmail
+    manageEmail,
+    extractDateTest,
   };
