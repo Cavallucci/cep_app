@@ -2,6 +2,7 @@ const checkboxModule = require('./checkbox');
 const emailValidator = require('email-validator');
 const fs = require('fs');
 const path = require('path');
+const filterModule = require('./filter');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -114,10 +115,6 @@ function replaceDateStage(date) {
     const completeDateSTA = new Date(`${completeYearSTA}-${monthSTA}-${daySTA}`);
     return completeDateSTA
 }
-
-function removeDiacritics(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
   
 function findMatchingEnrollments(customerWithDate) {
     const customersWithoutMatch = [];
@@ -134,7 +131,7 @@ function findMatchingEnrollments(customerWithDate) {
         let matchedTK = false;
 
         for (const staCourse of customer.sta) {
-            stageWithoutDiacritics = removeDiacritics(staCourse).toLowerCase();
+            stageWithoutDiacritics = filterModule.removeDiacritics(staCourse).toLowerCase();
             for (const stage of stageList) {
                 if (stageWithoutDiacritics.includes(stage)) {
                     newListOfStage.push(stage);
@@ -142,7 +139,7 @@ function findMatchingEnrollments(customerWithDate) {
             }
         }
         for (const tkCourse of customer.tk) {
-            tkCourseWithoutDiacritics = removeDiacritics(tkCourse).toLowerCase();
+            tkCourseWithoutDiacritics = filterModule.removeDiacritics(tkCourse).toLowerCase();
             for (const stage of newListOfStage) {
                 if (tkCourseWithoutDiacritics.includes(stage)) {
                     matchedTK = true;
@@ -287,8 +284,8 @@ async function getListToPrint(customerGroup) {
                 
                 const staWords = staAccents.split(' ');
                 for (const word of staWords) {
-                    const sta = removeDiacritics(word).toLowerCase();
-                    const stage = parsedStagesData.find(entry => sta.includes(removeDiacritics(entry.activ).toLowerCase()));
+                    const sta = filterModule.removeDiacritics(word).toLowerCase();
+                    const stage = parsedStagesData.find(entry => sta.includes(filterModule.removeDiacritics(entry.activ).toLowerCase()));
                     if (stage && stage[age] && stage[age] !== '') {
                         const lien = stage[age];
                         listToPrint.push(`<a href="${lien}">${stage.activ}</a>`);

@@ -1,5 +1,6 @@
 const checkboxModule = require('./checkbox');
 const emailValidator = require('email-validator');
+const filterModule = require('./filter');
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -53,10 +54,6 @@ function fillCustomersList(groupedData) {
     const customerWithMatch = findMatchingEnrollments(customerWithMonth);
 
     return customerWithMatch;
-}
-
-function removeDiacritics(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 function findMatchingMonth(customerWithCD) {
@@ -146,12 +143,12 @@ function findMatchingEnrollments(customersWithCD) {
       const cdWords = cdCourse.split(' ');
       const wordAfterCoursDeDecouverte = cdWords[3];
 
-      const cdWordWithoutAccents = removeDiacritics(wordAfterCoursDeDecouverte).toLowerCase();
+      const cdWordWithoutAccents = filterModule.removeDiacritics(wordAfterCoursDeDecouverte).toLowerCase();
 
       if (
         customer.tk.some(
           (tkCourse) =>
-            removeDiacritics(tkCourse).toLowerCase().includes(cdWordWithoutAccents)
+          filterModule.removeDiacritics(tkCourse).toLowerCase().includes(cdWordWithoutAccents)
         )
       ) {
         matchedTK = true;

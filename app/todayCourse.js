@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
 const testModule = require('./tests');
+const docModule = require('./docs');
 
 async function printTodayCourse(groupedData) {
     if (!groupedData) {
@@ -16,7 +17,9 @@ async function printTodayCourse(groupedData) {
         const fileName = path.join(downloadpath, `feuille_accueil_${filterModule.formatDate(today)}.xlsx`);
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Feuille accueil');
+        const worksheet = workbook.addWorksheet('Feuille accueil', { //ajuster toutes les colonnes à 1 page
+            pageSetup: {paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0}
+        });
 
         await fillCourseWorksheet(worksheet, sortedData);
         await workbook.xlsx.writeFile(fileName);
@@ -33,14 +36,14 @@ function fillCourseList(groupedData) {
     for (const customerData of groupedData) {
         const newCustomer = {
             customerLastName: customerData[6],
-            debut: customerData[9],
-            fin: customerData[10],
+            debut: docModule.formatTime(customerData[16]),
+            fin: docModule.formatTime(customerData[17]),
             childId: customerData[18],
             childFirstName: customerData[19],
             childLastName: customerData[20],
             courseName: customerData[8],
-            room: customerData[11],
-            teacher: customerData[12],
+            room: customerData[10],
+            teacher: customerData[13],
             sku: customerData[7],
             day: customerData[25],
             testDate: testModule.extractDateTest(customerData[33]),
@@ -77,12 +80,38 @@ function fillCourseList(groupedData) {
         return false;
     });
 
-    return listWithTestOfTheDay;
+    const sortedList = sortListCourse(listWithTestOfTheDay);
+
+    return sortedList;
+}
+
+function sortListCourse(listWithTestOfTheDay) {
+    const sortedList = listWithTestOfTheDay.sort((a, b) => {
+        if (a.debut < b.debut) {
+            return -1;
+        }
+        if (a.debut > b.debut) {
+            return 1;
+        }
+        
+        const childLastNameA = filterModule.removeDiacritics(a.childLastName);
+        const childLastNameB = filterModule.removeDiacritics(b.childLastName);
+        if (childLastNameA < childLastNameB) {
+            return -1;
+        }
+        if (childLastNameA > childLastNameB) {
+            return 1;
+        }
+        return 0;
+    });
+    return sortedList;
 }
 
 async function fillCourseWorksheet(worksheet, groupedData) {
     const headerData = ['Nom Parent', 'Heure début', 'Heure fin', 'Nom enfant', 'Prénom enfant', 'Nom cours', 'Salle', 'Nom prof', 'Tk cours'];
-    worksheet.addRow(headerData);
+    const row = worksheet.addRow(headerData);
+    row.height = 30;
+    row.font = {name: 'Calibri', size: 20, bold: true};
 
     if (groupedData.length === 0) {
         return;
@@ -99,7 +128,30 @@ async function fillCourseWorksheet(worksheet, groupedData) {
             rowData.teacher, 
             rowData.sku 
         ]);
+        row.height = 30;
+        ['B', 'C', 'G'].forEach((col) => {
+            row.getCell(col).font = {name: 'Calibri', size: 30, bold: true, color: {argb: "FFFF0000"}};
+        });
+        ['A', 'H'].forEach((col) => {
+            row.getCell(col).font = { name: 'Calibri', size: 20, bold: true,};
+        });
+        ['D', 'E', 'F'].forEach((col) => {
+            row.getCell(col).font = { name: 'Calibri', size: 30, bold: true,};
+        });
+        ['I'].forEach((col) => {
+            row.getCell(col).font = { name: 'Calibri', size: 10};
+        });
     });
+    
+    worksheet.getColumn(1).width = 30; //60 = 117,9
+    worksheet.getColumn(2).width = 25;
+    worksheet.getColumn(3).width = 20;
+    worksheet.getColumn(4).width = 45;
+    worksheet.getColumn(5).width = 30;
+    worksheet.getColumn(6).width = 85;
+    worksheet.getColumn(7).width = 15;
+    worksheet.getColumn(8).width = 40;
+    worksheet.getColumn(9).width = 15;
 }
 
 module.exports = {

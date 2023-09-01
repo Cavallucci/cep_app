@@ -126,7 +126,13 @@ async function convertCSVtoXLSX(filePath) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('fr-FR', options);
   }
-
+  
+function removeDiacritics(str) {
+  if (!str) {
+      return '';
+  }
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
   
   module.exports = {
     createWorkbook,
@@ -134,4 +140,5 @@ async function convertCSVtoXLSX(filePath) {
     removeDoublons,
     setTimeWaiting,
     formatDate,
+    removeDiacritics,
   };

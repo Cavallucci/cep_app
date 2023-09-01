@@ -76,10 +76,14 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
 }
 
 function formatTime(timeStr) {
-    const [hours, minutes] = timeStr.split(':');
-    const formattedHours = hours.padStart(2, '0');
-    const formattedMinutes = minutes.padStart(2, '0');
-    return `${formattedHours}:${formattedMinutes}`;
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5]?[0-9]$/;
+    if (timeStr && timeStr.match(timeRegex)) {
+        const [hours, minutes] = timeStr.split(':');
+        const formattedHours = hours.padStart(2, '0');
+        const formattedMinutes = minutes.padStart(2, '0');
+        return `${formattedHours}:${formattedMinutes}`;
+    }
+    return timeStr;
 }
 
 function formatDateFrench(dateStr) {
@@ -928,7 +932,7 @@ function headerChildTable() {
 function addText(text, bold, size, color) {
     const table = new docx.TextRun({
         text: text,
-        font: 'Ludica 12',
+        font: 'Calibri',
         size: size,
         bold: bold,
         color: color ? color : null,
@@ -940,4 +944,5 @@ module.exports = {
     customerFillList,
     fillAccueilDoc,
     sortStage,
+    formatTime,
   };
