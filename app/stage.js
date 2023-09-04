@@ -184,6 +184,8 @@ function displayStage(groupedData) {
 
     const t_customers = fillCustomersList(groupedData);
 
+    t_customers.sort((a, b) => a.childLastName.localeCompare(b.childLastName));
+
     for (let i = 0; i < t_customers.length; i++) {
         const customerInfo = document.createElement('div');
 
@@ -288,7 +290,16 @@ async function getListToPrint(customerGroup) {
                     const stage = parsedStagesData.find(entry => sta.includes(filterModule.removeDiacritics(entry.activ).toLowerCase()));
                     if (stage && stage[age] && stage[age] !== '') {
                         const lien = stage[age];
-                        listToPrint.push(`<a href="${lien}">${stage.activ}</a>`);
+                        const name = staAccents;
+                        name = 'hip' ? 'Hip Hop' : name;
+                        name = 'self' ? 'Self Defense' : name;
+                        name = 'etreet' ? 'Street Art' : name;
+                        name = 'expression' ? 'Expression corporelle' : name;
+                        name = 'musical' ? 'Eveil musical' : name;
+                        name = 'corporel' ? 'Eveil corporel' : name;
+                        name = 'moderne' ? 'Danse Moderne' : name;
+                        name = 'box' ? 'Boxe' : name;
+                        listToPrint.push(`<a href="${lien}">${name}</a>`);
                     }
                 }
             }

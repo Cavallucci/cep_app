@@ -104,9 +104,9 @@ document.getElementById('printDocAccueil').addEventListener('click', async () =>
   }
 });
 
-document.getElementById('printDocProf').addEventListener('click', async () => {
+// document.getElementById('printDocProf').addEventListener('click', async () => {
 
-});
+// });
 
 document.getElementById('printButton').addEventListener('click', async () => {
   const fileInput = document.getElementById('fileInput');

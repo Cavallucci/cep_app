@@ -185,6 +185,8 @@ function displayTest(groupedData) {
 
     const t_customers = fillCustomersList(groupedData);
 
+    t_customers.sort((a, b) => a.childLastName.localeCompare(b.childLastName));
+
     for (let i = 0; i < t_customers.length; i++) {
         const customerInfo = document.createElement('div');
 

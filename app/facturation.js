@@ -15,8 +15,14 @@ function fillCustomersList(groupedData) {
             existingCustomer.childCourses.get(customerData[19]).push(customerData[8]);
                         
             existingCustomer.totalPxVente += customerData[23];
+            let existingOrder = false;
 
-            if (existingCustomer.nborder.some((nborder) => nborder !== customerData[2])) {
+            for (order of existingCustomer.nborder) {
+                if (order === customerData[2]) {
+                    existingOrder = true;
+                }
+            }
+            if (existingOrder === false) {
                 existingCustomer.nborder.push(customerData[2]);
                 existingCustomer.totalRestantDu += customerData[3];
             }
@@ -73,6 +79,8 @@ function displayFacturation(groupedData) {
 
     const t_customers = fillCustomersList(groupedData);
 
+    t_customers.sort((a, b) => a.customerLastName.localeCompare(b.customerLastName));
+
     for (let i = 0; i < t_customers.length; i++) {
         const customerInfo = document.createElement('div');
 
@@ -121,8 +129,8 @@ async function manageEmail(checkbox, globalData) {
 
     if (emailValidator.validate(checkboxFound.customerEmail)) {
         try {
-          const response = await checkboxModule.sendEmailFacturation(checkboxFound);
-          return response;
+            const response = await checkboxModule.sendEmailFacturation(checkboxFound);
+            return response;
         } catch (error) {
           throw error;
         }

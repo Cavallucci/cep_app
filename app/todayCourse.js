@@ -17,7 +17,7 @@ async function printTodayCourse(groupedData) {
         const fileName = path.join(downloadpath, `feuille_accueil_${filterModule.formatDate(today)}.xlsx`);
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Feuille accueil', { //ajuster toutes les colonnes à 1 page
+        const worksheet = workbook.addWorksheet('Feuille accueil', { 
             pageSetup: {paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0}
         });
 

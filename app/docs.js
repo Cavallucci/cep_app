@@ -87,12 +87,14 @@ function formatTime(timeStr) {
 }
 
 function formatDateFrench(dateStr) {
-    const parts = dateStr.split('-'); 
-    if (parts.length === 3) {
-        const day = parts[2];
-        const month = parts[1];
-        const year = parts[0];
-        return `${day}/${month}/${year}`;
+    if (dateStr) {
+        const parts = dateStr.split('-'); 
+        if (parts.length === 3) {
+            const day = parts[2];
+            const month = parts[1];
+            const year = parts[0];
+            return `${day}/${month}/${year}`;
+        }
     }
     return dateStr; 
 }
@@ -624,6 +626,7 @@ function addCellYellow(comment) {
                                 ],
                             })
                         ],
+                        columnSpan: 4,
                     }),
                 ],
             }),
@@ -712,6 +715,7 @@ function stagePlanningTable(stage) {
                         ],
                     })
                 ],
+                columnSpan: 2,
             }),
             new docx.TableCell({
                 shading: {
@@ -812,6 +816,7 @@ function headerPlanningTable() {
                         ],
                     }),
                 ],
+                columnSpan: 2,
             }),
             new docx.TableCell({
                 shading: {

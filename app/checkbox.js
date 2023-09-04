@@ -36,12 +36,26 @@ async function sendEmailFacturation(customer) {
       htmlWithCode = htmlWithCode.replace("{{votre/vos}}", "votre enfant");
       htmlWithCode = htmlWithCode.replace("{{votre/vos}}", "votre enfant");
     }
+
+    const phrase = `<img src="cid:logo" width="200" height="100"></img>`;
+    htmlWithCode = htmlWithCode.replace("{{logo}}", phrase);
+
+
     const mailOptions = {
       to: `${customer.customerEmail}`,
       from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-      subject: "Solde restant dû et lien de paiement",
+      subject: "Solde restant dû pour les activités de vos enfants + IBAN pour règlement",
       text: "Facturation",
       html: htmlWithCode,
+      attachments: [{
+        filename: 'logo_docs.png',
+        path: path.join(__dirname, '../icons/logo_docs.png'),
+        cid: 'logo'
+      },
+      {
+        filename: 'RIB.pdf',
+        path: path.join(__dirname, '../icons/RIB.pdf')
+      }]
     };
 
     return new Promise((resolve, reject) => {
@@ -74,12 +88,21 @@ async function sendEmailAdhesion(customerGroup) {
     htmlWithCode = htmlWithCode.replace("{{cette/ces}}", "cette adhésion n'a");
     htmlWithCode = htmlWithCode.replace("{{ée/ées}}", "ée");
   }
+
+  const phrase = `<img src="cid:logo" width="200" height="100"></img>`;
+  htmlWithCode = htmlWithCode.replace("{{logo}}", phrase);
+
   const mailOptions = {
     to: `${customerEmail}`,
     from: "CEP: Adhésion Manquante <laura.cllucci@gmail.com>",
     subject: "Votre inscription aux activités 2023/2024 du Club : adhésion(s) annuelle(s) manquante(s) !",
     text: "Adhésion",
     html: htmlWithCode,
+    attachments: [{
+      filename: 'logo_docs.png',
+      path: path.join(__dirname, '../icons/logo_docs.png'),
+      cid: 'logo'
+    }]
   };
 
   return new Promise((resolve, reject) => {
@@ -118,12 +141,20 @@ async function sendEmailDecouverte(customerGroup) {
       htmlWithCode = htmlWithCode.replace("{{l’/les}}", "l'");
     }
 
+    const phrase = `<img src="cid:logo" width="200" height="100"></img>`;
+    htmlWithCode = htmlWithCode.replace("{{logo}}", phrase);
+
     const mailOptions = {
       to: `${customerEmail}`,
       from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
       subject: "Cours de découverte : envie de vous inscrire aux cours annuels 23/24?",
       text: "Cours de découverte",
       html: htmlWithCode,
+      attachments: [{
+        filename: 'logo_docs.png',
+        path: path.join(__dirname, '../icons/logo_docs.png'),
+        cid: 'logo'
+      }]
     };
 
     return new Promise((resolve, reject) => {
@@ -180,12 +211,20 @@ async function sendEmailTest(customerGroup, storeLinks) {
   }
   htmlWithCode = htmlWithCode.replace("{{storeLinks}}", linksForSkus.join('<br>'));
   
+  const phrase = `<img src="cid:logo" width="200" height="100"></img>`;
+  htmlWithCode = htmlWithCode.replace("{{logo}}", phrase);
+
   const mailOptions = {
     to: `${customerEmail}`,
     from: "CEP: Cours d'essai <laura.cllucci@gmail.com>",
     subject: "Après votre cours d’essai, inscriptions aux cours annuels 23/24?",
     text: "Cours de test",
     html: htmlWithCode,
+    attachments: [{
+      filename: 'logo_docs.png',
+      path: path.join(__dirname, '../icons/logo_docs.png'),
+      cid: 'logo'
+    }]
   };
 
   return new Promise((resolve, reject) => {
@@ -217,12 +256,20 @@ async function sendEmailStage(customerGroup, listToPrint) {
 
   htmlWithCode = htmlWithCode.replace("{{stageLinks}}", listToPrint.join('<br>'));
 
+  const phrase = `<img src="cid:logo" width="200" height="100"></img>`;
+  htmlWithCode = htmlWithCode.replace("{{logo}}", phrase);
+  
   const mailOptions = {
     to: `${customerEmail}`,
     from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
     subject: "Retrouvez les activités de stages de vacances sous forme de cours annuels 23/24",
     text: "Stages",
     html: htmlWithCode,
+    attachments: [{
+      filename: 'logo_docs.png',
+      path: path.join(__dirname, '../icons/logo_docs.png'),
+      cid: 'logo'
+    }]
   };
 
   return new Promise((resolve, reject) => {
