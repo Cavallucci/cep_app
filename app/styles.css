@@ -32,3 +32,34 @@
   justify-content: center;
   gap: 10px;
 }
+
+.loading-message {
+  font-size: 1.5em;
+  font-weight: 500;
+  color: #0026ff;
+}
+
+#document-preview table.editable-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+}
+
+#document-preview table.editable-table th, #document-preview table.editable-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+#document-preview table.editable-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+#document-preview table.editable-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+#document-preview table.editable-table tr:nth-child(odd) {
+  background-color: #ffffff;
+}

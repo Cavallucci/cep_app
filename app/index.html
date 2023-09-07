@@ -19,24 +19,25 @@
     <input type="file" id="fileInput" accept=".xlsx, .csv" class="file-input form-control mb-3">
     
     <!-- -----------RELANCE OU FEUILLES D'APPEL------------ -->
-    <button id="buttonRelances" class="action-button btn btn-primary mb-3">
-      Relances
-    </button>
-    <button id="buttonFeuillesAppel" class="action-button btn btn-primary mb-3">
-      Feuilles d'appel
-    </button>
+    <div class="flex-container">
+      <button id="buttonRelances" class="action-button btn btn-primary mb-3" style="display: none;">
+        Relances
+      </button>
+      <button id="buttonFeuillesAppel" class="action-button btn btn-primary mb-3" style="display: none;">
+        Feuilles d'appel
+      </button>
+    </div>
 
-    <div id="loadingMessage" class="loading-message" style="display: none;">Chargement...</div>
+    <div id="loadingMessage" class="loading-message" style="display: none;">Chargement, veuillez patienter...</div>
 
     <!-- -----------FEUILLES D'APPEL COURS OU STAGES------------ -->
     <div id="containerFeuillesAppel" style="display: none;">
       <button id="printDoc" class="action-button btn btn-primary mb-3">
-        <img src="../icons/icons8-word-24.png" alt="Word" class="icon">
-        Feuilles d'appel stages
+        Stages
       </button>
       <button id="printTodayCourse" class="action-button btn btn-primary mb-3">
         <img src="../icons/icons8-word-24.png" alt="Word" class="icon">
-        Charger feuille d'appel cours du jour
+        Charger cours du jour
       </button>
       <!-- -----------FEUILLES D'APPEL STAGES------------ -->
       <div id="containerPlanningStage" style="display: none;">

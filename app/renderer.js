@@ -203,6 +203,8 @@ document.getElementById('buttonFeuillesAppel').addEventListener('click', async (
 
 ipcRenderer.on('sortingSuccess', (event) => {
   document.getElementById('loadingMessage').style.display = 'none';
+  document.getElementById('buttonRelances').style.display = 'block';
+  document.getElementById('buttonFeuillesAppel').style.display = 'block';
 });
 
 ipcRenderer.on('sortingError', (event, error) => {
