@@ -291,14 +291,30 @@ async function getListToPrint(customerGroup) {
                     if (stage && stage[age] && stage[age] !== '') {
                         const lien = stage[age];
                         const name = staAccents;
-                        name = 'hip' ? 'Hip Hop' : name;
-                        name = 'self' ? 'Self Defense' : name;
-                        name = 'etreet' ? 'Street Art' : name;
-                        name = 'expression' ? 'Expression corporelle' : name;
-                        name = 'musical' ? 'Eveil musical' : name;
-                        name = 'corporel' ? 'Eveil corporel' : name;
-                        name = 'moderne' ? 'Danse Moderne' : name;
-                        name = 'box' ? 'Boxe' : name;
+                        if (name === 'hip') {
+                            name = 'Hip Hop';
+                          }
+                        else if (name === 'self') {
+                            name = 'Self Defense';
+                          }
+                        else if (name === 'etreet') {
+                            name = 'Street Art';
+                          }
+                        else if (name === 'expression') {
+                            name = 'Expression corporelle';
+                          }
+                        else if (name === 'musical') {
+                            name = 'Eveil musical';
+                          }
+                        else if (name === 'corporel') {
+                            name = 'Eveil corporel';
+                          }
+                        else if (name === 'moderne') {
+                            name = 'Danse Moderne';
+                          }
+                        else if (name === 'box') {
+                            name = 'Boxe';
+                          }
                         listToPrint.push(`<a href="${lien}">${name}</a>`);
                     }
                 }
