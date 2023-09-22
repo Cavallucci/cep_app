@@ -297,7 +297,7 @@ async function getListToPrint(customerGroup) {
                         else if (name === 'self') {
                             name = 'Self Defense';
                           }
-                        else if (name === 'etreet') {
+                        else if (name === 'street') {
                             name = 'Street Art';
                           }
                         else if (name === 'expression') {

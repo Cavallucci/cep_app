@@ -33,6 +33,14 @@
   gap: 10px;
 }
 
+.flex-container-right {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: right;
+  gap: 10px;
+}
+
 .loading-message {
   font-size: 1.5em;
   font-weight: 500;

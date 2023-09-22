@@ -8,6 +8,7 @@ const filterModule = require('./filter');
 const docsModule = require('./docs');
 const accueilDocModule = require('./accueilDoc');
 const todayCourseModule = require('./todayCourse');
+const path = require('path');
 
 let dateAsk = new Date(0);
 let dateDoc1 = new Date(0);
@@ -97,7 +98,7 @@ document.getElementById('printDocAccueil').addEventListener('click', async () =>
         saveButton.addEventListener('click', () => {
           const newstageList = accueilDocModule.newStageList(editableTable, stageList);
           ipcRenderer.send('printDocAccueil', dateDoc1, dateDoc2, newstageList);
-      });
+        });
 
       container.appendChild(saveButton);
        }
@@ -234,6 +235,39 @@ document.getElementById('selectAllCheckbox').addEventListener('change', () => {
     checkbox.checked = isChecked;
   });
 });
+
+document.getElementById('modifyEmail').addEventListener('click', async () => {
+  const container = document.getElementById('displayContainer');
+  container.innerHTML = '';
+  const filePath = path.join(__dirname, 'emails/adhesionEmail.html');
+
+  try {
+    const myHTML = fs.readFileSync(filePath, 'utf8');
+
+    const emailContent = document.createElement('div');
+    emailContent.innerHTML = myHTML;
+    emailContent.setAttribute('contenteditable', 'true');
+    container.appendChild(emailContent);
+
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Enregistrer les modifications';
+    saveButton.addEventListener('click', () => {
+      const modifiedHTML = emailContent.innerHTML;
+      try {
+        fs.writeFileSync(filePath, modifiedHTML, 'utf8');
+        alert('Email enregistré avec succès !');
+      } catch (error) {
+        console.error('Erreur lors de l\'enregistrement du fichier :', error);
+      }
+    });
+    container.appendChild(saveButton);
+  } catch (error) {
+    console.error('Erreur lors de la lecture du fichier :', error);
+  }
+});
+
+
+
 
 document.getElementById('sendEmailButton').addEventListener('click', async () => {
   const checkboxesID = document.querySelectorAll('[type="checkbox"]:checked');
