@@ -239,7 +239,19 @@ document.getElementById('selectAllCheckbox').addEventListener('change', () => {
 document.getElementById('modifyEmail').addEventListener('click', async () => {
   const container = document.getElementById('displayContainer');
   container.innerHTML = '';
-  const filePath = path.join(__dirname, 'emails/adhesionEmail.html');
+  let filePath = '';
+
+  if (document.getElementById('adhesion').checked) {
+    filePath = path.join(__dirname, 'emails/adhesionEmail.html');
+  } else if (document.getElementById('decouverte').checked) {
+    filePath = path.join(__dirname, 'emails/decouverteEmail.html');
+  } else if (document.getElementById('facturation').checked) {
+    filePath = path.join(__dirname, 'emails/facturationEmail.html');
+  } else if (document.getElementById('test').checked) {
+    filePath = path.join(__dirname, 'emails/testEmail.html');
+  } else if (document.getElementById('stage').checked) {
+    filePath = path.join(__dirname, 'emails/stageEmail.html');
+  }
 
   try {
     const myHTML = fs.readFileSync(filePath, 'utf8');
