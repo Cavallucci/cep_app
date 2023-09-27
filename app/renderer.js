@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, app } = require('electron');
 const facturationModule = require('./facturation');
 const adhesionModule = require('./adhesion');
 const decouverteModule = require('./decouverte');
@@ -8,13 +8,14 @@ const filterModule = require('./filter');
 const docsModule = require('./docs');
 const accueilDocModule = require('./accueilDoc');
 const todayCourseModule = require('./todayCourse');
+const checkboxModule = require('./checkbox');
 const path = require('path');
 
 let dateAsk = new Date(0);
 let dateDoc1 = new Date(0);
 let dateDoc2 = new Date(0);
 
-document.getElementById('fileInput').addEventListener('change', () => {
+document.getElementById('fileInput').addEventListener('change', async () => {
   const fileInput = document.getElementById('fileInput');
   const filePath = fileInput.files[0].path;
   if (filePath.endsWith('_trie.xlsx')) {
@@ -240,17 +241,18 @@ document.getElementById('modifyEmail').addEventListener('click', async () => {
   const container = document.getElementById('displayContainer');
   container.innerHTML = '';
   let filePath = '';
+  const userDataPath = await ipcRenderer.invoke('get-user-path');
 
   if (document.getElementById('adhesion').checked) {
-    filePath = path.join(__dirname, 'emails/adhesionEmail.html');
+    filePath = path.join(userDataPath, 'emails/adhesionEmail.html');
   } else if (document.getElementById('decouverte').checked) {
-    filePath = path.join(__dirname, 'emails/decouverteEmail.html');
+    filePath = path.join(userDataPath, 'emails/decouverteEmail.html');
   } else if (document.getElementById('facturation').checked) {
-    filePath = path.join(__dirname, 'emails/facturationEmail.html');
+    filePath = path.join(userDataPath, 'emails/facturationEmail.html');
   } else if (document.getElementById('test').checked) {
-    filePath = path.join(__dirname, 'emails/testEmail.html');
+    filePath = path.join(userDataPath, 'emails/testEmail.html');
   } else if (document.getElementById('stage').checked) {
-    filePath = path.join(__dirname, 'emails/stageEmail.html');
+    filePath = path.join(userDataPath, 'emails/stageEmail.html');
   }
 
   try {
@@ -267,6 +269,7 @@ document.getElementById('modifyEmail').addEventListener('click', async () => {
       const modifiedHTML = emailContent.innerHTML;
       try {
         fs.writeFileSync(filePath, modifiedHTML, 'utf8');
+        ipcRenderer.send('reload-window');
         alert('Email enregistré avec succès !');
       } catch (error) {
         console.error('Erreur lors de l\'enregistrement du fichier :', error);
@@ -277,9 +280,6 @@ document.getElementById('modifyEmail').addEventListener('click', async () => {
     console.error('Erreur lors de la lecture du fichier :', error);
   }
 });
-
-
-
 
 document.getElementById('sendEmailButton').addEventListener('click', async () => {
   const checkboxesID = document.querySelectorAll('[type="checkbox"]:checked');

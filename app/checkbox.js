@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+const { ipcRenderer } = require('electron');
 const config = require(path.join(__dirname, '../config.json'));
 
 const transporter = nodemailer.createTransport({
@@ -17,7 +18,8 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendEmailFacturation(customer) {
-  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/facturationEmail.html'), 'utf8');
+    const userDataPath = await ipcRenderer.invoke('get-user-path');
+    const myHTML = fs.readFileSync(path.join(userDataPath, 'emails/facturationEmail.html'), 'utf8');
     htmlWithCode = myHTML.replace("{{totalPxVente}}", customer.totalPxVente);
     htmlWithCode = htmlWithCode.replace("{{totalRestantDu}}", customer.totalRestantDu);
 
@@ -39,7 +41,8 @@ async function sendEmailFacturation(customer) {
 
     const phrase = `<img src="cid:logo" width="200" height="100"></img>`;
     htmlWithCode = htmlWithCode.replace("{{logo}}", phrase);
-
+    lienSystemPay = `<a href="${customer.lienSystemPay}">ici</a>`;
+    htmlWithCode = htmlWithCode.replace("{{lienSystemPay}}", lienSystemPay);
 
     const mailOptions = {
       to: `${customer.customerEmail}`,
@@ -72,7 +75,8 @@ async function sendEmailFacturation(customer) {
 async function sendEmailAdhesion(customerGroup) {
   const { customerEmail, customerLastName, customerFirstName } = customerGroup[0];
   const childFirstNames = customerGroup.map(child => child.childFirstName);
-  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/adhesionEmail.html'), 'utf8');
+  const userDataPath = await ipcRenderer.invoke('get-user-path');
+  const myHTML = fs.readFileSync(path.join(userDataPath, 'emails/adhesionEmail.html'), 'utf8');
 
   let htmlWithCode = myHTML.replace("{{childFirstNames}}", childFirstNames.join(' et '));
   htmlWithCode = htmlWithCode.replace("{{childFirstNames}}", childFirstNames.join(' et '));
@@ -94,7 +98,7 @@ async function sendEmailAdhesion(customerGroup) {
 
   const mailOptions = {
     to: `${customerEmail}`,
-    from: "CEP: Adhésion Manquante <laura.cllucci@gmail.com>",
+    from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
     subject: "Votre inscription aux activités 2023/2024 du Club : adhésion(s) annuelle(s) manquante(s) !",
     text: "Adhésion",
     html: htmlWithCode,
@@ -119,7 +123,8 @@ async function sendEmailAdhesion(customerGroup) {
 async function sendEmailDecouverte(customerGroup) {
   const { customerEmail , month}= customerGroup[0];
   const childsFirstNames = customerGroup.map(child => child.childFirstName);
-  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/decouverteEmail.html'), 'utf8');
+  const userDataPath = await ipcRenderer.invoke('get-user-path');
+  const myHTML = fs.readFileSync(path.join(userDataPath, 'emails/decouverteEmail.html'), 'utf8');
 
     let htmlWithCode = myHTML.replace("{{childsFirstNames}}", childsFirstNames.join(' et '));
     htmlWithCode = htmlWithCode.replace("{{childsFirstNames}}", childsFirstNames.join(' et '));
@@ -170,7 +175,8 @@ async function sendEmailDecouverte(customerGroup) {
 
 async function sendEmailTest(customerGroup, storeLinks) {
   const { customerEmail } = customerGroup[0];
-  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/testEmail.html'), 'utf8');
+  const userDataPath = await ipcRenderer.invoke('get-user-path');
+  const myHTML = fs.readFileSync(path.join(userDataPath, 'emails/testEmail.html'), 'utf8');
   let htmlWithCode;
 
   if (customerGroup.length > 1) {
@@ -216,7 +222,7 @@ async function sendEmailTest(customerGroup, storeLinks) {
 
   const mailOptions = {
     to: `${customerEmail}`,
-    from: "CEP: Cours d'essai <laura.cllucci@gmail.com>",
+    from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
     subject: "Après votre cours d’essai, inscriptions aux cours annuels 23/24?",
     text: "Cours de test",
     html: htmlWithCode,
@@ -240,7 +246,8 @@ async function sendEmailTest(customerGroup, storeLinks) {
 
 async function sendEmailStage(customerGroup, listToPrint) {
   const { customerEmail } = customerGroup[0];
-  const myHTML = fs.readFileSync(path.join(__dirname, 'emails/stageEmail.html'), 'utf8');
+  const userDataPath = await ipcRenderer.invoke('get-user-path');
+  const myHTML = fs.readFileSync(path.join(userDataPath, 'emails/stageEmail.html'), 'utf8');
   let htmlWithCode;
 
   if (customerGroup.length > 1) {

@@ -13,6 +13,7 @@ const path = require('path');
 const downloadManager = require('electron-download-manager');
 
 const downloadsPath = app.getPath('downloads');
+const userDataPath = app.getPath('userData');
 downloadManager.register({ downloadFolder: downloadsPath });
 
 let mainWindow;
@@ -35,6 +36,12 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  ipcMain.on('reload-window', () => {
+    mainWindow.webContents.session.clearCache(() => {
+      mainWindow.reload();
+    });
+  });
 }
 
 app.on('ready', createWindow);
@@ -49,6 +56,10 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+ipcMain.handle('get-user-path', (event) => {
+  return userDataPath;
 });
 
 ipcMain.handle('get-sorted-data', (event) => {
@@ -81,6 +92,7 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
     headerData = headerRow.values;
 
     if (filteredRows.length > 0) {
+      await downloadEmails();
       event.sender.send('sortingSuccess');
 
       filteredRows.unshift(headerData);
@@ -94,6 +106,37 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
     event.sender.send('sortingError', 'Erreur lors du tri des données : ' + error.message);
   }
 });
+
+async function downloadEmails() {
+  const emailsFolderPath = path.join(userDataPath, 'emails');
+  if (!fs.existsSync(emailsFolderPath)) {
+    fs.mkdirSync(emailsFolderPath);
+  }
+
+  function downloadIfNotExists(sourcePath, destinationPath) {
+    if (!fs.existsSync(destinationPath)) {
+      fs.copyFile(sourcePath, destinationPath, (err) => {
+        if (err) {
+          console.error('Erreur lors de la copie du fichier :', err);
+        } else {
+          console.log('Fichier copié avec succès.');
+        }
+      });
+    }
+  }
+
+  const emailFiles = [
+    { source: path.join(__dirname, 'emails/adhesionEmail.html'), destination: path.join(emailsFolderPath, 'adhesionEmail.html') },
+    { source: path.join(__dirname, 'emails/decouverteEmail.html'), destination: path.join(emailsFolderPath, 'decouverteEmail.html') },
+    { source: path.join(__dirname, 'emails/facturationEmail.html'), destination: path.join(emailsFolderPath, 'facturationEmail.html') },
+    { source: path.join(__dirname, 'emails/testEmail.html'), destination: path.join(emailsFolderPath, 'testEmail.html') },
+    { source: path.join(__dirname, 'emails/stageEmail.html'), destination: path.join(emailsFolderPath, 'stageEmail.html') }
+  ];
+
+  emailFiles.forEach(emailFile => {
+    downloadIfNotExists(emailFile.source, emailFile.destination);
+  });
+}
 
 ipcMain.on('sortDocFile', async (event, filePath) => {
   try {

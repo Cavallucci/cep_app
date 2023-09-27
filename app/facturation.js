@@ -1,5 +1,10 @@
 const checkboxModule = require('./checkbox');
 const emailValidator = require('email-validator');
+const axios = require('axios');
+const { config } = require('exceljs');
+const Base64 = require('js-base64').Base64;
+const path = require('path');
+const configfile = require(path.join(__dirname, '../config.json'));
 
 function fillCustomersList(groupedData) {
     const t_customers = [];
@@ -40,6 +45,7 @@ function fillCustomersList(groupedData) {
                 childCourses: new Map([[customerData[19], [customerData[8]]]]),
                 totalPxVente: customerData[23],
                 customerEmail: customerData[27],
+                lienSystemPay: '',
             };
             
             if (newCustomer.totalRestantDu > 0 && newCustomer.totalPxVente > 0) {
@@ -73,14 +79,13 @@ function displayCustomerDetails(customer) {
     customerDetailsContainer.appendChild(customerDetails);
 }
   
-function displayFacturation(groupedData) {
+async function displayFacturation(groupedData) {
     const container = document.getElementById('displayContainer');
     container.innerHTML = '';
 
     const t_customers = fillCustomersList(groupedData);
 
     t_customers.sort((a, b) => a.customerLastName.localeCompare(b.customerLastName));
-
     for (let i = 0; i < t_customers.length; i++) {
         const customerInfo = document.createElement('div');
 
@@ -99,6 +104,42 @@ function displayFacturation(groupedData) {
         });
 
         container.appendChild(customerInfo);
+    }
+}
+
+async function fillSystemPay(t_customers) {
+    for (const customer of t_customers) {
+        const today = new Date();
+        const expirationDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+        const body = {
+            amount: customer.totalRestantDu * 100,
+            currency: "EUR",
+            customer: {
+                email: customer.customerEmail,
+                reference: customer.customerId,
+                billingDetails: {
+                    firstName: customer.customerFirstName,
+                    lastName: customer.customerLastName,
+                }
+            },
+            channelOptions: {
+                channelType: "URL"
+            },
+            paymentReceiptEmail: customer.customerEmail,
+            expirationDate: expirationDate,
+            dataCollectionForm: "false"
+        };
+        const username = configfile.SMTP_SYSUSERNAME;
+        const password = configfile.SMTP_SYSTESTPASSWORD;
+        const auth = Base64.encode(`${username}:${password}`);
+        const headers = {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json',
+        };
+        const url = 'https://api.systempay.fr/api-payment/V4/Charge/CreatePaymentOrder';
+        const response = await axios.post(url, body, { headers: headers });
+        customer.lienSystemPay = response.data.answer.paymentURL;
+        console.log(customer.lienSystemPay);
     }
 }
 
@@ -125,6 +166,11 @@ async function fillFacturationWorksheet(worksheet, data, sortedData) {
 async function manageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const facturationList = facturationModule.fillCustomersList(globalData);
+    
+    document.getElementById('loadingMessage').style.display = 'block';
+    await fillSystemPay(facturationList);
+    document.getElementById('loadingMessage').style.display = 'none';
+
     const checkboxFound = facturationList.find((facturationList) => facturationList.customerId === customerId);
 
     if (emailValidator.validate(checkboxFound.customerEmail)) {
@@ -143,5 +189,5 @@ module.exports = {
     displayFacturation,
     fillCustomersList,
     manageEmail,
-    fillFacturationWorksheet
+    fillFacturationWorksheet,
   };
