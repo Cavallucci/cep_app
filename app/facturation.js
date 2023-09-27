@@ -107,8 +107,7 @@ async function displayFacturation(groupedData) {
     }
 }
 
-async function fillSystemPay(t_customers) {
-    for (const customer of t_customers) {
+async function fillSystemPay(customer) {
         const today = new Date();
         const expirationDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
         const body = {
@@ -139,8 +138,6 @@ async function fillSystemPay(t_customers) {
         const url = 'https://api.systempay.fr/api-payment/V4/Charge/CreatePaymentOrder';
         const response = await axios.post(url, body, { headers: headers });
         customer.lienSystemPay = response.data.answer.paymentURL;
-        console.log(customer.lienSystemPay);
-    }
 }
 
 async function fillFacturationWorksheet(worksheet, data, sortedData) {
@@ -166,23 +163,25 @@ async function fillFacturationWorksheet(worksheet, data, sortedData) {
 async function manageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
     const facturationList = facturationModule.fillCustomersList(globalData);
-    
-    document.getElementById('loadingMessage').style.display = 'block';
-    await fillSystemPay(facturationList);
-    document.getElementById('loadingMessage').style.display = 'none';
-
     const checkboxFound = facturationList.find((facturationList) => facturationList.customerId === customerId);
-
-    if (emailValidator.validate(checkboxFound.customerEmail)) {
-        try {
-            const response = await checkboxModule.sendEmailFacturation(checkboxFound);
-            return response;
-        } catch (error) {
-          throw error;
-        }
-      } else {
+  
+    try {
+      await fillSystemPay(checkboxFound);
+  
+      if (!emailValidator.validate(checkboxFound.customerEmail)) {
         alert(`Le customer ${checkboxFound.customerFirstName} ${checkboxFound.customerLastName} numéro ${checkboxFound.customerId} n'a pas d'email de renseigné`);
+        return;
       }
+      if (checkboxFound.lienSystemPay === '') {
+        alert(`Erreur systemPay customer ${checkboxFound.customerFirstName} ${checkboxFound.customerLastName} numéro ${checkboxFound.customerId}`);
+        return;
+      }
+      const response = await checkboxModule.sendEmailFacturation(checkboxFound);
+      return response;
+
+    } catch (error) {
+      alert(`Une erreur s'est produite lors de l'interaction avec SystemPay : ${error.message}`);
+    }
 }
 
 module.exports = {

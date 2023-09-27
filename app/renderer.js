@@ -298,8 +298,6 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
       let totalTime = (time / 1000) * lenght;
       totalTime = Math.floor(totalTime / 60);
       alert('Vous êtes sur le point d\'envoyer ' + lenght + ' emails, temps estimé : ' + totalTime + ' minutes \n Veuillez ne pas fermer l\'application');
-
-
       try {
         for (const checkbox of checkboxes) {
           if (!isSending && checkbox.id !== 'selectAllCheckbox') {

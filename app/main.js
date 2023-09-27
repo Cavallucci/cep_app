@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, autoUpdater } = require('electron');
 const ExcelJS = require('exceljs');
 const filterModule = require('./filter');
 const facturationModule = require('./facturation');
@@ -19,6 +19,7 @@ downloadManager.register({ downloadFolder: downloadsPath });
 let mainWindow;
 let sortedData = [];
 let dateAsk = new Date(0);
+autoUpdater.setFeedURL('https://github.com/Cavallucci/cep_app/releases');
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -44,7 +45,10 @@ function createWindow() {
   });
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+//  autoUpdater.checkForUpdates();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
