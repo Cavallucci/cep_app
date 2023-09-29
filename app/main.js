@@ -119,20 +119,20 @@ async function downloadUpdate(updateUrl, updateFilePath) {
 
 function createDesktopShortcut() {
   const desktopPath = app.getPath('desktop');
-  const shortcutPath = path.join(desktopPath, 'VotreApplication.lnk');
+  const shortcutPath = path.join(desktopPath, 'cep-app-auto');
 
   const exePath = app.getPath('exe');
 
   const shortcutArgs = ['--processStart', `"${exePath}"`];
 
-  const shortcutTarget = path.join(app.getPath('exe'), 'VotreApplication.exe');
+  const shortcutTarget = path.join(app.getPath('exe'), 'cep-app-auto');
 
   shell.writeShortcutLink(shortcutPath, shortcutTarget, { args: shortcutArgs });
 }
 
 function removeDesktopShortcut() {
   const desktopPath = app.getPath('desktop');
-  const shortcutPath = path.join(desktopPath, 'VotreApplication.lnk');
+  const shortcutPath = path.join(desktopPath, 'cep-app-auto');
 
   if (fs.existsSync(shortcutPath)) {
     fs.unlinkSync(shortcutPath);
@@ -142,12 +142,19 @@ function removeDesktopShortcut() {
 async function installUpdate(updateFolderPath) {
   try {
     console.log('Installation de la mise à jour installUpdate...');
-    const currentAppDir = path.dirname(app.getAppPath());
-    const updateFileName = 'update.zip'; // Nom du fichier de mise à jour    
-    const updateFilePath = path.join(currentAppDir, updateFileName);
+    //const currentAppDir = path.dirname(app.getAppPath());
+    //const updateFileName = 'update.zip'; // Nom du fichier de mise à jour    
+    //const updateFilePath = path.join(currentAppDir, updateFileName);
+    const updateFilePath = path.join(__dirname, '..', '..', 'update.zip');
     
     removeDesktopShortcut();
-    await fs.unlink(updateFilePath);
+    await fs.unlink(updateFilePath, (err) => {
+      if (err) {
+        console.error('Erreur lors de la suppression du fichier de mise à jour actuel :', err);
+      } else {
+        console.log('Fichier de mise à jour actuel supprimé avec succès.');
+      }
+    });
     await fs.promises.copyFile(updateFolderPath, updateFilePath);
     rimraf.sync(updateFolderPath);
     createDesktopShortcut();
