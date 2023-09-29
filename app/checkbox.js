@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 const { ipcRenderer } = require('electron');
+const { isNumberObject } = require('util/types');
 const config = require(path.join(__dirname, '../config.json'));
 
 const transporter = nodemailer.createTransport({
@@ -206,12 +207,20 @@ async function sendEmailTest(customerGroup, storeLinks) {
   const linksForSkus = [];
   const courses = [];
   for (const customer of customerGroup) {
+    let nbtest = 0;
     for (const testCourse of customer.sku) {
       const testWords = testCourse.split('_');
       const wordAfterTest = testWords[1];
       if (storeLinks.has(wordAfterTest) && !courses.includes(testCourse)) {
         courses.push(testCourse);
-        linksForSkus.push(`<a href="${storeLinks.get(wordAfterTest)}">${storeLinks.get(wordAfterTest)}</a>`);
+        nbtest += 1;
+        const liencomplet = storeLinks.get(wordAfterTest).split('/'); // Exemple de lien : https://www.clubdesenfantsparisiens.com/batterie-11-13-ans-debutants-tk385-2023.html
+        const partieSouhaitee = liencomplet[3]; // Exemple : batterie-11-13-ans-debutants-tk385-2023.html
+        const premierChiffre = partieSouhaitee.match(/\d/); // Recherche du premier chiffre avec une expression régulière
+        const positionPremierChiffre = partieSouhaitee.indexOf(premierChiffre[0]);
+        const jusquauPremierChiffre = partieSouhaitee.substring(0, positionPremierChiffre);
+        const sansDernierCaractere = jusquauPremierChiffre.slice(0, -1);
+        linksForSkus.push(`<a href="${storeLinks.get(wordAfterTest)}">${sansDernierCaractere}</a>`);
       }
     }
   }
@@ -223,7 +232,7 @@ async function sendEmailTest(customerGroup, storeLinks) {
   const mailOptions = {
     to: `${customerEmail}`,
     from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-    subject: "Après votre cours d’essai, inscriptions aux cours annuels 23/24?",
+    subject: "Après votre cours d’essai, inscription aux cours annuels 23/24?",
     text: "Cours de test",
     html: htmlWithCode,
     attachments: [{

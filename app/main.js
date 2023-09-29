@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, autoUpdater } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell} = require('electron');
 const ExcelJS = require('exceljs');
 const filterModule = require('./filter');
 const facturationModule = require('./facturation');
@@ -11,6 +11,12 @@ const docx = require('docx');
 const fs = require('fs');
 const path = require('path');
 const downloadManager = require('electron-download-manager');
+const configfile = require(path.join(__dirname, '../config.json'));
+const unzipper = require('unzipper');
+const axios = require('axios');
+const semver = require('semver');
+const { url } = require('inspector');
+const rimraf = require('rimraf');
 
 const downloadsPath = app.getPath('downloads');
 const userDataPath = app.getPath('userData');
@@ -19,7 +25,6 @@ downloadManager.register({ downloadFolder: downloadsPath });
 let mainWindow;
 let sortedData = [];
 let dateAsk = new Date(0);
-autoUpdater.setFeedURL('https://github.com/Cavallucci/cep_app/releases');
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -43,11 +48,119 @@ function createWindow() {
       mainWindow.reload();
     });
   });
+
+  checkForUpdates();
+}
+
+async function checkForUpdates() {
+  try {
+    const latestRelease = await getLatestReleaseInfo();
+
+    console.log('Version actuelle :', app.getVersion());
+    console.log('Dernière version :', latestRelease.version);
+
+    if (latestRelease && semver.gt(latestRelease.version, app.getVersion())) {
+      const response = dialog.showMessageBoxSync({
+        type: 'question',
+        buttons: ['Installer maintenant', 'Plus tard'],
+        defaultId: 0,
+        message: 'Une nouvelle mise à jour est disponible. Voulez-vous l\'installer maintenant ?',
+      });
+
+      if (response === 0) {
+        const updateFilePath = 'update.zip';
+        await downloadUpdate(latestRelease.downloadUrl, updateFilePath);
+        installUpdate(updateFilePath);
+      }
+    }
+  } catch (error) {
+    console.error('Erreur lors de la vérification des mises à jour :', error);
+  }
+}
+
+async function getLatestReleaseInfo() {
+  try {
+    const response = await axios.get('https://api.github.com/repos/Cavallucci/cep_app/releases/latest');
+
+    return {
+      version: response.data.tag_name,
+      downloadUrl: response.data.assets[0].browser_download_url,
+    };
+  } catch (error) {
+    console.error('Erreur lors de la récupération des informations sur la dernière version :', error);
+    return null;
+  }
+}
+
+async function downloadUpdate(updateUrl, updateFilePath) {
+  try {
+    console.log('Téléchargement de la mise à jour downloadUpdate...');
+    const writer = fs.createWriteStream(updateFilePath);
+
+    const response = await axios({
+      method: 'get',
+      url: updateUrl,
+      responseType: 'stream',
+    });
+
+    response.data.pipe(writer);
+
+    await new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+    console.log('update.zip téléchargé');
+    return true;
+  } catch (error) {
+    console.error('Erreur lors du téléchargement de la mise à jour :', error);
+    return false;
+  }
+}
+
+function createDesktopShortcut() {
+  const desktopPath = app.getPath('desktop');
+  const shortcutPath = path.join(desktopPath, 'VotreApplication.lnk');
+
+  const exePath = app.getPath('exe');
+
+  const shortcutArgs = ['--processStart', `"${exePath}"`];
+
+  const shortcutTarget = path.join(app.getPath('exe'), 'VotreApplication.exe');
+
+  shell.writeShortcutLink(shortcutPath, shortcutTarget, { args: shortcutArgs });
+}
+
+function removeDesktopShortcut() {
+  const desktopPath = app.getPath('desktop');
+  const shortcutPath = path.join(desktopPath, 'VotreApplication.lnk');
+
+  if (fs.existsSync(shortcutPath)) {
+    fs.unlinkSync(shortcutPath);
+  }
+}
+
+async function installUpdate(updateFolderPath) {
+  try {
+    console.log('Installation de la mise à jour installUpdate...');
+    const currentAppDir = path.dirname(app.getAppPath());
+    const updateFileName = 'update.zip'; // Nom du fichier de mise à jour    
+    const updateFilePath = path.join(currentAppDir, updateFileName);
+    
+    removeDesktopShortcut();
+    await fs.unlink(updateFilePath);
+    await fs.promises.copyFile(updateFolderPath, updateFilePath);
+    rimraf.sync(updateFolderPath);
+    createDesktopShortcut();
+
+    app.relaunch();
+    app.exit();
+  } catch (error) {
+    console.error('Erreur lors de l\'installation de la mise à jour :', error);
+  }
 }
 
 app.on('ready', () => {
   createWindow();
-//  autoUpdater.checkForUpdates();
 });
 
 app.on('window-all-closed', () => {
