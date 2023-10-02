@@ -17,7 +17,8 @@ const axios = require('axios');
 const semver = require('semver');
 const { url } = require('inspector');
 const rimraf = require('rimraf');
-
+const AdmZip = require('adm-zip');
+const { start } = require('repl');
 const downloadsPath = app.getPath('downloads');
 const userDataPath = app.getPath('userData');
 downloadManager.register({ downloadFolder: downloadsPath });
@@ -52,6 +53,21 @@ function createWindow() {
   checkForUpdates();
 }
 
+function createLoadingWindow(loadingWindow) {
+  loadingWindow = new BrowserWindow({
+    width: 400,
+    height: 200,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      preload: 'app/preload.js'
+    },
+    frame: false,
+    transparent: true,
+  });
+  loadingWindow.loadFile(path.join(__dirname, 'emails/loading.html'));
+}
+
 async function checkForUpdates() {
   try {
     const latestRelease = await getLatestReleaseInfo();
@@ -68,9 +84,13 @@ async function checkForUpdates() {
       });
 
       if (response === 0) {
+        let loadingWindow;
+        createLoadingWindow(loadingWindow);
+
         const updateFilePath = 'update.zip';
         await downloadUpdate(latestRelease.downloadUrl, updateFilePath);
-        installUpdate(updateFilePath);
+        await installUpdate(updateFilePath);
+        loadingWindow.close();
       }
     }
   } catch (error) {
@@ -117,22 +137,26 @@ async function downloadUpdate(updateUrl, updateFilePath) {
   }
 }
 
-function createDesktopShortcut() {
-  const desktopPath = app.getPath('desktop');
-  const shortcutPath = path.join(desktopPath, 'cep-app-auto');
-
-  const exePath = app.getPath('exe');
-
-  const shortcutArgs = ['--processStart', `"${exePath}"`];
-
-  const shortcutTarget = path.join(app.getPath('exe'), 'cep-app-auto');
-
-  shell.writeShortcutLink(shortcutPath, shortcutTarget, { args: shortcutArgs });
-}
+function createDesktopShortcutfunction(pathNewExeApp) {
+ if (process.platform === 'win32') {
+  try {
+    const desktopPath = app.getPath('desktop');
+    const shortcutPath = path.join(desktopPath, 'cep-app-auto.lnk');
+    const result = shell.writeShortcutLink(shortcutPath, {
+      target: pathNewExeApp,
+    });
+    if (result) {
+      console.log('Raccourci créé sur le bureau :', shortcutPath);
+    }
+  } catch (error) {
+    console.error('Erreur lors de la création du raccourci sur le bureau :', error);
+  }
+  }
+}      
 
 function removeDesktopShortcut() {
   const desktopPath = app.getPath('desktop');
-  const shortcutPath = path.join(desktopPath, 'cep-app-auto');
+  const shortcutPath = path.join(desktopPath, 'cep-app-auto.lnk');
 
   if (fs.existsSync(shortcutPath)) {
     fs.unlinkSync(shortcutPath);
@@ -141,26 +165,41 @@ function removeDesktopShortcut() {
 
 async function installUpdate(updateFolderPath) {
   try {
-    console.log('Installation de la mise à jour installUpdate...');
-    //const currentAppDir = path.dirname(app.getAppPath());
-    //const updateFileName = 'update.zip'; // Nom du fichier de mise à jour    
-    //const updateFilePath = path.join(currentAppDir, updateFileName);
-    const updateFilePath = path.join(__dirname, '..', '..', 'update.zip');
+    const currentAppDir = path.join(path.dirname(app.getAppPath()), '..', '..');
+    const updateFileName = 'update.zip';    
+    const updateFilePath = path.join(currentAppDir, updateFileName);
+    // const currentAppDir = path.join(__dirname, '..', '..');
+    // const updateFilePath = path.join(__dirname, '..', '..', 'update.zip');
     
     removeDesktopShortcut();
-    await fs.unlink(updateFilePath, (err) => {
-      if (err) {
-        console.error('Erreur lors de la suppression du fichier de mise à jour actuel :', err);
-      } else {
-        console.log('Fichier de mise à jour actuel supprimé avec succès.');
-      }
+    if (!fs.existsSync(updateFilePath)) {
+      await fs.unlink(updateFilePath, (err) => {
+        if (err) {
+          console.error('Erreur lors de la suppression du fichier de mise à jour actuel :', err);
+        } else {
+          console.log('Fichier de mise à jour actuel supprimé avec succès.');
+        }
+      });
+    }
+    await fs.promises.copyFile(updateFolderPath, updateFilePath).then(() => {
+      console.log('Fichier de mise à jour copié avec succès.');
+    }
+    ).catch((err) => {
+      console.error('Erreur lors de la copie du fichier de mise à jour :', err);
     });
-    await fs.promises.copyFile(updateFolderPath, updateFilePath);
+    const previousAppDir = path.join(currentAppDir, startwith('win-unpacked'));
+    console.log('Dossier de l\'ancienne version :', previousAppDir);
+    if (fs.existsSync(previousAppDir) && !fs.lstatSync(previousAppDir).isDirectory()) {
+      rimraf.sync(previousAppDir);
+    }
+    const zip = new AdmZip(updateFilePath);
+    const updateFolderName = `win-unpacked_${new Date().toISOString().replace(/:/g, '-')}`;
+    zip.extractAllTo(path.join(currentAppDir, updateFolderName), true);    console.log('Fichier de mise à jour décompressé avec succès.');
     rimraf.sync(updateFolderPath);
-    createDesktopShortcut();
-
-    app.relaunch();
-    app.exit();
+    pathNewExeApp = path.join(currentAppDir, updateFolderName, 'win-unpacked', 'cep-app-auto.exe');
+    //createDesktopShortcutfunction(pathNewExeApp);
+    //app.relaunch();
+    //app.exit();
   } catch (error) {
     console.error('Erreur lors de l\'installation de la mise à jour :', error);
   }
