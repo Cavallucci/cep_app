@@ -9,6 +9,7 @@ const testModule = require('./tests');
 const docsModule = require('./docs');
 const docx = require('docx');
 const fs = require('fs');
+const fsExtra = require('fs-extra');
 const path = require('path');
 const downloadManager = require('electron-download-manager');
 const configfile = require(path.join(__dirname, '../config.json'));
@@ -90,7 +91,13 @@ async function checkForUpdates() {
         const updateFilePath = 'update.zip';
         await downloadUpdate(latestRelease.downloadUrl, updateFilePath);
         await installUpdate(updateFilePath);
-        loadingWindow.close();
+        dialog.showMessageBoxSync({
+          type: 'info',
+          buttons: ['OK'],
+          defaultId: 0,
+          message: 'La mise à jour a été installée avec succès !',
+        });
+        close(loadingWindow);
       }
     }
   } catch (error) {
@@ -146,10 +153,10 @@ function createDesktopShortcutfunction(pathNewExeApp) {
       target: pathNewExeApp,
     });
     if (result) {
-      console.log('Raccourci créé sur le bureau :', shortcutPath);
+      console.log('Raccourci créé avec succès.');
     }
   } catch (error) {
-    console.error('Erreur lors de la création du raccourci sur le bureau :', error);
+    console.error('Erreur lors de la création du raccourci :', error);
   }
   }
 }      
@@ -165,14 +172,15 @@ function removeDesktopShortcut() {
 
 async function installUpdate(updateFolderPath) {
   try {
-    const currentAppDir = path.join(path.dirname(app.getAppPath()), '..', '..');
-    const updateFileName = 'update.zip';    
+    const currentAppDir = path.join(path.dirname(app.getAppPath()),'..', '..', '..');
+    const myAppDir = path.join(path.dirname(app.getAppPath()), '..', '..');
+    const updateFileName = 'update.zip';
     const updateFilePath = path.join(currentAppDir, updateFileName);
     // const currentAppDir = path.join(__dirname, '..', '..');
     // const updateFilePath = path.join(__dirname, '..', '..', 'update.zip');
     
     removeDesktopShortcut();
-    if (!fs.existsSync(updateFilePath)) {
+    if (fs.existsSync(updateFilePath)) {
       await fs.unlink(updateFilePath, (err) => {
         if (err) {
           console.error('Erreur lors de la suppression du fichier de mise à jour actuel :', err);
@@ -187,19 +195,32 @@ async function installUpdate(updateFolderPath) {
     ).catch((err) => {
       console.error('Erreur lors de la copie du fichier de mise à jour :', err);
     });
-    const previousAppDir = path.join(currentAppDir, startwith('win-unpacked'));
-    console.log('Dossier de l\'ancienne version :', previousAppDir);
-    if (fs.existsSync(previousAppDir) && !fs.lstatSync(previousAppDir).isDirectory()) {
-      rimraf.sync(previousAppDir);
+    let previousAppDir = '';
+    const matchingDir = fs.readdirSync(currentAppDir).find((item) => item.startsWith('win-unpacked_'));
+    if (matchingDir) {
+      previousAppDir = path.join(currentAppDir, matchingDir);
+    }
+    if (fs.existsSync(previousAppDir) && previousAppDir !== myAppDir) {
+      await fsExtra.remove(previousAppDir).then(() => {
+        console.log('Dossier de l\'ancienne version supprimé avec succès.');
+      }).catch((err) => {
+        console.error('Erreur lors de la suppression du dossier de l\'ancienne version :', err);
+      });
     }
     const zip = new AdmZip(updateFilePath);
     const updateFolderName = `win-unpacked_${new Date().toISOString().replace(/:/g, '-')}`;
-    zip.extractAllTo(path.join(currentAppDir, updateFolderName), true);    console.log('Fichier de mise à jour décompressé avec succès.');
-    rimraf.sync(updateFolderPath);
+    zip.extractAllTo(path.join(currentAppDir, updateFolderName), true);
+    await fs.unlink(updateFilePath, (err) => {
+      if (err) {
+        console.error('Erreur lors de la suppression du fichier :', err);
+      } else {
+        console.log('Fichier de mise à jour actuel supprimé avec succès.');
+      }
+    });
     pathNewExeApp = path.join(currentAppDir, updateFolderName, 'win-unpacked', 'cep-app-auto.exe');
-    //createDesktopShortcutfunction(pathNewExeApp);
-    //app.relaunch();
-    //app.exit();
+    createDesktopShortcutfunction(pathNewExeApp);
+    app.relaunch();
+    app.exit();
   } catch (error) {
     console.error('Erreur lors de l\'installation de la mise à jour :', error);
   }
