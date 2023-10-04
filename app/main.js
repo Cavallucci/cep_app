@@ -22,6 +22,7 @@ const AdmZip = require('adm-zip');
 const { start } = require('repl');
 const downloadsPath = app.getPath('downloads');
 const userDataPath = app.getPath('userData');
+const FormData = require('form-data');
 downloadManager.register({ downloadFolder: downloadsPath });
 
 let mainWindow;
@@ -71,6 +72,8 @@ function createLoadingWindow(loadingWindow) {
 
 async function checkForUpdates() {
   try {
+    //si build en dev, on ne check pas les mises à jour
+    if (process.platform === 'linux') return;
     const latestRelease = await getLatestReleaseInfo();
 
     console.log('Version actuelle :', app.getVersion());
@@ -95,7 +98,7 @@ async function checkForUpdates() {
           type: 'info',
           buttons: ['OK'],
           defaultId: 0,
-          message: 'La mise à jour a été installée avec succès !',
+          message: 'Mise à jour terminée !',
         });
         close(loadingWindow);
       }
@@ -107,11 +110,25 @@ async function checkForUpdates() {
 
 async function getLatestReleaseInfo() {
   try {
-    const response = await axios.get('https://api.github.com/repos/Cavallucci/cep_app/releases/latest');
-
+    let response = '';
+    const token = configfile.SMTP_TOKEN;
+      const headers = {
+        'Authorization': `token ${token}`,
+      };
+    if (process.platform === 'win32') {
+      response = await axios.get('https://api.github.com/repos/Cavallucci/cep_app/releases/latest', { headers });
+    }
+    else if (process.platform === 'darwin') {
+      response = await axios.get('https://api.github.com/repos/Cavallucci/cep_app-mac/releases/latest', { headers });
+    }
+    if (response.status !== 200) {
+      console.log('erreur = ' + response)
+      return null;
+    }
     return {
       version: response.data.tag_name,
       downloadUrl: response.data.assets[0].browser_download_url,
+      data: response.data
     };
   } catch (error) {
     console.error('Erreur lors de la récupération des informations sur la dernière version :', error);
@@ -172,55 +189,87 @@ function removeDesktopShortcut() {
 
 async function installUpdate(updateFolderPath) {
   try {
-    const currentAppDir = path.join(path.dirname(app.getAppPath()),'..', '..', '..');
-    const myAppDir = path.join(path.dirname(app.getAppPath()), '..', '..');
-    const updateFileName = 'update.zip';
-    const updateFilePath = path.join(currentAppDir, updateFileName);
-    // const currentAppDir = path.join(__dirname, '..', '..');
-    // const updateFilePath = path.join(__dirname, '..', '..', 'update.zip');
-    
-    removeDesktopShortcut();
-    if (fs.existsSync(updateFilePath)) {
+    if (process.platform === 'win32') {
+      const currentAppDir = path.join(path.dirname(app.getAppPath()),'..', '..', '..');
+      const myAppDir = path.join(path.dirname(app.getAppPath()), '..', '..');
+      const updateFileName = 'update.zip';
+      const updateFilePath = path.join(currentAppDir, updateFileName);
+      
+      removeDesktopShortcut();
+      if (fs.existsSync(updateFilePath)) {
+        await fs.unlink(updateFilePath, (err) => {
+          if (err) {
+            console.error('Erreur lors de la suppression du fichier de mise à jour actuel :', err);
+          } else {
+            console.log('Fichier de mise à jour actuel supprimé avec succès.');
+          }
+        });
+      }
+      await fs.promises.copyFile(updateFolderPath, updateFilePath).then(() => {
+        console.log('Fichier de mise à jour copié avec succès.');
+      }
+      ).catch((err) => {
+        console.error('Erreur lors de la copie du fichier de mise à jour :', err);
+      });
+      let previousAppDir = '';
+      const matchingDir = fs.readdirSync(currentAppDir).find((item) => item.startsWith('win-unpacked_'));
+      if (matchingDir) {
+        previousAppDir = path.join(currentAppDir, matchingDir);
+      }
+      if (fs.existsSync(previousAppDir) && previousAppDir !== myAppDir) {
+        await fsExtra.remove(previousAppDir).then(() => {
+          console.log('Dossier de l\'ancienne version supprimé avec succès.');
+        }).catch((err) => {
+          console.error('Erreur lors de la suppression du dossier de l\'ancienne version :', err);
+        });
+      }
+      const zip = new AdmZip(updateFilePath);
+      const updateFolderName = `win-unpacked_${new Date().toISOString().replace(/:/g, '-')}`;
+      zip.extractAllTo(path.join(currentAppDir, updateFolderName), true);
       await fs.unlink(updateFilePath, (err) => {
         if (err) {
-          console.error('Erreur lors de la suppression du fichier de mise à jour actuel :', err);
+          console.error('Erreur lors de la suppression du fichier :', err);
         } else {
           console.log('Fichier de mise à jour actuel supprimé avec succès.');
         }
       });
-    }
-    await fs.promises.copyFile(updateFolderPath, updateFilePath).then(() => {
-      console.log('Fichier de mise à jour copié avec succès.');
-    }
-    ).catch((err) => {
-      console.error('Erreur lors de la copie du fichier de mise à jour :', err);
-    });
-    let previousAppDir = '';
-    const matchingDir = fs.readdirSync(currentAppDir).find((item) => item.startsWith('win-unpacked_'));
-    if (matchingDir) {
-      previousAppDir = path.join(currentAppDir, matchingDir);
-    }
-    if (fs.existsSync(previousAppDir) && previousAppDir !== myAppDir) {
-      await fsExtra.remove(previousAppDir).then(() => {
+      await fs.unlink(updateFolderPath, (err) => {
+        if (err) {
+          console.error('Erreur lors de la suppression du fichier :', err);
+        } else {
+          console.log('Fichier de mise à jour actuel supprimé avec succès.');
+        }
+      });
+      pathNewExeApp = path.join(currentAppDir, updateFolderName, 'win-unpacked', 'cep-app-auto.exe');
+      createDesktopShortcutfunction(pathNewExeApp);
+      await fsExtra.remove(myAppDir).then(() => {
         console.log('Dossier de l\'ancienne version supprimé avec succès.');
       }).catch((err) => {
         console.error('Erreur lors de la suppression du dossier de l\'ancienne version :', err);
       });
+      app.exit();
     }
-    const zip = new AdmZip(updateFilePath);
-    const updateFolderName = `win-unpacked_${new Date().toISOString().replace(/:/g, '-')}`;
-    zip.extractAllTo(path.join(currentAppDir, updateFolderName), true);
-    await fs.unlink(updateFilePath, (err) => {
-      if (err) {
-        console.error('Erreur lors de la suppression du fichier :', err);
-      } else {
-        console.log('Fichier de mise à jour actuel supprimé avec succès.');
-      }
-    });
-    pathNewExeApp = path.join(currentAppDir, updateFolderName, 'win-unpacked', 'cep-app-auto.exe');
-    createDesktopShortcutfunction(pathNewExeApp);
-    app.relaunch();
-    app.exit();
+    else if (process.platform === 'darwin') {
+      const updateFilePath = path.join(updateFolderPath, 'update.zip');
+      const zip = new AdmZip(updateFilePath);
+      zip.extractAllTo(path.join(__dirname, '..'), true);
+
+      await fs.unlink(updateFilePath, (err) => {
+        if (err) {
+          console.error('Erreur lors de la suppression du fichier :', err);
+        } else {
+          console.log('Fichier de mise à jour actuel supprimé avec succès.');
+        }
+      });
+      
+      fsExtra.remove(path.join(__dirname, '..')).then(() => {
+        console.log('Dossier de l\'ancienne version supprimé avec succès.');
+      } ).catch((err) => {
+        console.error('Erreur lors de la suppression du dossier de l\'ancienne version :', err);
+      });
+
+      app.exit();
+    }
   } catch (error) {
     console.error('Erreur lors de l\'installation de la mise à jour :', error);
   }
