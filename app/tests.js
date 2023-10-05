@@ -3,58 +3,58 @@ const emailValidator = require('email-validator');
 const fs = require('fs');
 const path = require('path');
 const filterModule = require('./filter');
+const { ipcRenderer } = require('electron');
 
-function fillCustomersList(groupedData) {
+async function fillCustomersList(groupedData) {
     const t_customers = [];
-
-    for (let i = 0; i < groupedData.length; i++) {
-        const customerData = groupedData[i];
-        let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[18]);
+    const header = await ipcRenderer.invoke('get-header-data');
+    for (customerData of groupedData) {
+        let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[header.participantsIdIndex]);
 
         if (existingCustomer) {
-            if (customerData[7] && customerData[7].startsWith('TEST')) {
-                existingCustomer.tests.push(customerData[8]);
+            if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('TEST')) {
+                existingCustomer.tests.push(customerData[header.nameIndex]);
             }
-            else if (customerData[7] && customerData[7].startsWith('TK')) {
-                existingCustomer.tk.push(customerData[8]);
-                existingCustomer.tkCode.push(customerData[7]);
+            else if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('TK')) {
+                existingCustomer.tk.push(customerData[header.nameIndex]);
+                existingCustomer.tkCode.push(customerData[header.skuIndex]);
             }
-            else if (customerData[7] && customerData[7].startsWith('CARNET')) {
-                customerData[7] = customerData[7].replace('CARNET_', '');
-                existingCustomer.carnets.push(customerData[7]);
-                existingCustomer.tk.push(customerData[8]);
+            else if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('CARNET')) {
+                customerData[header.skuIndex] = customerData[header.skuIndex].replace('CARNET_', '');
+                existingCustomer.carnets.push(customerData[header.skuIndex]);
+                existingCustomer.tk.push(customerData[header.nameIndex]);
             }
-            existingCustomer.courses.push(customerData[8]);
-            existingCustomer.sku.push(customerData[7]);
-            existingCustomer.dateTest.push(extractDateTest(customerData[33]));
+            existingCustomer.courses.push(customerData[header.nameIndex]);
+            existingCustomer.sku.push(customerData[header.skuIndex]);
+            existingCustomer.dateTest.push(extractDateTest(customerData[header.productOptionsIndex]));
         } else {
             const newCustomer = {
-                childId: customerData[18],
-                childFirstName: customerData[19],
-                childLastName: customerData[20],
-                customerId: customerData[4],
-                customerFirstName: customerData[5],
-                customerLastName: customerData[6],
-                customerEmail: customerData[27],
-                courses: [customerData[8]],
-                sku: [customerData[7]],
+                childId: customerData[header.participantsIdIndex],
+                childFirstName: customerData[header.prenomParticipantIndex],
+                childLastName: customerData[header.nomParticipantIndex],
+                customerId: customerData[header.customerIDIndex],
+                customerFirstName: customerData[header.customerFirstNameIndex],
+                customerLastName: customerData[header.customerLastNameIndex],
+                customerEmail: customerData[header.emailIndex],
+                courses: [customerData[header.nameIndex]],
+                sku: [customerData[header.skuIndex]],
                 carnets: [],
                 tests: [],
                 tk: [],
                 tkCode: [],
-                dateTest: [extractDateTest(customerData[33])] //Date de votre test : : 22/04/2023 à 14h00,
+                dateTest: [extractDateTest(customerData[header.productOptionsIndex])] //Date de votre test : : 22/04/2023 à 14h00,
             };
-            if (customerData[7] && customerData[7].startsWith('TEST')) {
-                newCustomer.tests.push(customerData[8]);
+            if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('TEST')) {
+                newCustomer.tests.push(customerData[header.nameIndex]);
             }
-            else if (customerData[7] && customerData[7].startsWith('TK')) {
-                newCustomer.tk.push(customerData[8]);
-                newCustomer.tkCode.push(customerData[7]);
+            else if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('TK')) {
+                newCustomer.tk.push(customerData[header.nameIndex]);
+                newCustomer.tkCode.push(customerData[header.skuIndex]);
             }
-            else if (customerData[7] && customerData[7].startsWith('CARNET')) {
-                customerData[7] = customerData[7].replace('CARNET_', '');
-                newCustomer.carnets.push(customerData[7]);
-                newCustomer.tk.push(customerData[8]);
+            else if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('CARNET')) {
+                customerData[header.skuIndex] = customerData[header.skuIndex].replace('CARNET_', '');
+                newCustomer.carnets.push(customerData[header.skuIndex]);
+                newCustomer.tk.push(customerData[header.nameIndex]);
             }
             t_customers.push(newCustomer);
         }
@@ -179,11 +179,11 @@ function displayCustomerDetails(customer) {
   container.appendChild(customerDetails);
 }
 
-function displayTest(groupedData) {
+async function displayTest(groupedData) {
     const container = document.getElementById('displayContainer');
     container.innerHTML = ''; 
 
-    const t_customers = fillCustomersList(groupedData);
+    const t_customers = await fillCustomersList(groupedData);
 
     t_customers.sort((a, b) => a.childLastName.localeCompare(b.childLastName));
 
@@ -208,21 +208,20 @@ function displayTest(groupedData) {
     }
 }
 
-async function fillTestWorksheet(worksheet, data, sortedData) {
-    const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
+async function fillTestWorksheet(worksheet, data, sortedData, header) {
     worksheet.addRow(header);
   
-    sortedData.sort((a, b) => a[18] - b[18]);
+    sortedData.sort((a, b) => a[header.participantsIdIndex] - b[header.participantsIdIndex]);
 
     sortedData.forEach((rowData) => {
-      let existingCustomer = data.find((data) => data.childId === rowData[18]);
+      let existingCustomer = data.find((data) => data.childId === rowData[header.participantsIdIndex]);
   
       if (existingCustomer) {
         row = worksheet.addRow(rowData);
   
         if (rowData[7].startsWith('TEST')) {
             let today = new Date();
-            let dateTest = rowData[36];
+            let dateTest = rowData[header.dateTestIndex];
             
             if (dateTest) {
                 const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
@@ -245,7 +244,7 @@ async function fillTestWorksheet(worksheet, data, sortedData) {
 
 async function manageEmail(checkbox, globalData) {
   const customerId = checkbox.getAttribute('data-customer-id');
-  const testList = testModule.fillCustomersList(globalData);
+  const testList = await testModule.fillCustomersList(globalData);
 
   let groupEmail = [];
   for (const test of testList) {

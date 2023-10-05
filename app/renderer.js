@@ -118,11 +118,11 @@ document.getElementById('printButton').addEventListener('click', async () => {
     const dataSorted = [];
     const globalData = await ipcRenderer.invoke('get-sorted-data');
 
-    const facturationList = facturationModule.fillCustomersList(globalData);
-    const adhesionList = adhesionModule.fillCustomersList(globalData);
-    const decouverteList = decouverteModule.fillCustomersList(globalData);
-    const testList = testModule.fillCustomersList(globalData);
-    const stageList = stageModule.fillCustomersList(globalData);
+    const facturationList = await facturationModule.fillCustomersList(globalData);
+    const adhesionList = await adhesionModule.fillCustomersList(globalData);
+    const decouverteList = await decouverteModule.fillCustomersList(globalData);
+    const testList = await testModule.fillCustomersList(globalData);
+    const stageList = await stageModule.fillCustomersList(globalData);
 
     dataSorted.push(facturationList, adhesionList, decouverteList, testList, stageList);
 

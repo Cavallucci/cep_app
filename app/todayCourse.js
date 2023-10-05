@@ -4,6 +4,7 @@ const path = require('path');
 const ExcelJS = require('exceljs');
 const testModule = require('./tests');
 const docModule = require('./docs');
+const { ipcRenderer } = require('electron');
 
 async function printTodayCourse(groupedData) {
     if (!groupedData) {
@@ -30,23 +31,23 @@ async function printTodayCourse(groupedData) {
     }
 }
 
-function fillCourseList(groupedData) {
+async function fillCourseList(groupedData) {
     const sortedData = [];
-
+    const header = await ipcRenderer.invoke('get-header-data');
     for (const customerData of groupedData) {
         const newCustomer = {
-            customerLastName: customerData[6],
-            debut: docModule.formatTime(customerData[16]),
-            fin: docModule.formatTime(customerData[17]),
-            childId: customerData[18],
-            childFirstName: customerData[19],
-            childLastName: customerData[20],
-            courseName: customerData[8],
-            room: customerData[10],
-            teacher: customerData[13],
-            sku: customerData[7],
-            day: customerData[25],
-            testDate: testModule.extractDateTest(customerData[33]),
+            customerLastName: customerData[header.customerLastNameIndex],
+            debut: docModule.formatTime(customerData[header.debutIndex]),
+            fin: docModule.formatTime(customerData[header.finIndex]),
+            childId: customerData[header.participantsIdIndex],
+            childFirstName: customerData[header.prenomParticipantIndex],
+            childLastName: customerData[header.nomParticipantIndex],
+            courseName: customerData[header.nameIndex],
+            room: customerData[header.salleIndex],
+            teacher: customerData[header.profNameIndex],
+            sku: customerData[header.skuIndex],
+            day: customerData[header.frequenceIndex],
+            testDate: testModule.extractDateTest(customerData[header.productOptionsIndex]),
         };
         sortedData.push(newCustomer);
     }

@@ -1,26 +1,27 @@
+const { ipcRenderer } = require('electron');
 const checkboxModule = require('./checkbox');
 const emailValidator = require('email-validator');
 
-function fillCustomersList(groupedData) {
+async function fillCustomersList(groupedData) {
     const t_customers = [];
-
+    const headers = await ipcRenderer.invoke('get-header-data'); 
     for (customerData of groupedData) {
-        let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[18]);
+        let existingCustomer = t_customers.find((t_customer) => t_customer.childId === customerData[headers.participantsIdIndex]);
 
         if (existingCustomer) {
-            existingCustomer.courses.push(customerData[8]);
-            existingCustomer.sku.push(customerData[7]);
+            existingCustomer.courses.push(customerData[headers.nameIndex]);
+            existingCustomer.sku.push(customerData[headers.skuIndex]);
         } else {
             const newCustomer = {
-                childId: customerData[18],
-                childFirstName: customerData[19],
-                childLastName: customerData[20],
-                customerId: customerData[4],
-                customerFirstName: customerData[5],
-                customerLastName: customerData[6],
-                customerEmail: customerData[27],
-                courses: [customerData[8]],
-                sku: [customerData[7]],
+                childId: customerData[headers.participantsIdIndex],
+                childFirstName: customerData[headers.prenomParticipantIndex],
+                childLastName: customerData[headers.nomParticipantIndex],
+                customerId: customerData[headers.customerIDIndex],
+                customerFirstName: customerData[headers.customerFirstNameIndex],
+                customerLastName: customerData[headers.customerLastNameIndex],
+                customerEmail: customerData[headers.emailIndex],
+                courses: [customerData[headers.nameIndex]],
+                sku: [customerData[headers.skuIndex]],
             };
             t_customers.push(newCustomer);
         }
@@ -54,11 +55,11 @@ function displayCustomerDetails(customer) {
     container.appendChild(customerDetails);
 }
   
-function displayAdhesion(groupedData) {
+async function displayAdhesion(groupedData) {
     const container = document.getElementById('displayContainer');
     container.innerHTML = ''; // Reset the content of the container
 
-    const t_customers = fillCustomersList(groupedData);
+    const t_customers = await fillCustomersList(groupedData);
 
     t_customers.sort((a, b) => a.childLastName.localeCompare(b.childLastName));
 
@@ -83,14 +84,13 @@ function displayAdhesion(groupedData) {
     }
 }
 
-async function fillAdhesionWorksheet(worksheet, data, sortedData) {
-    const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
+async function fillAdhesionWorksheet(worksheet, data, sortedData, header) {
     worksheet.addRow(header);
   
-    sortedData.sort((a, b) => a[18] - b[18]);
+    sortedData.sort((a, b) => a[header.participantsIdIndex] - b[header.participantsIdIndex]);
   
     sortedData.forEach((rowData) => {
-      let existingCustomer = data.find((data) => data.childId === rowData[18]);
+      let existingCustomer = data.find((data) => data.childId === rowData[header.participantsIdIndex]);
   
       if (existingCustomer && rowData[7].startsWith('TK')) {
         worksheet.addRow(rowData);
@@ -100,7 +100,7 @@ async function fillAdhesionWorksheet(worksheet, data, sortedData) {
 
 async function manageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
-    const adhesionList = adhesionModule.fillCustomersList(globalData);
+    const adhesionList = await adhesionModule.fillCustomersList(globalData);
 
     let groupEmail = [];
     for (const adhesion of adhesionList) {

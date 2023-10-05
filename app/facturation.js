@@ -4,47 +4,47 @@ const axios = require('axios');
 const { config } = require('exceljs');
 const Base64 = require('js-base64').Base64;
 const path = require('path');
+const { ipcRenderer, ipcMain } = require('electron');
 const configfile = require(path.join(__dirname, '../config.json'));
 
-function fillCustomersList(groupedData) {
+async function fillCustomersList(groupedData) {
     const t_customers = [];
-
-    for (let i = 0; i < groupedData.length; i++) {
-        const customerData = groupedData[i];
-        let existingCustomer = t_customers.find((t_customer) => t_customer.customerId === customerData[4]);
+    const header = await ipcRenderer.invoke('get-header-data');
+    for (customerData of groupedData) {
+        let existingCustomer = t_customers.find((t_customer) => t_customer.customerId === customerData[header.customerIDIndex]);
 
         if (existingCustomer) {
-            if (!existingCustomer.childCourses.has(customerData[19])) {
-                existingCustomer.childCourses.set(customerData[19], []);
+            if (!existingCustomer.childCourses.has(customerData[header.prenomParticipantIndex])) {
+                existingCustomer.childCourses.set(customerData[header.prenomParticipantIndex], []);
             }
-            existingCustomer.childCourses.get(customerData[19]).push(customerData[8]);
+            existingCustomer.childCourses.get(customerData[header.prenomParticipantIndex]).push(customerData[header.nameIndex]);
                         
-            existingCustomer.totalPxVente += customerData[23];
+            existingCustomer.totalPxVente += customerData[header.prixVenteIndex];
             let existingOrder = false;
 
             for (order of existingCustomer.nborder) {
-                if (order === customerData[2]) {
+                if (order === customerData[header.incrementIdIndex]) {
                     existingOrder = true;
                 }
             }
             if (existingOrder === false) {
-                existingCustomer.nborder.push(customerData[2]);
-                existingCustomer.totalRestantDu += customerData[3];
+                existingCustomer.nborder.push(customerData[header.incrementIdIndex]);
+                existingCustomer.totalRestantDu += customerData[header.restDueValueIndex];
             }
-            if (existingCustomer.childsFirstName.some((childsFirstName) => childsFirstName !== customerData[19])) {
+            if (existingCustomer.childsFirstName.some((childsFirstName) => childsFirstName !== customerData[header.prenomParticipantIndex])) {
                 existingCustomer.childsFirstName.push(customerData[19]);
             }
         } else {
             const newCustomer = {
-                customerId: customerData[4],
-                customerFirstName: customerData[5],
-                customerLastName: customerData[6],
-                childsFirstName: [customerData[19]],
-                nborder: [customerData[2]],
-                totalRestantDu: customerData[3],
-                childCourses: new Map([[customerData[19], [customerData[8]]]]),
-                totalPxVente: customerData[23],
-                customerEmail: customerData[27],
+                customerId: customerData[header.customerIDIndex],
+                customerFirstName: customerData[header.customerFirstNameIndex],
+                customerLastName: customerData[header.customerLastNameIndex],
+                childsFirstName: [customerData[header.prenomParticipantIndex]],
+                nborder: [customerData[header.incrementIdIndex]],
+                totalRestantDu: customerData[header.restDueValueIndex],
+                childCourses: new Map([[customerData[header.prenomParticipantIndex], [customerData[header.nameIndex]]]]),
+                totalPxVente: customerData[header.prixVenteIndex],
+                customerEmail: customerData[header.emailIndex],
                 lienSystemPay: '',
             };
             
@@ -83,7 +83,7 @@ async function displayFacturation(groupedData) {
     const container = document.getElementById('displayContainer');
     container.innerHTML = '';
 
-    const t_customers = fillCustomersList(groupedData);
+    const t_customers = await fillCustomersList(groupedData);
 
     t_customers.sort((a, b) => a.customerLastName.localeCompare(b.customerLastName));
     for (let i = 0; i < t_customers.length; i++) {
@@ -140,16 +140,16 @@ async function fillSystemPay(customer) {
         customer.lienSystemPay = response.data.answer.paymentURL;
 }
 
-async function fillFacturationWorksheet(worksheet, data, sortedData) {
-    const header = [ 'status', 'increment_id', 'restant_du', 'customer_id', 'customer_firstname', 'customer_lastname', 'sku', 'name', 'qty_en_cours', 'salle', 'salle2', 'prof_code', 'prof_name', 'prof_code2', 'prof_name2', 'debut', 'fin', 'participants_id', 'prenom_participant', 'nom_participant', 'date_naissance', 'prix_catalog', 'prix_vente', 'prix_vente_ht', 'frequence', 'date_reservation', 'email', 'additionnal_email', 'telephone', 'street', 'postcode', 'city', 'product_options', 'option_name', 'option_sku', 'date_test' ];
-    worksheet.addRow(header);
+async function fillFacturationWorksheet(worksheet, data, sortedData, header) {
+    const columnNames = Object.keys(header);
+    worksheet.addRow(columnNames);
   
-    sortedData.sort((a, b) => a[4] - b[4]);
+    sortedData.sort((a, b) => a[header.customerIDIndex] - b[header.customerIDIndex]);
   
     sortedData.forEach((rowData) => {
-      let existingCustomer = data.find((data) => data.customerId === rowData[4]);
+      let existingCustomer = data.find((data) => data.customerId === rowData[header.customerIDIndex]);
   
-      if (existingCustomer  && rowData[3] > 0) {
+      if (existingCustomer  && rowData[header.restDueValueIndex] > 0) {
         row = worksheet.addRow(rowData);
         row.getCell(3).fill = {
             type: 'pattern',
@@ -162,7 +162,7 @@ async function fillFacturationWorksheet(worksheet, data, sortedData) {
 
 async function manageEmail(checkbox, globalData) {
     const customerId = checkbox.getAttribute('data-customer-id');
-    const facturationList = facturationModule.fillCustomersList(globalData);
+    const facturationList = await facturationModule.fillCustomersList(globalData);
     const checkboxFound = facturationList.find((facturationList) => facturationList.customerId === customerId);
   
     try {

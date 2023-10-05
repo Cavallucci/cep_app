@@ -28,6 +28,7 @@ downloadManager.register({ downloadFolder: downloadsPath });
 let mainWindow;
 let sortedData = [];
 let dateAsk = new Date(0);
+let headerData;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -72,7 +73,6 @@ function createLoadingWindow(loadingWindow) {
 
 async function checkForUpdates() {
   try {
-    //si build en dev, on ne check pas les mises à jour
     if (process.platform === 'linux') return;
     const latestRelease = await getLatestReleaseInfo();
 
@@ -303,10 +303,13 @@ ipcMain.handle('get-download-path', (event) => {
   return downloadsPath;
 });
 
+ipcMain.handle('get-header-data', (event) => {
+  return headerData;
+});
+
 ipcMain.on('sortExcelFile', async (event, filePath) => {
   try {
     let filteredRows = [];
-    let headerData = [];
     let workbook;
 
     if (filePath.endsWith('.xlsx')) {
@@ -319,16 +322,15 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
     }
 
     const worksheet = workbook.getWorksheet(1); 
-    filteredRows = await filterModule.createWorkbook(worksheet, filteredRows);
-
     const headerRow = worksheet.getRow(1);
-    headerData = headerRow.values;
-
+    headerData = filterModule.getHeaderNumber(headerRow.values);
+    filteredRows = await filterModule.createWorkbook(worksheet, filteredRows, headerData);
+    
     if (filteredRows.length > 0) {
       await downloadEmails();
       event.sender.send('sortingSuccess');
 
-      filteredRows.unshift(headerData);
+      filteredRows.unshift(headerRow.values);
       sortedData = filteredRows;
     }
     else {
@@ -435,11 +437,11 @@ ipcMain.on('printExcelFile', async (event, filePath, dataSorted) => {
     const testSheet = workbook.addWorksheet('test');
     const stageSheet = workbook.addWorksheet('stage');
 
-    await facturationModule.fillFacturationWorksheet(FacturationSheet, dataSorted[0], sortedData);
-    await adhesionModule.fillAdhesionWorksheet(AdhesionSheet, dataSorted[1], sortedData);
-    await decouverteModule.fillDécouverteWorksheet(découverteSheet, dataSorted[2], sortedData);
-    await testModule.fillTestWorksheet(testSheet, dataSorted[3], sortedData);
-    await stageModule.fillStageWorksheet(stageSheet, dataSorted[4], sortedData);
+    await facturationModule.fillFacturationWorksheet(FacturationSheet, dataSorted[0], sortedData, headerData);
+    await adhesionModule.fillAdhesionWorksheet(AdhesionSheet, dataSorted[1], sortedData, headerData);
+    await decouverteModule.fillDécouverteWorksheet(découverteSheet, dataSorted[2], sortedData, headerData);
+    await testModule.fillTestWorksheet(testSheet, dataSorted[3], sortedData, headerData);
+    await stageModule.fillStageWorksheet(stageSheet, dataSorted[4], sortedData, headerData);
 
     await workbook.xlsx.writeFile(newFilePath);
 

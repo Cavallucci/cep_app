@@ -1,34 +1,115 @@
 const ExcelJS = require('exceljs');
 const fs = require('fs');
 
-const createWorkbook = (worksheet, filteredRows) => {
+function getHeaderNumber(row) {
+  const statusValueIndex = row.indexOf('status');
+  const incrementIdIndex = row.indexOf('increment_id');
+  const restDueValueIndex = row.indexOf('restant_du');
+  const customerIDIndex = row.indexOf('customer_id');
+  const customerFirstNameIndex = row.indexOf('customer_firstname');
+  const customerLastNameIndex = row.indexOf('customer_lastname');
+  const skuIndex = row.indexOf('sku');
+  const nameIndex = row.indexOf('name');
+  const qtyEnCoursIndex = row.indexOf('qty_en_cours');
+  const salleIndex = row.indexOf('salle');
+  const salle2Index = row.indexOf('salle2');
+  const profCodeIndex = row.indexOf('prof_code');
+  const profNameIndex = row.indexOf('prof_name');
+  const profCode2Index = row.indexOf('prof_code2');
+  const profName2Index = row.indexOf('prof_name2');
+  const debutIndex = row.indexOf('debut');
+  const finIndex = row.indexOf('fin');
+  const participantsIdIndex = row.indexOf('participants_id');
+  const prenomParticipantIndex = row.indexOf('prenom_participant');
+  const nomParticipantIndex = row.indexOf('nom_participant');
+  const dateNaissanceIndex = row.indexOf('date_naissance');
+  const prixCatalogIndex = row.indexOf('prix_catalog');
+  const prixVenteIndex = row.indexOf('prix_vente');
+  const prixVenteHtIndex = row.indexOf('prix_vente_ht');
+  const frequenceIndex = row.indexOf('frequence');
+  const dateReservationIndex = row.indexOf('date_reservation');
+  const emailIndex = row.indexOf('email');
+  const additionnalEmailIndex = row.indexOf('additionnal_email');
+  const telephoneIndex = row.indexOf('telephone');
+  const streetIndex = row.indexOf('street');
+  const postcodeIndex = row.indexOf('postcode');
+  const cityIndex = row.indexOf('city');
+  const productOptionsIndex = row.indexOf('product_options');
+  const optionNameIndex = row.indexOf('option_name');
+  const optionSkuIndex = row.indexOf('option_sku');
+  const dateTestIndex = row.indexOf('date_test');
+
+  return {
+    statusValueIndex,
+    incrementIdIndex,
+    customerIDIndex,
+    restDueValueIndex,
+    customerFirstNameIndex,
+    customerLastNameIndex,
+    skuIndex,
+    nameIndex,
+    qtyEnCoursIndex,
+    salleIndex,
+    salle2Index,
+    profCodeIndex,
+    profNameIndex,
+    profCode2Index,
+    profName2Index,
+    debutIndex,
+    finIndex,
+    participantsIdIndex,
+    prenomParticipantIndex,
+    nomParticipantIndex,
+    dateNaissanceIndex,
+    prixCatalogIndex,
+    prixVenteIndex,
+    prixVenteHtIndex,
+    frequenceIndex,
+    dateReservationIndex,
+    emailIndex,
+    additionnalEmailIndex,
+    telephoneIndex,
+    streetIndex,
+    postcodeIndex,
+    cityIndex,
+    productOptionsIndex,
+    optionNameIndex,
+    optionSkuIndex,
+    dateTestIndex,
+  };
+}
+
+const createWorkbook = (worksheet, filteredRows, headers) => {
     worksheet.eachRow((row) => {
       const rowData = row.values;
 
-      const statusValue = rowData[1];
-      const customerId = rowData[4];
-      const amountValue = rowData[9];
-      const restDueValue = rowData[3];
-      const dateTest = rowData[33];
-      const pxVente = rowData[23];
+      const statusValue = rowData[headers.statusValueIndex];
+      const customerId = rowData[headers.customerIDIndex];
+      const amountValue = rowData[headers.prixVenteHtIndex];
+      const restDueValue = rowData[headers.restDueValueIndex];
+      const dateTest = rowData[headers.dateReservationIndex];
+      const pxVente = rowData[headers.prixVenteHtIndex];
       
       //rowData[27] = 'nathalie@clubdesenfantsparisiens.com';
       //rowData[27] = 'test.cep.application@laposte.net';
-      //rowData[27] = 'laura.cllucci@gmail.com';
+      rowData[headers.emailIndex] = 'laura.cllucci@gmail.com';
 
       if (typeof restDueValue === 'string'){
         const formattedRestDue = parseFloat(restDueValue);
-        rowData[3] = formattedRestDue;
+        //rowData[3] = formattedRestDue;
+        rowData[headers.restDueValueIndex] = formattedRestDue;
       }
       if (typeof pxVente === 'string'){
         const formattedVenteDue = parseFloat(pxVente);
-        rowData[23] = formattedVenteDue;
+        //rowData[23] = formattedVenteDue;
+        rowData[headers.prixVenteHtIndex] = formattedVenteDue;
       }
 
       if (typeof dateTest === 'string'){
         const extractedDate = extractDateFromString(dateTest);
         if (extractedDate) {
-          rowData[36] = extractedDate;
+          //rowData[36] = extractedDate;
+          rowData[headers.dateTestIndex] = extractedDate;
         }
       }
       //customerId != '917' && 
@@ -36,7 +117,6 @@ const createWorkbook = (worksheet, filteredRows) => {
           filteredRows.push(rowData);
       }
     });
-
     for (let i = 0; i < filteredRows.length; i++) {
       for (let j = 0; j < filteredRows[i].length; j++) {
           if (filteredRows[i][j] && typeof filteredRows[i][j] === 'string') {
@@ -44,7 +124,6 @@ const createWorkbook = (worksheet, filteredRows) => {
           }
       }
   }
-
     return filteredRows;
 }
 
@@ -140,4 +219,5 @@ function removeDiacritics(str) {
     setTimeWaiting,
     formatDate,
     removeDiacritics,
+    getHeaderNumber,
   };

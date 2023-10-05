@@ -214,9 +214,9 @@ async function sendEmailTest(customerGroup, storeLinks) {
       if (storeLinks.has(wordAfterTest) && !courses.includes(testCourse)) {
         courses.push(testCourse);
         nbtest += 1;
-        const liencomplet = storeLinks.get(wordAfterTest).split('/'); // Exemple de lien : https://www.clubdesenfantsparisiens.com/batterie-11-13-ans-debutants-tk385-2023.html
-        const partieSouhaitee = liencomplet[3]; // Exemple : batterie-11-13-ans-debutants-tk385-2023.html
-        const premierChiffre = partieSouhaitee.match(/\d/); // Recherche du premier chiffre avec une expression régulière
+        const liencomplet = storeLinks.get(wordAfterTest).split('/');
+        const partieSouhaitee = liencomplet[3]; 
+        const premierChiffre = partieSouhaitee.match(/\d/); 
         const positionPremierChiffre = partieSouhaitee.indexOf(premierChiffre[0]);
         const jusquauPremierChiffre = partieSouhaitee.substring(0, positionPremierChiffre);
         const sansDernierCaractere = jusquauPremierChiffre.slice(0, -1);

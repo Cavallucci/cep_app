@@ -6,51 +6,50 @@ const path = require('path');
 
 async function customerFillList(groupedData, dateDoc1, dateDoc2) {
     const t_stages = [];
-
-    for (let i = 0; i < groupedData.length; i++) {
-        const customerData = groupedData[i];
-        let existingStage = t_stages.find((t_stage) => t_stage.staSku === customerData[7]);
+    const header = await ipcRenderer.invoke('get-header-data');
+    for (customerData of groupedData) {
+        let existingStage = t_stages.find((t_stage) => t_stage.staSku === customerData[header.skuIndex]);
 
         if (existingStage) {
             const child = {
-                childId: customerData[18],
-                childFirstName: customerData[19],
-                childLastName: customerData[20],
-                birth: formatDateFrench(customerData[21]),
-                status: customerData[1],
-                customerFirstName: customerData[5],
-                customerLastName: customerData[6],
+                childId: customerData[header.participantsIdIndex],
+                childFirstName: customerData[header.prenomParticipantIndex],
+                childLastName: customerData[header.nomParticipantIndex],
+                birth: formatDateFrench(customerData[header.dateNaissanceIndex]),
+                status: customerData[header.statusValueIndex],
+                customerFirstName: customerData[header.customerFirstNameIndex],
+                customerLastName: customerData[header.customerLastNameIndex],
             }
             existingStage.childs.push(child);
-        } else if (customerData[7] && customerData[7].startsWith('STA')){
+        } else if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('STA')){
             const newCustomer = {
-                staSku: customerData[7],
-                staName: customerData[8],
-                dateStage: customerData[7],
+                staSku: customerData[header.skuIndex],
+                staName: customerData[header.nameIndex],
+                dateStage: customerData[header.skuIndex],
                 commentaire: '',
                 childs: [],
-                age: customerData[8].match(/\d+\/\d+ ans/g),
-                debut: formatTime(customerData[16]),
-                fin: formatTime(customerData[17]),
-                salle1: customerData[10],
-                salle2: customerData[11] ? customerData[11] : null,
+                age: customerData[header.nameIndex].match(/\d+\/\d+ ans/g),
+                debut: formatTime(customerData[header.debutIndex]),
+                fin: formatTime(customerData[header.finIndex]),
+                salle1: customerData[header.salleIndex],
+                salle2: customerData[header.salle2Index] ? customerData[header.salle2Index] : null,
                 prof1: {
-                    id: customerData[12],
-                    nom: customerData[13]
+                    id: customerData[header.profCodeIndex],
+                    nom: customerData[header.profNameIndex]
                 },
-                prof2: customerData[14] ? {
-                    id: customerData[14],
-                    nom: customerData[15]
+                prof2: customerData[header.profCode2Index] ? {
+                    id: customerData[header.profCode2Index],
+                    nom: customerData[header.profName2Index]
                 } : null,
             };
             const child = {
-                childId: customerData[18],
-                childFirstName: customerData[19],
-                childLastName: customerData[20],
-                birth: formatDateFrench(customerData[21]),
-                status: customerData[1],
-                customerFirstName: customerData[5],
-                customerLastName: customerData[6],
+                childId: customerData[header.participantsIdIndex],
+                childFirstName: customerData[header.prenomParticipantIndex],
+                childLastName: customerData[header.nomParticipantIndex],
+                birth: formatDateFrench(customerData[header.dateNaissanceIndex]),
+                status: customerData[header.statusValueIndex],
+                customerFirstName: customerData[header.customerFirstNameIndex],
+                customerLastName: customerData[header.customerLastNameIndex],
             }
             newCustomer.childs.push(child);
             t_stages.push(newCustomer);
