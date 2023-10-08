@@ -324,6 +324,7 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
     const worksheet = workbook.getWorksheet(1); 
     const headerRow = worksheet.getRow(1);
     headerData = filterModule.getHeaderNumber(headerRow.values);
+    console.log(headerData);
     filteredRows = await filterModule.createWorkbook(worksheet, filteredRows, headerData);
     
     if (filteredRows.length > 0) {

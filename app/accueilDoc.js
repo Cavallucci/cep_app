@@ -1,8 +1,15 @@
 const docsModule = require('./docs');
+const { ipcRenderer } = require('electron');
+const fs = require('fs');
+const path = require('path');
 
 function newStageList(editableTable, stageList) {
     [...editableTable.rows].slice(1).forEach((row, index) => {
+        if (stageList[index].age) {
         stageList[index].age[0] = row.cells[0].textContent;
+        } else {
+        stageList[index].age = [row.cells[0].textContent];
+        }
         stageList[index].staName = row.cells[1].textContent;
         stageList[index].debut = row.cells[2].textContent;
         stageList[index].fin = row.cells[3].textContent;
@@ -84,7 +91,28 @@ function generateEditableTable(stageLists) {
     return table;
   }
 
+async function saveDocAccueil(stageList, date1, date2) {
+    const userDataPath = await ipcRenderer.invoke('get-user-path');
+    const filePath = path.join(userDataPath, date1 + '-' + date2 + '-stageList.json');
+    const dataJSON = JSON.stringify(stageList);
+    await fs.writeFileSync(filePath, dataJSON);
+    console.log('save here : ' + filePath);
+}
+
+async function checkStageListJson(date1, date2) {
+  const userDataPath = await ipcRenderer.invoke('get-user-path');
+  const filePath = path.join(userDataPath, date1 + '-' + date2 + '-stageList.json');
+  if (fs.existsSync(filePath)) {
+    const dataJSON = fs.readFileSync(filePath);
+    const stageList = JSON.parse(dataJSON);
+    return stageList;
+  } else {
+    return [];
+  }
+}
 module.exports = {
     newStageList,
-    generateEditableTable
+    generateEditableTable,
+    saveDocAccueil,
+    checkStageListJson
 };

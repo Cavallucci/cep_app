@@ -86,23 +86,31 @@ document.getElementById('printDocAccueil').addEventListener('click', async () =>
       const fileInput = document.getElementById('fileInput');
       if (fileInput.files.length > 0) {
         const groupedData = await ipcRenderer.invoke('get-sorted-data');
-        const stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
+        const checkStageListJson = await accueilDocModule.checkStageListJson(dateDoc1, dateDoc2);
+        let stageList = [];
+        if (checkStageListJson.length > 0) {
+          stageList = checkStageListJson;
+        } else {
+          stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
+        }
         const editableTable = accueilDocModule.generateEditableTable(stageList);
-
         const container = document.getElementById('document-preview');
         container.style.display = 'block';
         container.innerHTML = '';
         container.appendChild(editableTable);
 
         const saveButton = document.createElement('button');
-        saveButton.textContent = 'Enregistrer les modifications';
-        saveButton.addEventListener('click', () => {
+        saveButton.textContent = 'Enregistrer et imprimer';
+        console.log('1stagelist = ', stageList);
+        saveButton.addEventListener('click', async () => {
+          console.log('2stagelist = ', stageList);
           const newstageList = accueilDocModule.newStageList(editableTable, stageList);
+          await accueilDocModule.saveDocAccueil(newstageList, dateDoc1, dateDoc2);
           ipcRenderer.send('printDocAccueil', dateDoc1, dateDoc2, newstageList);
         });
 
-      container.appendChild(saveButton);
-       }
+        container.appendChild(saveButton);
+      }
   }
 });
 

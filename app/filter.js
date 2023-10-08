@@ -2,7 +2,7 @@ const ExcelJS = require('exceljs');
 const fs = require('fs');
 
 function getHeaderNumber(row) {
-  const statusValueIndex = row.indexOf('status');
+  const statusValueIndex = 1;
   const incrementIdIndex = row.indexOf('increment_id');
   const restDueValueIndex = row.indexOf('restant_du');
   const customerIDIndex = row.indexOf('customer_id');
@@ -123,7 +123,7 @@ const createWorkbook = (worksheet, filteredRows, headers) => {
             filteredRows[i][j] = filteredRows[i][j].toString().replace(/"/g, '');
           }
       }
-  }
+    }
     return filteredRows;
 }
 
