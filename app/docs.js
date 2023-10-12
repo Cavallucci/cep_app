@@ -167,6 +167,60 @@ function replaceDateStage(date) { //STA_ETE23_28AOUT_019_2022
     return completeDateSTA
 }
 
+async function fillProfDoc(downloadsPath, profList, dateDoc1, dateDoc2) {
+    const title = addTitle(dateDoc1, dateDoc2);
+
+    const header = addHeader('version rofesseur');
+    const footer = addFooter();
+    
+    //trouver les childListWithJC pour les surligner en jaune
+    const profWithoutBafa = profList.filter(prof => prof.nom !== 'Bafa');
+    const profBafa = profList.find(prof => prof.nom === 'Bafa');
+    let childListWithBafa = [];
+    if (profBafa) {
+        for (const stage of profBafa.stage) {
+            childListWithBafa = childListWithBafa.concat(stage.childs);
+        }
+    }
+    const planning = planningProfTable(profWithoutBafa, profBafa);
+    const ligneVide = new docx.Paragraph({
+        children: [
+            new docx.TextRun({ break: 2 }),
+        ],
+    });
+
+    const doc = new docx.Document({
+        sections: [{
+        properties: {
+            page: {
+                size: {
+                    orientation: docx.PageOrientation.LANDSCAPE,
+                },
+            },
+        },
+        headers: {
+            default: header,
+        },
+        footers: {
+            default: footer,
+        },
+        children: [title, ligneVide, ...planning]
+        }]
+    });
+
+    const fileName = path.join(downloadsPath, `planning_prof_semaine_${filterModule.formatDate(dateDoc1)}_au_${filterModule.formatDate(dateDoc2)}.doc`);
+    docx.Packer.toBase64String(doc).then((base64String) => {
+        const buffer = Buffer.from(base64String, 'base64');
+        fs.writeFileSync(fileName, buffer, (err) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log('Fichier enregistré dans le dossier Téléchargements.');
+            }
+        });
+    });
+}
+
 async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     const title = addTitle(dateDoc1, dateDoc2);
 
@@ -185,7 +239,7 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     }
     const table = withoutPaimentTable(matchingChildren);
     const aReplacer = aReplacerTable();
-    const header = addHeader();
+    const header = addHeader('version accueil');
     const footer = addFooter();
     const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
     const stageWithJC = stageList.find(stage => stage.staName.startsWith('Journée continue'));
@@ -334,12 +388,12 @@ function addTitle(dateDoc1, dateDoc2) {
     return title;
 }
 
-function addHeader() {
+function addHeader(version) {
     return new docx.Header({
         children: [
             new docx.Paragraph({
                 children: [
-                    addText('version accueil', true, `11pt`),
+                    addText(version, true, `11pt`),
                 ],
                 alignment: docx.AlignmentType.RIGHT,
             }),
@@ -486,6 +540,55 @@ function planningTable(stageList, childListWithJC) {
     return globalTable;
 }
 
+function planningProfTable(profList, profBafa) {
+    const globalTable = [];
+    for (const prof of profList) {
+        const headerProf = headerProfPlanningTable(prof.nom);
+        globalTable.push(headerProf);
+        const headerRow = headerPlanningTable();
+        const headerChildTables = headerChildTable();
+        for (const stage of prof.stage) {
+            const stageRow = stagePlanningTable(stage);
+            globalTable.push(headerRow);
+            globalTable.push(stageRow);
+            globalTable.push(addCellYellow(stage.commentaire));
+
+            globalTable.push(headerChildTables);
+            const childTable = childRowTable(stage.childs, profBafa);
+            globalTable.push(childTable);
+            const nbChilds = stage.childs.length;
+            if (nbChilds < 10) {
+                const nbDiff = 10 - nbChilds;
+                const childTableVide = childRowTableVide(nbDiff);
+                globalTable.push(childTableVide);
+            }
+
+            globalTable.push(new docx.Table({
+                width: {
+                    size: 100,
+                    type: docx.WidthType.PERCENTAGE,
+                },
+                rows: [
+                    new docx.TableRow({
+                        children: [
+                            new docx.TableCell({
+                                children: [
+                                    new docx.Paragraph({ 
+                                        children: [ 
+                                            new docx.TextRun({ break: 2 }),
+                                        ],
+                                    })
+                                ],
+                            }),
+                        ],
+                    }),
+                ],
+            }));
+        }
+    }
+    return globalTable;
+}
+
 function childRowTable(childs, childListWithJC) {
     const table = new docx.Table({
         width: {
@@ -494,7 +597,10 @@ function childRowTable(childs, childListWithJC) {
         },
         rows: [
             ...childs.map(child => {
-                const isChildInJCList = childListWithJC.some(item => item.childId === child.childId);
+                let isChildInJCList = false;
+                if (childListWithJC.length > 0) {
+                    isChildInJCList = childListWithJC.some(item => item.childId === child.childId);
+                }
 
                 const backgroundColor = isChildInJCList ? '#ffff00' : undefined;
                 return new docx.TableRow({
@@ -739,6 +845,35 @@ function stagePlanningTable(stage) {
     return table;
 }
 
+function headerProfPlanningTable(name) {
+    const table = new docx.Table({
+        width: {
+            size: 100,
+            type: docx.WidthType.PERCENTAGE,
+        },
+        rows: [
+            new docx.TableRow({
+            children: [
+            new docx.TableCell({
+                shading: {
+                    fill: 'd0e5fe',
+                },
+                children: [
+                    new docx.Paragraph({
+                        pageBreakBefore: true,
+                        children: [
+                            addText(name, true, `18pt`, '#ff0000'),
+                        ],
+                    }),
+                ],
+            }),
+            ],
+        }),
+        ],
+    });
+    return table;
+}
+
 function headerPlanningTable() {
     const table = new docx.Table({
         width: {
@@ -953,4 +1088,5 @@ module.exports = {
     fillAccueilDoc,
     sortStage,
     formatTime,
+    fillProfDoc,
   };

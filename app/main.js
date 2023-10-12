@@ -7,7 +7,6 @@ const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
 const testModule = require('./tests');
 const docsModule = require('./docs');
-const profDocModule = require('./profDoc');
 const docx = require('docx');
 const fs = require('fs');
 const fsExtra = require('fs-extra');
@@ -474,7 +473,7 @@ ipcMain.on('printDocProf', async (event, dateDoc1, dateDoc2, stageList) => {
     return;
   }
   try {
-    await profDocModule.fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2);
+    await docsModule.fillProfDoc(downloadsPath, stageList, dateDoc1, dateDoc2);
     event.sender.send('printDocSuccess');
 
   }catch (error) {

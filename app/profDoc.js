@@ -60,6 +60,18 @@ async function customerFillList(jsonList) {
             }
         }
     }
+    for (const prof of profList) {
+        const debutSort = prof.stage.sort((a, b) => {
+            if (a.debut < b.debut) {
+                return -1;
+            }
+            if (a.debut > b.debut) {
+                return 1;
+            }
+            return 0;
+        });
+        prof.stage = debutSort;
+    }
     console.log(profList);
     return profList;
 }
@@ -152,75 +164,8 @@ function generateEditableTable(stageLists) {
     return table;
   }
 
-  async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
-    const title = addTitle(dateDoc1, dateDoc2);
-
-    const matchingChildren = [];
-
-    for (const stage of stageList) {
-        for (const child of stage.childs) {
-            if ((child.status === 'pending' || child.status === 'processing') &&
-                !matchingChildren.some(existingChild => 
-                    existingChild.customerFirstName === child.customerFirstName &&
-                    existingChild.customerLastName === child.customerLastName
-                )) {
-                matchingChildren.push(child);
-            }
-        }
-    }
-    const table = withoutPaimentTable(matchingChildren);
-    const aReplacer = aReplacerTable();
-    const header = addHeader();
-    const footer = addFooter();
-    const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
-    const stageWithJC = stageList.find(stage => stage.staName.startsWith('Journée continue'));
-    let childListWithJC = [];
-    if (stageWithJC) {
-        childListWithJC = stageWithJC.childs;
-    }
-    const stageListSort = sortStage(stageListWithoutJC);
-    const planning = planningTable(stageListSort, childListWithJC);
-    const ligneVide = new docx.Paragraph({
-        children: [
-            new docx.TextRun({ break: 2 }),
-        ],
-    });
-
-    const doc = new docx.Document({
-      sections: [{
-        properties: {
-            page: {
-                size: {
-                    orientation: docx.PageOrientation.LANDSCAPE,
-                },
-            },
-        },
-        headers: {
-            default: header,
-        },
-        footers: {
-            default: footer,
-        },
-        children: [title, ligneVide, table, ligneVide, aReplacer,ligneVide, ligneVide, ligneVide, ligneVide, ...planning]
-      }]
-    });
-
-    const fileName = path.join(downloadsPath, `planning_accueil_semaine_${filterModule.formatDate(dateDoc1)}_au_${filterModule.formatDate(dateDoc2)}.doc`);
-    docx.Packer.toBase64String(doc).then((base64String) => {
-        const buffer = Buffer.from(base64String, 'base64');
-        fs.writeFileSync(fileName, buffer, (err) => {
-            if (err) {
-                console.error(err);
-            } else {
-                console.log('Fichier enregistré dans le dossier Téléchargements.');
-            }
-        });
-    });
-  }
-
 module.exports = {
     newStageList,
     generateEditableTable,
-    fillAccueilDoc,
     customerFillList,
 };

@@ -125,21 +125,22 @@ document.getElementById('printDocProf').addEventListener('click', async () => {
       const checkStageListJson = await accueilDocModule.checkStageListJson(dateDoc1, dateDoc2);
       let stageList = [];
       if (checkStageListJson.length > 0) {
-        stageList = profDocModule.customerFillList(checkStageListJson);
+        stageList = await profDocModule.customerFillList(checkStageListJson);
         // const editableTable = profDocModule.generateEditableTable(stageList);
-        // const container = document.getElementById('document-preview');
-        // container.style.display = 'block';
-        // container.innerHTML = '';
+        const container = document.getElementById('document-preview');
+        container.style.display = 'block';
+        container.innerHTML = '';
         // container.appendChild(editableTable);
 
-        // const printButton = document.createElement('button');
-        // printButton.textContent = 'Imprimer';
-        // printButton.addEventListener('click', async () => {
-        //   const newstageList = profDocModule.newStageList(editableTable, stageList);
-        //   ipcRenderer.send('printDocProf', dateDoc1, dateDoc2, newstageList);
-        // });
+        const printButton = document.createElement('button');
+        printButton.textContent = 'Imprimer';
+        printButton.addEventListener('click', async () => {
+          const copyOfStageList = [...stageList];
+          //const newstageList = profDocModule.newStageList(editableTable, stageList);
+          ipcRenderer.send('printDocProf', dateDoc1, dateDoc2, copyOfStageList);
+        });
 
-        // container.appendChild(printButton);
+        container.appendChild(printButton);
       } else {
         alert('Aucun fichier enregistré pour ces dates');
       }
