@@ -7,6 +7,7 @@ const testModule = require('./tests');
 const filterModule = require('./filter');
 const docsModule = require('./docs');
 const accueilDocModule = require('./accueilDoc');
+const profDocModule = require('./profDoc');
 const todayCourseModule = require('./todayCourse');
 const checkboxModule = require('./checkbox');
 const path = require('path');
@@ -89,7 +90,11 @@ document.getElementById('printDocAccueil').addEventListener('click', async () =>
         const checkStageListJson = await accueilDocModule.checkStageListJson(dateDoc1, dateDoc2);
         let stageList = [];
         if (checkStageListJson.length > 0) {
-          stageList = checkStageListJson;
+          const response = confirm('Un fichier a déjà été enregistré pour ces dates, voulez-vous l\'utiliser ?');
+          if (response)
+            stageList = checkStageListJson;
+          else
+            stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
         } else {
           stageList = await docsModule.customerFillList(groupedData, dateDoc1, dateDoc2);
         }
@@ -101,9 +106,7 @@ document.getElementById('printDocAccueil').addEventListener('click', async () =>
 
         const saveButton = document.createElement('button');
         saveButton.textContent = 'Enregistrer et imprimer';
-        console.log('1stagelist = ', stageList);
         saveButton.addEventListener('click', async () => {
-          console.log('2stagelist = ', stageList);
           const newstageList = accueilDocModule.newStageList(editableTable, stageList);
           await accueilDocModule.saveDocAccueil(newstageList, dateDoc1, dateDoc2);
           ipcRenderer.send('printDocAccueil', dateDoc1, dateDoc2, newstageList);
@@ -114,9 +117,35 @@ document.getElementById('printDocAccueil').addEventListener('click', async () =>
   }
 });
 
-// document.getElementById('printDocProf').addEventListener('click', async () => {
+document.getElementById('printDocProf').addEventListener('click', async () => {
+  if (dateDoc1.getTime() !== 0 && dateDoc2.getTime() !== 0) {
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput.files.length > 0) {
+      const groupedData = await ipcRenderer.invoke('get-sorted-data');
+      const checkStageListJson = await accueilDocModule.checkStageListJson(dateDoc1, dateDoc2);
+      let stageList = [];
+      if (checkStageListJson.length > 0) {
+        stageList = profDocModule.customerFillList(checkStageListJson);
+        // const editableTable = profDocModule.generateEditableTable(stageList);
+        // const container = document.getElementById('document-preview');
+        // container.style.display = 'block';
+        // container.innerHTML = '';
+        // container.appendChild(editableTable);
 
-// });
+        // const printButton = document.createElement('button');
+        // printButton.textContent = 'Imprimer';
+        // printButton.addEventListener('click', async () => {
+        //   const newstageList = profDocModule.newStageList(editableTable, stageList);
+        //   ipcRenderer.send('printDocProf', dateDoc1, dateDoc2, newstageList);
+        // });
+
+        // container.appendChild(printButton);
+      } else {
+        alert('Aucun fichier enregistré pour ces dates');
+      }
+    }
+  }     
+});
 
 document.getElementById('printButton').addEventListener('click', async () => {
   const fileInput = document.getElementById('fileInput');

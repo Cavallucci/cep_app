@@ -7,6 +7,7 @@ const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
 const testModule = require('./tests');
 const docsModule = require('./docs');
+const profDocModule = require('./profDoc');
 const docx = require('docx');
 const fs = require('fs');
 const fsExtra = require('fs-extra');
@@ -324,7 +325,6 @@ ipcMain.on('sortExcelFile', async (event, filePath) => {
     const worksheet = workbook.getWorksheet(1); 
     const headerRow = worksheet.getRow(1);
     headerData = filterModule.getHeaderNumber(headerRow.values);
-    console.log(headerData);
     filteredRows = await filterModule.createWorkbook(worksheet, filteredRows, headerData);
     
     if (filteredRows.length > 0) {
@@ -460,6 +460,21 @@ ipcMain.on('printDocAccueil', async (event, dateDoc1, dateDoc2, stageList) => {
   }
   try {
     await docsModule.fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2);
+    event.sender.send('printDocSuccess');
+
+  }catch (error) {
+    console.error('Erreur lors de l\'impression des données :', error);
+    event.sender.send('printError', 'Erreur lors de l\'impression des données : ' + error.message);
+  }
+});
+
+ipcMain.on('printDocProf', async (event, dateDoc1, dateDoc2, stageList) => {
+  if (!stageList) {
+    event.sender.send('printError', 'Pas de liste de stage à imprimer !');
+    return;
+  }
+  try {
+    await profDocModule.fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2);
     event.sender.send('printDocSuccess');
 
   }catch (error) {

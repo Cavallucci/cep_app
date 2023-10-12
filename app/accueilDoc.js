@@ -82,7 +82,7 @@ function generateEditableTable(stageLists) {
 
         const cell9 = document.createElement('td');
         cell9.contentEditable = true;
-        cell9.textContent = stage.comment;
+        cell9.textContent = stage.commentaire;
         row.appendChild(cell9);
 
         table.appendChild(row);
@@ -92,16 +92,23 @@ function generateEditableTable(stageLists) {
   }
 
 async function saveDocAccueil(stageList, date1, date2) {
+    date1.setHours(0, 0, 0, 0);
+    date2.setHours(0, 0, 0, 0);
     const userDataPath = await ipcRenderer.invoke('get-user-path');
-    const filePath = path.join(userDataPath, date1 + '-' + date2 + '-stageList.json');
+    const formattedDate1 = date1.toISOString().slice(0, 10);
+    const formattedDate2 = date2.toISOString().slice(0, 10);
+    const filePath = path.join(userDataPath, formattedDate1 + '-' + formattedDate2 + '-stageList.json');
     const dataJSON = JSON.stringify(stageList);
     await fs.writeFileSync(filePath, dataJSON);
-    console.log('save here : ' + filePath);
 }
 
 async function checkStageListJson(date1, date2) {
+  date1.setHours(0, 0, 0, 0);
+  date2.setHours(0, 0, 0, 0);
   const userDataPath = await ipcRenderer.invoke('get-user-path');
-  const filePath = path.join(userDataPath, date1 + '-' + date2 + '-stageList.json');
+  const formattedDate1 = date1.toISOString().slice(0, 10);
+  const formattedDate2 = date2.toISOString().slice(0, 10);
+  const filePath = path.join(userDataPath, formattedDate1 + '-' + formattedDate2 + '-stageList.json');
   if (fs.existsSync(filePath)) {
     const dataJSON = fs.readFileSync(filePath);
     const stageList = JSON.parse(dataJSON);
