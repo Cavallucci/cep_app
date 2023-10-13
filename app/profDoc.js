@@ -173,4 +173,5 @@ module.exports = {
     newStageList,
     generateEditableTable,
     customerFillList,
+    modifyHours
 };

@@ -8,6 +8,7 @@ const filterModule = require('./filter');
 const docsModule = require('./docs');
 const accueilDocModule = require('./accueilDoc');
 const profDocModule = require('./profDoc');
+const bafaDocModule = require('./bafaDoc');
 const todayCourseModule = require('./todayCourse');
 const checkboxModule = require('./checkbox');
 const path = require('path');
@@ -121,7 +122,6 @@ document.getElementById('printDocProf').addEventListener('click', async () => {
   if (dateDoc1.getTime() !== 0 && dateDoc2.getTime() !== 0) {
     const fileInput = document.getElementById('fileInput');
     if (fileInput.files.length > 0) {
-      const groupedData = await ipcRenderer.invoke('get-sorted-data');
       const checkStageListJson = await accueilDocModule.checkStageListJson(dateDoc1, dateDoc2);
       let stageList = [];
       if (checkStageListJson.length > 0) {
@@ -135,9 +135,38 @@ document.getElementById('printDocProf').addEventListener('click', async () => {
         const printButton = document.createElement('button');
         printButton.textContent = 'Imprimer';
         printButton.addEventListener('click', async () => {
-          const copyOfStageList = [...stageList];
+          //const copyOfStageList = [...stageList];
           //const newstageList = profDocModule.newStageList(editableTable, stageList);
-          ipcRenderer.send('printDocProf', dateDoc1, dateDoc2, copyOfStageList);
+          ipcRenderer.send('printDocProf', dateDoc1, dateDoc2, stageList);
+        });
+
+        container.appendChild(printButton);
+      } else {
+        alert('Aucun fichier enregistré pour ces dates');
+      }
+    }
+  }     
+});
+
+document.getElementById('printDocBafa').addEventListener('click', async () => {
+  if (dateDoc1.getTime() !== 0 && dateDoc2.getTime() !== 0) {
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput.files.length > 0) {
+      const checkStageListJson = await accueilDocModule.checkStageListJson(dateDoc1, dateDoc2);
+      let stageList = [];
+      if (checkStageListJson.length > 0) {
+        stageList = await bafaDocModule.customerFillList(checkStageListJson);
+        // const editableTable = profDocModule.generateEditableTable(stageList);
+        const container = document.getElementById('document-preview');
+        container.style.display = 'block';
+        container.innerHTML = '';
+        // container.appendChild(editableTable);
+
+        const printButton = document.createElement('button');
+        printButton.textContent = 'Imprimer';
+        printButton.addEventListener('click', async () => {
+          //const newstageList = profDocModule.newStageList(editableTable, stageList);
+          ipcRenderer.send('printDocBafa', dateDoc1, dateDoc2, stageList);
         });
 
         container.appendChild(printButton);

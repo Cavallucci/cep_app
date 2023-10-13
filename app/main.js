@@ -7,6 +7,7 @@ const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
 const testModule = require('./tests');
 const docsModule = require('./docs');
+const bafaDocModule = require('./bafaDoc');
 const docx = require('docx');
 const fs = require('fs');
 const fsExtra = require('fs-extra');
@@ -474,6 +475,21 @@ ipcMain.on('printDocProf', async (event, dateDoc1, dateDoc2, stageList) => {
   }
   try {
     await docsModule.fillProfDoc(downloadsPath, stageList, dateDoc1, dateDoc2);
+    event.sender.send('printDocSuccess');
+
+  }catch (error) {
+    console.error('Erreur lors de l\'impression des données :', error);
+    event.sender.send('printError', 'Erreur lors de l\'impression des données : ' + error.message);
+  }
+});
+
+ipcMain.on('printDocBafa', async (event, dateDoc1, dateDoc2, stageList) => {
+  if (!stageList) {
+    event.sender.send('printError', 'Pas de liste de stage à imprimer !');
+    return;
+  }
+  try {
+    await bafaDocModule.fillBafaDoc(downloadsPath, stageList, dateDoc1, dateDoc2);
     event.sender.send('printDocSuccess');
 
   }catch (error) {

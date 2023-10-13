@@ -63,7 +63,36 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
         stage.childs = ageSort;
     }
 
+    await addComments(customerWithDate);
+
     return customerWithDate;
+}
+
+async function addComments(stages) {
+    for (const stage of stages) {
+        const totalTime = subtractTimeInMinutes(stage.fin, stage.debut);
+        console.log(totalTime);
+        if (totalTime > 120) {
+            const debutPlus1h = profDocModule.modifyHours('debut', stage);
+            const finMoins1h = profDocModule.modifyHours('fin', stage);
+            stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de salle ${stage.salle1} à l’accueil puis à ${finMoins1h} d’accueil en salle ${stage.salle2}`;
+        }
+        else if (stage.prof1.nom !== stage.prof2.nom) {
+            const debutPlus1h = profDocModule.modifyHours('debut', stage);
+            stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de salle ${stage.salle1} à la salle ${stage.salle2}`;
+        }
+    }
+    return stages;
+}
+
+function subtractTimeInMinutes(endTime, startTime) {
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+    const totalMinutesStart = startHours * 60 + startMinutes;
+    const totalMinutesEnd = endHours * 60 + endMinutes;
+
+    return totalMinutesEnd - totalMinutesStart;
 }
 
 function customBirthComparison(dateOfBirthA, dateOfBirthB) {
@@ -176,9 +205,8 @@ function replaceDateStage(date) { //STA_ETE23_28AOUT_019_2022
 
 async function fillProfDoc(downloadsPath, profList, dateDoc1, dateDoc2) {
     const title = addTitle(dateDoc1, dateDoc2);
-
-    const header = addHeader('version rofesseur');
-    const footer = addFooter();
+    const header = addHeader('version professeur');
+    const footer = addFooter('professeur');
     
     const profWithoutBafa = profList.filter(prof => prof.nom !== 'Bafa');
     const profBafa = profList.find(prof => prof.nom === 'Bafa');
@@ -246,7 +274,7 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     const table = withoutPaimentTable(matchingChildren);
     const aReplacer = aReplacerTable();
     const header = addHeader('version accueil');
-    const footer = addFooter();
+    const footer = addFooter('accueil');
     const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
     const stageWithJC = stageList.find(stage => stage.staName.startsWith('Journée continue'));
     let childListWithJC = [];
@@ -436,7 +464,7 @@ function addHeader(version) {
     });
 }
 
-function addFooter() {
+function addFooter(version) {
     return new docx.Footer({
         children: [
             new docx.Paragraph({
@@ -446,7 +474,7 @@ function addFooter() {
                     addText(' sur ', false, `10pt`),
                     docx.PageNumber.TOTAL_PAGES,
                     addText(' - ', false, `10pt`),
-                    addText('Planning accueil', false, `10pt`),
+                    addText(version, false, `10pt`),
                 ],
                 alignment: docx.AlignmentType.CENTER,
             }),
@@ -1113,4 +1141,8 @@ module.exports = {
     formatTime,
     fillProfDoc,
     customBirthComparison,
+    addText,
+    addTitle,
+    addHeader,
+    addFooter,
   };
