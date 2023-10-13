@@ -126,17 +126,13 @@ document.getElementById('printDocProf').addEventListener('click', async () => {
       let stageList = [];
       if (checkStageListJson.length > 0) {
         stageList = await profDocModule.customerFillList(checkStageListJson);
-        // const editableTable = profDocModule.generateEditableTable(stageList);
         const container = document.getElementById('document-preview');
         container.style.display = 'block';
         container.innerHTML = '';
-        // container.appendChild(editableTable);
 
         const printButton = document.createElement('button');
         printButton.textContent = 'Imprimer';
         printButton.addEventListener('click', async () => {
-          //const copyOfStageList = [...stageList];
-          //const newstageList = profDocModule.newStageList(editableTable, stageList);
           ipcRenderer.send('printDocProf', dateDoc1, dateDoc2, stageList);
         });
 
@@ -156,16 +152,13 @@ document.getElementById('printDocBafa').addEventListener('click', async () => {
       let stageList = [];
       if (checkStageListJson.length > 0) {
         stageList = await bafaDocModule.customerFillList(checkStageListJson);
-        // const editableTable = profDocModule.generateEditableTable(stageList);
         const container = document.getElementById('document-preview');
         container.style.display = 'block';
         container.innerHTML = '';
-        // container.appendChild(editableTable);
 
         const printButton = document.createElement('button');
         printButton.textContent = 'Imprimer';
         printButton.addEventListener('click', async () => {
-          //const newstageList = profDocModule.newStageList(editableTable, stageList);
           ipcRenderer.send('printDocBafa', dateDoc1, dateDoc2, stageList);
         });
 
