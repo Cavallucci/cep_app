@@ -12,7 +12,7 @@ async function printTodayCourse(groupedData) {
         return;
     }
     try {
-        const sortedData = fillCourseList(groupedData);
+        const sortedData = await fillCourseList(groupedData);
         const downloadpath = await ipcRenderer.invoke('get-download-path');
         const today = new Date();
         const fileName = path.join(downloadpath, `feuille_accueil_${filterModule.formatDate(today)}.xlsx`);

@@ -59,18 +59,25 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
     const customerWithDate = await findMatchingDate(t_stages, dateDoc1, dateDoc2); 
 
     for (const stage of customerWithDate) {
-        const ageSort = stage.childs.sort((a, b) => {
-            if (a.birth < b.birth) {
-                return -1;
-            }
-            if (a.birth > b.birth) {
-                return 1;
-            }
-            return 0;
-        });
+        const ageSort = stage.childs.sort((a, b) => customBirthComparison(a.birth, b.birth));
         stage.childs = ageSort;
     }
+
     return customerWithDate;
+}
+
+function customBirthComparison(dateOfBirthA, dateOfBirthB) {
+    const datePartsA = dateOfBirthA.split('/').reverse().join('');
+    const datePartsB = dateOfBirthB.split('/').reverse().join('');
+
+    if (datePartsA < datePartsB) {
+        return -1;
+    }
+    if (datePartsA > datePartsB) {
+        return 1;
+    }
+
+    return 0;
 }
 
 function formatTime(timeStr) {
@@ -173,16 +180,15 @@ async function fillProfDoc(downloadsPath, profList, dateDoc1, dateDoc2) {
     const header = addHeader('version rofesseur');
     const footer = addFooter();
     
-    //trouver les childListWithJC pour les surligner en jaune
     const profWithoutBafa = profList.filter(prof => prof.nom !== 'Bafa');
     const profBafa = profList.find(prof => prof.nom === 'Bafa');
     let childListWithBafa = [];
     if (profBafa) {
         for (const stage of profBafa.stage) {
-            childListWithBafa = childListWithBafa.concat(stage.childs);
+            childListWithBafa = stage.childs;
         }
     }
-    const planning = planningProfTable(profWithoutBafa, profBafa);
+    const planning = planningProfTable(profWithoutBafa, childListWithBafa);
     const ligneVide = new docx.Paragraph({
         children: [
             new docx.TextRun({ break: 2 }),
@@ -342,6 +348,23 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
             ],
             });
     return table;
+}
+
+function sortChild(profList) {
+    for (const prof of profList) {
+        for (const stage of prof.stage) {
+            const ageSort = stage.childs.sort((a, b) => {
+                if (a.birth < b.birth) {
+                    return -1;
+                }
+                if (a.birth > b.birth) {
+                    return 1;
+                }
+                return 0;
+            });
+            stage.childs = ageSort;
+        }
+    }
 }
 
 function sortStage(stageList) {
@@ -1089,4 +1112,5 @@ module.exports = {
     sortStage,
     formatTime,
     fillProfDoc,
+    customBirthComparison,
   };

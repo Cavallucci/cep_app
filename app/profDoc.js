@@ -72,7 +72,12 @@ async function customerFillList(jsonList) {
         });
         prof.stage = debutSort;
     }
-    console.log(profList);
+    for (const prof of profList) {
+        for (const stage of prof.stage) {
+            const ageSort = stage.childs.sort((a, b) => docsModule.customBirthComparison(a.birth, b.birth));
+            stage.childs = ageSort;
+        }
+    }
     return profList;
 }
 
