@@ -48,7 +48,7 @@ async function sendEmailFacturation(customer) {
     const mailOptions = {
       to: `${customer.customerEmail}`,
       from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-      subject: "Solde restant dû pour les activités de vos enfants + IBAN pour règlement",
+      subject: "Solde restant dû pour les activités de vos enfants + lien pour règlement par CB",
       text: "Facturation",
       html: htmlWithCode,
       attachments: [{

@@ -239,7 +239,8 @@ async function tableStage(stageList) {
             }),
             ],
         }),
-        ...stageList.map(stage => new docx.TableRow({
+        ...stageList.map(stage => 
+            new docx.TableRow({
             children: [
                 new docx.TableCell({
                     children: [new docx.Paragraph({

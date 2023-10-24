@@ -47,13 +47,14 @@ async function fillCustomersList(groupedData) {
                 customerEmail: customerData[header.emailIndex],
                 lienSystemPay: '',
             };
-            
-            if (newCustomer.totalRestantDu > 0 && newCustomer.totalPxVente > 0) {
-                t_customers.push(newCustomer);
-            }
+            t_customers.push(newCustomer);
         }
     }
-    return t_customers;
+    const withoutRestantDue = t_customers.filter((customer) => {
+        return customer.totalRestantDu > 0 && customer.totalPxVente > 0;
+    });
+
+    return withoutRestantDue;
 }
 
 function displayCustomerDetails(customer) {
@@ -129,7 +130,7 @@ async function fillSystemPay(customer) {
             dataCollectionForm: "false"
         };
         const username = configfile.SMTP_SYSUSERNAME;
-        const password = configfile.SMTP_SYSTESTPASSWORD;
+        const password = configfile.SMTP_SYSPASSWORD;
         const auth = Base64.encode(`${username}:${password}`);
         const headers = {
             'Authorization': `Basic ${auth}`,
@@ -148,15 +149,16 @@ async function fillFacturationWorksheet(worksheet, data, sortedData, header) {
   
     sortedData.forEach((rowData) => {
       let existingCustomer = data.find((data) => data.customerId === rowData[header.customerIDIndex]);
-  
-      if (existingCustomer  && rowData[header.restDueValueIndex] > 0) {
-        row = worksheet.addRow(rowData);
-        row.getCell(3).fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFFFFF00' }
-        };
-      }
+        if (existingCustomer) {
+            row = worksheet.addRow(rowData);
+        }
+        if (rowData[header.restDueValueIndex] > 0) {
+            row.getCell(header.restDueValueIndex).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFFFFF00' }
+            };
+        }
     });
 }
 

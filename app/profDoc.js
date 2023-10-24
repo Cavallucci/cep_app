@@ -4,18 +4,29 @@ const fs = require('fs');
 const path = require('path');
 
 function modifyHours(name, stage) {
+    console.log('name = ',name);
     if (stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
         if (name === 'fin') {
-            const newFin = stage.fin.split(':')[0];
-            const minFin = stage.fin.split(':')[1];
-            const hourFin = parseInt(newFin, 10) - 1;
-            const hours = `${hourFin}:${minFin}`;
-            return hours;
-        }
-        else if (name === 'debut') {
+            // const newFin = stage.fin.split(':')[0];
+            // const minFin = stage.fin.split(':')[1];
+            // const hourFin = parseInt(newFin, 10) - 1;
+            // const hours = `${hourFin}:${minFin}`;
+            // return hours;
             const newDebut = stage.debut.split(':')[0];
             const minDebut = stage.debut.split(':')[1];
             const hourDebut = parseInt(newDebut, 10) + 1;
+            const hours = `${hourDebut}:${minDebut}`;
+            return hours;
+        }
+        else if (name === 'debut') {
+            // const newDebut = stage.debut.split(':')[0];
+            // const minDebut = stage.debut.split(':')[1];
+            // const hourDebut = parseInt(newDebut, 10) + 1;
+            // const hours = `${hourDebut}:${minDebut}`;
+            // return hours;
+            const newDebut = stage.fin.split(':')[0];
+            const minDebut = stage.fin.split(':')[1];
+            const hourDebut = parseInt(newDebut, 10) - 1;
             const hours = `${hourDebut}:${minDebut}`;
             return hours;
         }
@@ -28,7 +39,6 @@ async function customerFillList(jsonList) {
     for (const stage of jsonList) {
         const existingProf = profList.find(prof => prof.nom === stage.prof1.nom);
         const tmp = { ...stage };
-
         tmp.fin = modifyHours('fin', stage);
 
         if (existingProf) {
@@ -41,13 +51,13 @@ async function customerFillList(jsonList) {
             };
             profList.push(newProf);
         }
-
         if (stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
             const existingProf2 = profList.find(prof => prof.nom === stage.prof2.nom);
             const tmp2 = { ...stage }; 
 
+            console.log('tmp2 before = ',tmp2.debut);
             tmp2.debut = modifyHours('debut', stage);
-
+            console.log('tmp2 after = ',tmp2.debut);
             if (existingProf2) {
                 existingProf2.stage.push(tmp2);
             } else {

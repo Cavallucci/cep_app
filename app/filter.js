@@ -85,14 +85,21 @@ const createWorkbook = (worksheet, filteredRows, headers) => {
 
       const statusValue = rowData[headers.statusValueIndex];
       const customerId = rowData[headers.customerIDIndex];
-      const amountValue = rowData[headers.prixVenteHtIndex];
+      const amountValue = rowData[headers.qtyEnCoursIndex];
       const restDueValue = rowData[headers.restDueValueIndex];
-      const dateTest = rowData[headers.dateReservationIndex];
-      const pxVente = rowData[headers.prixVenteHtIndex];
+      const dateTest = rowData[headers.dateTestIndex];
+      const pxVente = rowData[headers.prixVenteIndex];
+
+      // const statusValue = rowData[1];
+      // const customerId = rowData[4];
+      // const amountValue = rowData[9];
+      // const restDueValue = rowData[3];
+      // const dateTest = rowData[33];
+      // const pxVente = rowData[23];
       
-      //rowData[27] = 'nathalie@clubdesenfantsparisiens.com';
+      //rowData[headers.emailIndex] = 'nathalie@clubdesenfantsparisiens.com';
       //rowData[27] = 'test.cep.application@laposte.net';
-      rowData[headers.emailIndex] = 'laura.cllucci@gmail.com';
+      //rowData[headers.emailIndex] = 'laura.cllucci@gmail.com';
 
       if (typeof restDueValue === 'string'){
         const formattedRestDue = parseFloat(restDueValue);
@@ -102,7 +109,7 @@ const createWorkbook = (worksheet, filteredRows, headers) => {
       if (typeof pxVente === 'string'){
         const formattedVenteDue = parseFloat(pxVente);
         //rowData[23] = formattedVenteDue;
-        rowData[headers.prixVenteHtIndex] = formattedVenteDue;
+        rowData[headers.prixVenteIndex] = formattedVenteDue;
       }
 
       if (typeof dateTest === 'string'){

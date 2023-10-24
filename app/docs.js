@@ -74,11 +74,11 @@ async function addComments(stages) {
         if (totalTime > 120) {
             const debutPlus1h = profDocModule.modifyHours('debut', stage);
             const finMoins1h = profDocModule.modifyHours('fin', stage);
-            stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de salle ${stage.salle1} à l’accueil puis à ${finMoins1h} d’accueil en salle ${stage.salle2 ? stage.salle2 : '?'}`;
+            stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de ${stage.age} de la salle ${stage.salle1} à l’accueil puis à ${finMoins1h} d’accueil en salle ${stage.salle2 ? stage.salle2 : '?'}`;
         }
         else if (stage.prof1.nom !== stage.prof2.nom) {
             const debutPlus1h = profDocModule.modifyHours('debut', stage);
-            stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de salle ${stage.salle1} à la salle ${stage.salle2 ? stage.salle2 : '?'}`;
+            stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de ${stage.age} de la salle ${stage.salle1} à la salle ${stage.salle2 ? stage.salle2 : '?'}`;
         }
     }
     return stages;
@@ -845,6 +845,7 @@ function stagePlanningTable(stage) {
                 },
                 children: [
                     new docx.Paragraph({ 
+                        alignment: docx.AlignmentType.CENTER, 
                         children: [
                             addText(stage.salle1, true, `13pt`),
                         ],
@@ -857,6 +858,7 @@ function stagePlanningTable(stage) {
                 },
                 children: [
                     new docx.Paragraph({ 
+                        alignment: docx.AlignmentType.CENTER, 
                         children: [
                             addText(stage.salle2 ? stage.salle2 : '', true, `13pt`),
                         ],
@@ -975,6 +977,7 @@ function headerPlanningTable() {
                 },
                 children: [
                     new docx.Paragraph({
+                        alignment: docx.AlignmentType.CENTER, 
                         children: [
                             addText('Salle 1', true, `13pt`),
                         ],
@@ -987,6 +990,7 @@ function headerPlanningTable() {
                 },
                 children: [
                     new docx.Paragraph({
+                        alignment: docx.AlignmentType.CENTER, 
                         children: [
                             addText('Salle 2', true, `13pt`),
                         ],
