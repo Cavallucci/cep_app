@@ -90,15 +90,7 @@ const createWorkbook = (worksheet, filteredRows, headers) => {
       const dateTest = rowData[headers.dateTestIndex];
       const pxVente = rowData[headers.prixVenteIndex];
 
-      // const statusValue = rowData[1];
-      // const customerId = rowData[4];
-      // const amountValue = rowData[9];
-      // const restDueValue = rowData[3];
-      // const dateTest = rowData[33];
-      // const pxVente = rowData[23];
-      
       //rowData[headers.emailIndex] = 'nathalie@clubdesenfantsparisiens.com';
-      //rowData[27] = 'test.cep.application@laposte.net';
       //rowData[headers.emailIndex] = 'laura.cllucci@gmail.com';
 
       if (typeof restDueValue === 'string'){

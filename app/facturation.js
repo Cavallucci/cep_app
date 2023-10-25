@@ -110,7 +110,7 @@ async function displayFacturation(groupedData) {
 
 async function fillSystemPay(customer) {
         const today = new Date();
-        const expirationDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+        const expirationDate = new Date(today.getFullYear(), today.getMonth() + 2, today.getDate() + 27); // date ajd + 89 jours
         const body = {
             amount: customer.totalRestantDu * 100,
             currency: "EUR",

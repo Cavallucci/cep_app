@@ -203,8 +203,7 @@ function replaceDateStage(date) { //STA_ETE23_28AOUT_019_2022
 }
 
 async function fillProfDoc(downloadsPath, profList, dateDoc1, dateDoc2) {
-    const title = addTitle(dateDoc1, dateDoc2);
-    const header = addHeader('version professeur');
+    const header = addHeader('version professeur', dateDoc1, dateDoc2);
     const footer = addFooter('professeur');
     
     const profWithoutBafa = profList.filter(prof => prof.nom !== 'Bafa');
@@ -237,7 +236,7 @@ async function fillProfDoc(downloadsPath, profList, dateDoc1, dateDoc2) {
         footers: {
             default: footer,
         },
-        children: [title, ligneVide, ...planning]
+        children: [ligneVide, ...planning]
         }]
     });
 
@@ -255,8 +254,6 @@ async function fillProfDoc(downloadsPath, profList, dateDoc1, dateDoc2) {
 }
 
 async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
-    const title = addTitle(dateDoc1, dateDoc2);
-
     const matchingChildren = [];
 
     for (const stage of stageList) {
@@ -272,7 +269,7 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     }
     const table = withoutPaimentTable(matchingChildren);
     const aReplacer = aReplacerTable();
-    const header = addHeader('version accueil');
+    const header = addHeader('version accueil', dateDoc1, dateDoc2);
     const footer = addFooter('accueil');
     const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
     const stageWithJC = stageList.find(stage => stage.staName.startsWith('Journée continue'));
@@ -303,7 +300,7 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
         footers: {
             default: footer,
         },
-        children: [title, ligneVide, table, ligneVide, aReplacer,ligneVide, ligneVide, ligneVide, ligneVide, ...planning]
+        children: [ligneVide, table, ligneVide, aReplacer,ligneVide, ligneVide, ligneVide, ligneVide, ...planning]
       }]
     });
 
@@ -421,24 +418,7 @@ function sortStage(stageList) {
     return stageListSort;
 }
 
-function addTitle(dateDoc1, dateDoc2) {
-    const title = new docx.Paragraph({
-        children: [
-            new docx.TextRun({
-                text: `STAGES du ${filterModule.formatDate(dateDoc1)} au ${filterModule.formatDate(dateDoc2)}`.toUpperCase(),
-                bold: true,
-                font: 'Calibri',
-                size: `24pt`,
-                color: '#0070c0',
-            }),
-            new docx.TextRun({ break: 3 }),
-        ],
-        alignment: docx.AlignmentType.CENTER,
-    });
-    return title;
-}
-
-function addHeader(version) {
+function addHeader(version, dateDoc1, dateDoc2) {
     return new docx.Header({
         children: [
             new docx.Paragraph({
@@ -459,6 +439,19 @@ function addHeader(version) {
                     }),
                 ],
             }),
+            new docx.Paragraph({
+                children: [
+                    new docx.TextRun({
+                        text: `STAGES du ${filterModule.formatDate(dateDoc1)} au ${filterModule.formatDate(dateDoc2)}`.toUpperCase(),
+                        bold: true,
+                        font: 'Calibri',
+                        size: `24pt`,
+                        color: '#0070c0',
+                    }),
+                    new docx.TextRun({ break: 3 }),
+                ],
+                alignment: docx.AlignmentType.CENTER,
+            }),
         ],
     });
 }
@@ -468,12 +461,10 @@ function addFooter(version) {
         children: [
             new docx.Paragraph({
                 children: [
-                    addText('Page ', false, `10pt`),
-                    docx.PageNumber.CURRENT,
-                    addText(' sur ', false, `10pt`),
-                    docx.PageNumber.TOTAL_PAGES,
-                    addText(' - ', false, `10pt`),
-                    addText(version, false, `10pt`),
+                    new docx.TextRun({
+                        children: ["Page ", docx.PageNumber.CURRENT],
+                    }),
+                    addText(` version ${version}`, false, `10pt`),
                 ],
                 alignment: docx.AlignmentType.CENTER,
             }),
@@ -1145,7 +1136,6 @@ module.exports = {
     fillProfDoc,
     customBirthComparison,
     addText,
-    addTitle,
     addHeader,
     addFooter,
   };

@@ -54,7 +54,7 @@ async function customerFillList(jsonList) {
                     stage.salle1 !== child.salle1
                 );
             });
-            const childPhrase = `À ${child.fin}, l'enfant ${child.firstName} ${child.lastName} doit être emmené de la salle ${child.salle2 ? child.salle2 : '?'} à la salle ${conflictingCourse.salle1 ? conflictingCourse.salle1 : '?'}`;
+            const childPhrase = `A ${child.fin}, l'enfant ${child.firstName} ${child.lastName} doit être emmené de la salle ${child.salle2 ? child.salle2 : '?'} à la salle ${conflictingCourse.salle1 ? conflictingCourse.salle1 : '?'}`;
             childList.transports.push(childPhrase);        
         }
         if (childListWithJC.find(childJC => childJC.childId === child.id))
@@ -74,6 +74,12 @@ async function customerFillList(jsonList) {
 
 function tableComments(comments) {
     const table = new docx.Table({
+        borders: {
+            top: { style: docx.BorderStyle.NONE,},
+            bottom: { style: docx.BorderStyle.NONE,},
+            left: { style: docx.BorderStyle.NONE,},
+            right: { style: docx.BorderStyle.NONE,},
+        },
         width: {
             size: 100,
             type: docx.WidthType.PERCENTAGE,
@@ -82,6 +88,12 @@ function tableComments(comments) {
             new docx.TableRow({
                 children: [
                     new docx.TableCell({
+                        borders: {
+                            top: { style: docx.BorderStyle.NONE,},
+                            bottom: { style: docx.BorderStyle.NONE,},
+                            left: { style: docx.BorderStyle.NONE,},
+                            right: { style: docx.BorderStyle.NONE,},
+                        },
                         children: [new docx.Paragraph({
                             children: [
                                 docsModule.addText('Commentaires', true, '18pt'),
@@ -90,18 +102,30 @@ function tableComments(comments) {
                     }),
                 ],
             }),
-            ...comments.map(comment => new docx.TableRow({
+            ...Array.from(comments.keys()).map((key, index) => new docx.TableRow({
                 children: [
-                    new docx.TableCell({
-                        children: [new docx.Paragraph({
-                            children: [
-                                docsModule.addText(comment, false, '14pt', '#ff0000'),
-                                new docx.TextRun({ break: 1 }),
-                            ],
-                        })],
-                    }),
+                  new docx.TableCell({
+                    borders: {
+                        top: { style: docx.BorderStyle.NONE,},
+                        bottom: { style: docx.BorderStyle.NONE,},
+                        left: { style: docx.BorderStyle.NONE,},
+                        right: { style: docx.BorderStyle.NONE,},
+                    },
+                    children: [
+                      new docx.Paragraph({
+                        children: [
+                          docsModule.addText(key, true, '14pt', 'FF0000'),
+                          new docx.TextRun({ break: 1 }),
+                          ...comments.get(key).map(comment => [
+                            docsModule.addText(comment, false, '14pt'),
+                            new docx.TextRun({ break: 1 }),
+                          ]).flat(),
+                        ],
+                      }),
+                    ],
+                  }),
                 ],
-            })),
+              })),
         ],
     });
     return table;
@@ -119,7 +143,7 @@ function tableTransports(transports) {
                     new docx.TableCell({
                         children: [new docx.Paragraph({
                             children: [
-                                docsModule.addText(comment, false, '14pt', '#0000FF'),
+                                docsModule.addText(comment, false, '14pt'),
                                 new docx.TextRun({ break: 1 }),
                             ],
                         })],
@@ -239,92 +263,102 @@ async function tableStage(stageList) {
             }),
             ],
         }),
-        ...stageList.map(stage => 
+        ...stageList.map(stage =>
             new docx.TableRow({
-            children: [
-                new docx.TableCell({
-                    children: [new docx.Paragraph({
-                        children: [
-                            docsModule.addText(stage.stage, false, `12pt`),
-                        ],
-                    })],
-                }),
-                new docx.TableCell({
-                    children: [new docx.Paragraph({
-                        children: [
-                            docsModule.addText(stage.salle1, false, `12pt`),
-                        ],
-                    })],
-                }),
-                new docx.TableCell({
-                    children: [new docx.Paragraph({
-                        children: [
-                            docsModule.addText(stage.salle2, false, `12pt`),
-                        ],
-                    })],
-                }),
-                new docx.TableCell({
-                    children: [new docx.Paragraph({
-                        children: [
-                            docsModule.addText(stage.debut, false, `12pt`),
-                        ],
-                    })],
-                }),
-                new docx.TableCell({
-                    children: [new docx.Paragraph({
-                        children: [
-                            docsModule.addText(stage.fin, false, `12pt`),
-                        ],
-                    })],
-                }),
-                new docx.TableCell({
-                    children: [new docx.Paragraph({
-                        children: [
-                            docsModule.addText(stage.firstName, false, `12pt`),
-                        ],
-                    })],
-                    columnSpan: 2,
-                }),
-                new docx.TableCell({
-                    children: [new docx.Paragraph({
-                        children: [
-                            docsModule.addText(stage.lastName, false, `12pt`),
-                        ],
-                    })],
-                }),
-                new docx.TableCell({
-                    children: [new docx.Paragraph({
-                        children: [
-                            docsModule.addText(stage.birth, false, `12pt`),
-                        ],
-                    })],
-                }),
-            ],
-        })),
-        ],
+                children: [
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                docsModule.addText(stage.stage, false, `12pt`),
+                            ],
+                        })],
+                    }),
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                docsModule.addText(stage.salle1, false, `12pt`),
+                            ],
+                        })],
+                    }),
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                docsModule.addText(stage.salle2, false, `12pt`),
+                            ],
+                        })],
+                    }),
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                docsModule.addText(stage.debut, false, `12pt`),
+                            ],
+                        })],
+                    }),
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                docsModule.addText(stage.fin, false, `12pt`),
+                            ],
+                        })],
+                    }),
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                docsModule.addText(stage.firstName, false, `12pt`),
+                            ],
+                        })],
+                        columnSpan: 2,
+                    }),
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                docsModule.addText(stage.lastName, false, `12pt`),
+                            ],
+                        })],
+                    }),
+                    new docx.TableCell({
+                        children: [new docx.Paragraph({
+                            children: [
+                                docsModule.addText(stage.birth, false, `12pt`),
+                            ],
+                        })],
+                    }),
+                ],
+            }),
+        ),
+    ],
     });
     return table;
 }
 
+function analyseComments(comments, mapComments) {
+    if (!mapComments)
+        mapComments = new Map();
+    for (const comment of comments) {
+        const match = /(\d{2}:\d{2}), (.*)/.exec(comment);
+        const time = match[1] ? match[1] : '';
+        if (!mapComments.has(time)) {
+            mapComments.set(time, []);
+        }
+        const firstHalf = comment.split(',')[0];
+        const newComment = comment.replace(`${firstHalf},`, '');
+        mapComments.get(time).push(newComment);
+    }
+    mapComments = new Map([...mapComments.entries()].sort());
+    return mapComments;
+}
+
 async function fillBafaDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
-    const title = docsModule.addTitle(dateDoc1, dateDoc2);
-    const header = docsModule.addHeader('version BAFA');
+    const header = docsModule.addHeader('version BAFA', dateDoc1, dateDoc2);;
     const footer = docsModule.addFooter('BAFA');
     const ligneVide = new docx.Paragraph({
         children: [
             new docx.TextRun({ break: 2 }),
         ],
     });
-    const comments = tableComments(stageList.commentaires);
-    let transports;
-    if (stageList.transports.length > 0)
-        transports = tableTransports(stageList.transports);
-    else
-        transports = new docx.Paragraph({
-            children: [
-                new docx.TextRun({ break: 1 }),
-            ],
-        });
+    const comments = analyseComments(stageList.commentaires, null);
+    const transports = analyseComments(stageList.transports, comments)
+    const resum = tableComments(transports);
     const table = await tableStage(stageList.stages);
 
     const doc = new docx.Document({
@@ -342,7 +376,7 @@ async function fillBafaDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
           footers: {
               default: footer,
           },
-          children: [title, ligneVide, comments, ligneVide, transports, ligneVide, table]
+          children: [resum, ligneVide, table]
         }]
       });
   
