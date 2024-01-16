@@ -32,7 +32,7 @@ function generateEditableTable(stageLists) {
     const headers = ['Age', 'Intitulé', 'début', 'fin', 'salle1', 'salle2', 'prof1', 'prof2', 'commentaire'];
     headers.forEach(headerText => {
       const th = document.createElement('th');
-      th.textContent = headerText;
+      th.innerHTML = headerText;
       headerRow.appendChild(th);
     });
     table.appendChild(headerRow);
@@ -42,47 +42,47 @@ function generateEditableTable(stageLists) {
 
         const cell1 = document.createElement('td');
         cell1.contentEditable = true;
-        cell1.textContent = stage.age;
+        cell1.innerHTML = stage.age;
         row.appendChild(cell1);
 
         const cell2 = document.createElement('td');
         cell2.contentEditable = true;
-        cell2.textContent = stage.staName; 
+        cell2.innerHTML = stage.staName; 
         row.appendChild(cell2);
 
         const cell3 = document.createElement('td');
         cell3.contentEditable = true;
-        cell3.textContent = stage.debut; 
+        cell3.innerHTML = stage.debut; 
         row.appendChild(cell3);
 
         const cell4 = document.createElement('td');
         cell4.contentEditable = true;
-        cell4.textContent = stage.fin;
+        cell4.innerHTML = stage.fin;
         row.appendChild(cell4);
 
         const cell5 = document.createElement('td');
         cell5.contentEditable = true;
-        cell5.textContent = stage.salle1;
+        cell5.innerHTML = stage.salle1;
         row.appendChild(cell5);
 
         const cell6 = document.createElement('td');
         cell6.contentEditable = true;
-        cell6.textContent = stage.salle2;
+        cell6.innerHTML = stage.salle2;
         row.appendChild(cell6);
 
         const cell7 = document.createElement('td');
         cell7.contentEditable = true;
-        cell7.textContent = stage.prof1.nom;
+        cell7.innerHTML = stage.prof1.nom;
         row.appendChild(cell7);
 
         const cell8 = document.createElement('td');
         cell8.contentEditable = true;
-        cell8.textContent = stage.prof2.nom;
+        cell8.innerHTML = stage.prof2.nom;
         row.appendChild(cell8);
 
         const cell9 = document.createElement('td');
         cell9.contentEditable = true;
-        cell9.textContent = stage.commentaire;
+        cell9.innerHTML = stage.commentaire;
         row.appendChild(cell9);
 
         table.appendChild(row);

@@ -260,13 +260,13 @@ async function sendEmailStage(customerGroup, listToPrint) {
   let htmlWithCode;
 
   if (customerGroup.length > 1) {
-    htmlWithCode = myHTML.replace("{{votre/vos}}", "Vos enfants ont");
-    htmlWithCode = htmlWithCode.replace("{{il/ils}}", "ils ont adoré leurs");
+    htmlWithCode = myHTML.replace("{{Votre enfant a/Vos enfants ont}}", "Vos enfants ont");
+    htmlWithCode = htmlWithCode.replace("{{ils ont adoré leurs/il a adoré ses}}", "ils ont adoré leurs");
     htmlWithCode = htmlWithCode.replace("{{a/ont}}", "ont");
   }
   else {
-    htmlWithCode = myHTML.replace("{{votre/vos}}", "Votre enfant a");
-    htmlWithCode = htmlWithCode.replace("{{il/ils}}", "il a adoré ses");
+    htmlWithCode = myHTML.replace("{{Votre enfant a/Vos enfants ont}}", "Votre enfant a");
+    htmlWithCode = htmlWithCode.replace("{{ils ont adoré leurs/il a adoré ses}}", "il a adoré ses");
     htmlWithCode = htmlWithCode.replace("{{a/ont}}", "a");
   }
 

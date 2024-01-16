@@ -7,11 +7,6 @@ function modifyHours(name, stage) {
     console.log('name = ',name);
     if (stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
         if (name === 'fin') {
-            // const newFin = stage.fin.split(':')[0];
-            // const minFin = stage.fin.split(':')[1];
-            // const hourFin = parseInt(newFin, 10) - 1;
-            // const hours = `${hourFin}:${minFin}`;
-            // return hours;
             const newDebut = stage.debut.split(':')[0];
             const minDebut = stage.debut.split(':')[1];
             const hourDebut = parseInt(newDebut, 10) + 1;
@@ -19,11 +14,6 @@ function modifyHours(name, stage) {
             return hours;
         }
         else if (name === 'debut') {
-            // const newDebut = stage.debut.split(':')[0];
-            // const minDebut = stage.debut.split(':')[1];
-            // const hourDebut = parseInt(newDebut, 10) + 1;
-            // const hours = `${hourDebut}:${minDebut}`;
-            // return hours;
             const newDebut = stage.fin.split(':')[0];
             const minDebut = stage.fin.split(':')[1];
             const hourDebut = parseInt(newDebut, 10) - 1;

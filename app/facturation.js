@@ -32,7 +32,7 @@ async function fillCustomersList(groupedData) {
                 existingCustomer.totalRestantDu += customerData[header.restDueValueIndex];
             }
             if (existingCustomer.childsFirstName.some((childsFirstName) => childsFirstName !== customerData[header.prenomParticipantIndex])) {
-                existingCustomer.childsFirstName.push(customerData[19]);
+                existingCustomer.childsFirstName.push(customerData[header.prenomParticipantIndex]);
             }
         } else {
             const newCustomer = {

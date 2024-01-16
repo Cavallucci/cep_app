@@ -72,8 +72,8 @@ async function addComments(stages) {
     for (const stage of stages) {
         const totalTime = subtractTimeInMinutes(stage.fin, stage.debut);
         if (totalTime > 120) {
-            const debutPlus1h = profDocModule.modifyHours('debut', stage);
-            const finMoins1h = profDocModule.modifyHours('fin', stage);
+            const debutPlus1h = modifyHoursComment('debut', stage);
+            const finMoins1h = modifyHoursComment('fin', stage);
             stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de ${stage.age} de la salle ${stage.salle1} à l’accueil puis à ${finMoins1h} d’accueil en salle ${stage.salle2 ? stage.salle2 : '?'}`;
         }
         else if (stage.prof1.nom !== stage.prof2.nom) {
@@ -82,6 +82,26 @@ async function addComments(stages) {
         }
     }
     return stages;
+}
+
+function modifyHoursComment(name, stage) {
+    if (stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
+        if (name === 'fin') {
+            const newFin = stage.fin.split(':')[0];
+            const minFin = stage.fin.split(':')[1];
+            const hourFin = parseInt(newFin, 10) - 1;
+            const hours = `${hourFin}:${minFin}`;
+            return hours;
+        }
+        else if (name === 'debut') {
+            const newDebut = stage.debut.split(':')[0];
+            const minDebut = stage.debut.split(':')[1];
+            const hourDebut = parseInt(newDebut, 10) + 1;
+            const hours = `${hourDebut}:${minDebut}`;
+            return hours;
+        }
+    }
+    return stage[name];
 }
 
 function subtractTimeInMinutes(endTime, startTime) {
