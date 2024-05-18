@@ -38,6 +38,18 @@ function getHeaderNumber(row) {
   const optionNameIndex = row.indexOf('option_name');
   const optionSkuIndex = row.indexOf('option_sku');
   const dateTestIndex = row.indexOf('date_test');
+  const spectacleIndex = row.indexOf('spectacle');
+  const lieuSpectIndex = row.indexOf('lieu_spect');
+  const salleSiClubIndex = row.indexOf('salle_si_club');
+  const jourSpectIndex = row.indexOf('jour_spect');
+  const heureSpectIndex = row.indexOf('heure_spect');
+  const duréeSpectIndex = row.indexOf('durée_spect');
+  const numSpectIndex = row.indexOf('num_spect');
+  const jourRepetIndex = row.indexOf('jour_repet');
+  const heureRepetIndex = row.indexOf('heure_repet');
+  const parentPrésentIndex = row.indexOf('parent_présent');
+  const nbSpectateurIndex = row.indexOf('nb_spectateur');
+  const billetAchetéIndex = row.indexOf('billet_acheté');
 
   return {
     statusValueIndex,
@@ -76,6 +88,18 @@ function getHeaderNumber(row) {
     optionNameIndex,
     optionSkuIndex,
     dateTestIndex,
+    spectacleIndex,
+    lieuSpectIndex,
+    salleSiClubIndex,
+    jourSpectIndex,
+    heureSpectIndex,
+    duréeSpectIndex,
+    numSpectIndex,
+    jourRepetIndex,
+    heureRepetIndex,
+    parentPrésentIndex,
+    nbSpectateurIndex,
+    billetAchetéIndex,
   };
 }
 

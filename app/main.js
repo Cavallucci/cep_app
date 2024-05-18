@@ -366,7 +366,8 @@ async function downloadEmails() {
     { source: path.join(__dirname, 'emails/decouverteEmail.html'), destination: path.join(emailsFolderPath, 'decouverteEmail.html') },
     { source: path.join(__dirname, 'emails/facturationEmail.html'), destination: path.join(emailsFolderPath, 'facturationEmail.html') },
     { source: path.join(__dirname, 'emails/testEmail.html'), destination: path.join(emailsFolderPath, 'testEmail.html') },
-    { source: path.join(__dirname, 'emails/stageEmail.html'), destination: path.join(emailsFolderPath, 'stageEmail.html') }
+    { source: path.join(__dirname, 'emails/stageEmail.html'), destination: path.join(emailsFolderPath, 'stageEmail.html') },
+    { source: path.join(__dirname, 'emails/evenementEmail.html'), destination: path.join(emailsFolderPath, 'evenementEmail.html') },
   ];
 
   emailFiles.forEach(emailFile => {

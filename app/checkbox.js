@@ -100,7 +100,7 @@ async function sendEmailAdhesion(customerGroup) {
   const mailOptions = {
     to: `${customerEmail}`,
     from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-    subject: "Votre inscription aux activités 2023/2024 du Club : adhésion(s) annuelle(s) manquante(s) !",
+    subject: "Votre inscription aux activités 2024/2025 du Club : adhésion(s) annuelle(s) manquante(s) !",
     text: "Adhésion",
     html: htmlWithCode,
     attachments: [{
@@ -299,10 +299,54 @@ async function sendEmailStage(customerGroup, listToPrint) {
   });
 }
 
+async function sendEmailEvenement(customerGroup) {
+  console.log('JE SUIS LA 2');
+  const { customerEmail } = customerGroup[0];
+  const userDataPath = await ipcRenderer.invoke('get-user-path');
+  const childsFirstNames = customerGroup.map(child => child.childFirstName);
+  const myHTML = fs.readFileSync(path.join(userDataPath, 'emails/evenementEmail.html'), 'utf8');
+  let htmlWithCode;
+
+  htmlWithCode = myHTML.replace("{{childsFirstNames}}", childsFirstNames.join(' et '));
+
+  const list = Array.from(customerGroup.spectacles.course.keys()).map(spectacle => {
+    return `<li>${spectacle.course}, ${spectacle.jour} à ${spectacle.heure}</li>`;
+  });
+  htmlWithCode = htmlWithCode.replace("{{spectacles}}", list);
+
+  const phrase = `<img src="cid:logo" width="200" height="100"></img>`;
+  htmlWithCode = htmlWithCode.replace("{{logo}}", phrase);
+
+  const mailOptions = {
+    to: `${customerEmail}`,
+    from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
+    subject: "Évènement annuel du Club des Enfants Parisiens",
+    text: "Evenement",
+    html: htmlWithCode,
+    attachments: [{
+      filename: 'logo_docs.png',
+      path: path.join(__dirname, '../icons/logo_docs.png'),
+      cid: 'logo'
+    }]
+  };
+
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(info.response);
+      }
+    });
+  });
+}
+
+
 module.exports = {
     sendEmailFacturation,
     sendEmailAdhesion,
     sendEmailDecouverte,
     sendEmailTest,
-    sendEmailStage
+    sendEmailStage,
+    sendEmailEvenement
   };

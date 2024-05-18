@@ -1,5 +1,6 @@
 const { ipcRenderer, app } = require('electron');
 const facturationModule = require('./facturation');
+const evenementModule = require('./evenement.js');
 const adhesionModule = require('./adhesion');
 const decouverteModule = require('./decouverte');
 const stageModule = require('./stage');
@@ -219,6 +220,8 @@ function handleOptionChange(radioButton, groupedData) {
     case 'stage':
       stageModule.displayStage(groupedData);
       break;
+    case 'evenement':
+      evenementModule.displayEvenement(groupedData);
     default:
       break;
   }
@@ -313,6 +316,8 @@ document.getElementById('modifyEmail').addEventListener('click', async () => {
     filePath = path.join(userDataPath, 'emails/testEmail.html');
   } else if (document.getElementById('stage').checked) {
     filePath = path.join(userDataPath, 'emails/stageEmail.html');
+  } else if (document.getElementById('evenement').checked) {
+    filePath = path.join(userDataPath, 'emails/evenementEmail.html');
   }
 
   try {
@@ -374,6 +379,8 @@ document.getElementById('sendEmailButton').addEventListener('click', async () =>
               module = testModule;
             } else if (checkbox.id === 'stage') {
               module = stageModule;
+            } else if (checkbox.id === 'evenement') {
+              module = evenementModule;
             }
     
             try {
