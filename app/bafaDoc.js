@@ -22,18 +22,18 @@ async function customerFillList(jsonList) {
             if (stage.commentaire)
                 childList.commentaires.push(stage.commentaire);
             for (const child of stage.childs) {
-                    const newChildList = {
-                        id: child.childId,
-                        stage: stage.staName,
-                        salle1: stage.salle1,
-                        salle2: stage.salle2,
-                        debut: stage.debut,
-                        fin: stage.fin,
-                        firstName: child.childFirstName,
-                        lastName: child.childLastName,
-                        birth: child.birth,
-                    };
-                    allchilds.push(newChildList);
+                const newChildList = {
+                    id: child.childId,
+                    stage: stage.staName,
+                    salle1: stage.salle1,
+                    salle2: stage.salle2,
+                    debut: stage.debut,
+                    fin: stage.fin,
+                    firstName: child.childFirstName,
+                    lastName: child.childLastName,
+                    birth: child.birth,
+                };
+                allchilds.push(newChildList);
             }
         }
     }
@@ -57,8 +57,8 @@ async function customerFillList(jsonList) {
             const childPhrase = `A ${child.fin}, l'enfant ${child.firstName} ${child.lastName} doit être emmené de la salle ${child.salle2 ? child.salle2 : '?'} à la salle ${conflictingCourse.salle1 ? conflictingCourse.salle1 : '?'}`;
             childList.transports.push(childPhrase);        
         }
-        if (childListWithJC.find(childJC => childJC.childId === child.id))
-            childList.stages.push(child);
+        // if (childListWithJC.find(childJC => childJC.childId === child.id))
+        childList.stages.push(child);
     }
     childList.stages.sort((a, b) => {
         if (a.id < b.id) {

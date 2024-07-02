@@ -175,6 +175,10 @@ function replaceDateStage(date) { //STA_ETE23_28AOUT_019_2022
     let daySTA = dateSTA[2].match(/\d+/g);
     let monthSTA = dateSTA[2].match(/[a-zA-Z]+/g);
 
+    console.log('date entière =', dateSTA);
+    console.log('jour = ', daySTA);
+    console.log('mois = ', monthSTA);
+
     monthSTA = monthSTA[0].toUpperCase();
     switch (monthSTA) {
         case 'JANV':
@@ -199,6 +203,9 @@ function replaceDateStage(date) { //STA_ETE23_28AOUT_019_2022
             monthSTA = '06';
             break;
         case 'JUIL':
+            monthSTA = '07';
+            break;
+        case 'ERJUIL':
             monthSTA = '07';
             break;
         case 'AOUT':

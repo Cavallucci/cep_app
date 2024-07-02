@@ -46,11 +46,14 @@ async function fillCustomersList(groupedData) {
             t_customers.push(newCustomer);
         }
     }
+
+    console.log('t_customers', t_customers);
     const customerWithSTA = t_customers.filter((customer) => {
         const hasSTASKU = customer.sku.some((sku) => sku && sku.startsWith('STA'));
         return hasSTASKU;
     });
 
+    console.log('customerWithSTA', customerWithSTA);
     const customerWithDate = findMatchingDate(customerWithSTA); // Date la plus récente
 
     const customerWithMatch = findMatchingEnrollments(customerWithDate); // compare stage et tk
