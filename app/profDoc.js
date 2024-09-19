@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 
 function modifyHours(name, stage) {
-    console.log('name = ',name);
     if (stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
         if (name === 'fin') {
             const newDebut = stage.debut.split(':')[0];
@@ -45,9 +44,7 @@ async function customerFillList(jsonList) {
             const existingProf2 = profList.find(prof => prof.nom === stage.prof2.nom);
             const tmp2 = { ...stage }; 
 
-            console.log('tmp2 before = ',tmp2.debut);
             tmp2.debut = modifyHours('debut', stage);
-            console.log('tmp2 after = ',tmp2.debut);
             if (existingProf2) {
                 existingProf2.stage.push(tmp2);
             } else {

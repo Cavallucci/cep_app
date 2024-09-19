@@ -56,7 +56,6 @@ async function fillCustomersList(groupedData) {
             }
         }
     }
-    console.log(t_customers);
 
     return t_customers;
 }
@@ -114,7 +113,6 @@ async function manageEmail(checkbox, globalData) {
     const evenmentList = await evenementModule.fillCustomersList(globalData);
 
     let groupEmail = [];
-    console.log(customerId);
     for (const event of evenmentList) {
         if (event.customerId === customerId) {
             groupEmail.push(event);

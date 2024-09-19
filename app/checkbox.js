@@ -261,12 +261,12 @@ async function sendEmailStage(customerGroup, listToPrint) {
 
   if (customerGroup.length > 1) {
     htmlWithCode = myHTML.replace("{{Votre enfant a/Vos enfants ont}}", "Vos enfants ont");
-    htmlWithCode = htmlWithCode.replace("{{ils ont adoré leurs/il a adoré ses}}", "ils ont adoré leurs");
+    htmlWithCode = htmlWithCode.replace("{{ils ont aimé leurs/il a aimé ses}}", "ils ont aimé leurs");
     htmlWithCode = htmlWithCode.replace("{{a/ont}}", "ont");
   }
   else {
     htmlWithCode = myHTML.replace("{{Votre enfant a/Vos enfants ont}}", "Votre enfant a");
-    htmlWithCode = htmlWithCode.replace("{{ils ont adoré leurs/il a adoré ses}}", "il a adoré ses");
+    htmlWithCode = htmlWithCode.replace("{{ils ont aimé leurs/il a aimé ses}}", "il a aimé ses");
     htmlWithCode = htmlWithCode.replace("{{a/ont}}", "a");
   }
 
@@ -278,7 +278,7 @@ async function sendEmailStage(customerGroup, listToPrint) {
   const mailOptions = {
     to: `${customerEmail}`,
     from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-    subject: "Retrouvez les activités de stages de vacances sous forme de cours annuels 23/24",
+    subject: "Retrouvez les activités de stages de vacances sous forme de cours annuels 24/25",
     text: "Stages",
     html: htmlWithCode,
     attachments: [{
@@ -300,7 +300,6 @@ async function sendEmailStage(customerGroup, listToPrint) {
 }
 
 async function sendEmailEvenement(customerGroup) {
-  console.log('JE SUIS LA 2');
   const { customerEmail } = customerGroup[0];
   const userDataPath = await ipcRenderer.invoke('get-user-path');
   const childsFirstNames = customerGroup.map(child => child.childFirstName);

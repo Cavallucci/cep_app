@@ -47,13 +47,11 @@ async function fillCustomersList(groupedData) {
         }
     }
 
-    console.log('t_customers', t_customers);
     const customerWithSTA = t_customers.filter((customer) => {
         const hasSTASKU = customer.sku.some((sku) => sku && sku.startsWith('STA'));
         return hasSTASKU;
     });
 
-    console.log('customerWithSTA', customerWithSTA);
     const customerWithDate = findMatchingDate(customerWithSTA); // Date la plus récente
 
     const customerWithMatch = findMatchingEnrollments(customerWithDate); // compare stage et tk
@@ -291,38 +289,53 @@ async function getListToPrint(customerGroup) {
                     const stage = parsedStagesData.find(entry => sta.includes(filterModule.removeDiacritics(entry.activ).toLowerCase()));
                     if (stage && stage[age] && stage[age] !== '') {
                         const lien = stage[age];
-                        const name = staAccents;
-                        if (name === 'hip') {
+                        let name = stage.activ;
+                        if (name === 'Hip') {
                             name = 'Hip Hop';
                           }
-                        else if (name === 'self') {
+                        else if (name === 'Self') {
                             name = 'Self Defense';
                           }
-                        else if (name === 'street') {
+                        else if (name === 'Street') {
                             name = 'Street Art';
                           }
-                        else if (name === 'expression') {
+                        else if (name === 'Expression') {
                             name = 'Expression corporelle';
                           }
-                        else if (name === 'musical') {
+                        else if (name === 'Musical') {
                             name = 'Eveil musical';
                           }
-                        else if (name === 'corporel') {
+                        else if (name === 'Corporel') {
                             name = 'Eveil corporel';
                           }
-                        else if (name === 'moderne') {
+                        else if (name === 'Musical') {
+                            name = 'Eveil musical';
+                          }
+                        else if (name === 'Moderne') {
                             name = 'Danse Moderne';
                           }
-                        else if (name === 'box') {
+                        else if (name === 'Box') {
                             name = 'Boxe';
                           }
-                        listToPrint.push(`<a href="${lien}">${name}</a>`);
+                        else if (name === 'Classique') {
+                            name = 'Danse Classique';
+                         }
+                        else if (name === 'Rythmique') {
+                            name = 'Gymnastique Rythmique';
+                          }
+                        const printName = `${name} ${age}`;
+                        listToPrint.push(`<a href="${lien}">${printName}</a>`);
                     }
                 }
             }
         }
+
+// "<a href=\"https://www.clubdesenfantsparisiens.com/catalogsearch/result/?q=justine\">Chant et Initiation Théâtre / Multisports et Taekwondo 3/5 ans</a>"
+// "<a href=\"https://www.clubdesenfantsparisiens.com/activites.html?discipline=9669%2C9670%2C9671%2C9673&tranche_age=10304%2C8387%2C10300%2C10310%2C10342\">Chant et Initiation Théâtre / Multisports et Taekwondo 3/5 ans</a>"
+
         for (list of listToPrint) {
-            if (!listWithoutDouble.includes(list)) {
+            const name = list.split('">')[1].split('</a>')[0];
+            if (!listWithoutDouble.some(item => item.includes(name))) {
                 listWithoutDouble.push(list);
             }
         }
