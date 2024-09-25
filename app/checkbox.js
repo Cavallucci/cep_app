@@ -153,7 +153,7 @@ async function sendEmailDecouverte(customerGroup) {
     const mailOptions = {
       to: `${customerEmail}`,
       from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-      subject: "Cours de découverte : envie de vous inscrire aux cours annuels 23/24?",
+      subject: "Cours de découverte : envie de vous inscrire aux cours annuels 24/25?",
       text: "Cours de découverte",
       html: htmlWithCode,
       attachments: [{
