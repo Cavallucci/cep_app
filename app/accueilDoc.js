@@ -15,8 +15,12 @@ function newStageList(editableTable, stageList) {
         stageList[index].fin = row.cells[3].textContent;
         stageList[index].salle1 = row.cells[4].textContent;
         stageList[index].salle2 = row.cells[5].textContent;
-        stageList[index].prof1.nom = row.cells[6].textContent;
-        stageList[index].prof2.nom = row.cells[7].textContent;
+        if (stageList[index].prof1) {
+          stageList[index].prof1.nom = row.cells[6].textContent;
+        }
+        if (stageList[index].prof2) {
+          stageList[index].prof2.nom = row.cells[7].textContent;
+        }
         stageList[index].commentaire = row.cells[8].textContent;
     });
       return stageList;
