@@ -71,12 +71,13 @@ async function customerFillList(groupedData, dateDoc1, dateDoc2) {
 async function addComments(stages) {
     for (const stage of stages) {
         const totalTime = subtractTimeInMinutes(stage.fin, stage.debut);
+        console.log(stages);
         if (totalTime > 120) {
             const debutPlus1h = modifyHoursComment('debut', stage);
             const finMoins1h = modifyHoursComment('fin', stage);
             stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de ${stage.age} de la salle ${stage.salle1} à l’accueil puis à ${finMoins1h} d’accueil en salle ${stage.salle2 ? stage.salle2 : '?'}`;
         }
-        else if (stage.prof1.nom !== stage.prof2.nom) {
+        else if (stage.prof1 && stage.prof2 && stage.prof1.nom !== stage.prof2.nom) {
             const debutPlus1h = profDocModule.modifyHours('debut', stage);
             stage.commentaire = `A ${debutPlus1h}, les Bafas emmènent les enfants de ${stage.age} de la salle ${stage.salle1} à la salle ${stage.salle2 ? stage.salle2 : '?'}`;
         }
@@ -85,7 +86,7 @@ async function addComments(stages) {
 }
 
 function modifyHoursComment(name, stage) {
-    if (stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
+    if (stage.prof1 && stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
         if (name === 'fin') {
             const newFin = stage.fin.split(':')[0];
             const minFin = stage.fin.split(':')[1];
@@ -886,7 +887,7 @@ function stagePlanningTable(stage) {
                 children: [
                     new docx.Paragraph({ 
                         children: [
-                            addText(stage.prof1.nom, true, `13pt`),
+                            addText(stage.prof1 ? stage.prof1.nom : '', true, `13pt`),
                         ],
                     })
                 ],

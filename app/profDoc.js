@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 function modifyHours(name, stage) {
-    if (stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
+    if (stage.prof1 && stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
         if (name === 'fin') {
             const newDebut = stage.debut.split(':')[0];
             const minDebut = stage.debut.split(':')[1];
@@ -40,7 +40,7 @@ async function customerFillList(jsonList) {
             };
             profList.push(newProf);
         }
-        if (stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
+        if (stage.prof1 && stage.prof2 && stage.prof2.nom !== stage.prof1.nom) {
             const existingProf2 = profList.find(prof => prof.nom === stage.prof2.nom);
             const tmp2 = { ...stage }; 
 

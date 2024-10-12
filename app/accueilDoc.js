@@ -72,12 +72,12 @@ function generateEditableTable(stageLists) {
 
         const cell7 = document.createElement('td');
         cell7.contentEditable = true;
-        cell7.innerHTML = stage.prof1.nom;
+        cell7.innerHTML = stage.prof1 ? stage.prof1.nom : '';
         row.appendChild(cell7);
 
         const cell8 = document.createElement('td');
         cell8.contentEditable = true;
-        cell8.innerHTML = stage.prof2.nom;
+        cell8.innerHTML = stage.prof2 ? stage.prof2.nom : '';
         row.appendChild(cell8);
 
         const cell9 = document.createElement('td');
