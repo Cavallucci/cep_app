@@ -47,46 +47,55 @@ function generateEditableTable(stageLists) {
         const cell1 = document.createElement('td');
         cell1.contentEditable = true;
         cell1.innerHTML = stage.age;
+        cell1.addEventListener('click', () => cell1.focus());
         row.appendChild(cell1);
 
         const cell2 = document.createElement('td');
         cell2.contentEditable = true;
-        cell2.innerHTML = stage.staName; 
+        cell2.innerHTML = stage.staName;
+        cell2.addEventListener('click', () => cell2.focus());
         row.appendChild(cell2);
 
         const cell3 = document.createElement('td');
         cell3.contentEditable = true;
         cell3.innerHTML = stage.debut; 
+        cell3.addEventListener('click', () => cell3.focus());
         row.appendChild(cell3);
 
         const cell4 = document.createElement('td');
         cell4.contentEditable = true;
         cell4.innerHTML = stage.fin;
+        cell4.addEventListener('click', () => cell4.focus());
         row.appendChild(cell4);
 
         const cell5 = document.createElement('td');
         cell5.contentEditable = true;
         cell5.innerHTML = stage.salle1;
+        cell5.addEventListener('click', () => cell5.focus());
         row.appendChild(cell5);
 
         const cell6 = document.createElement('td');
         cell6.contentEditable = true;
         cell6.innerHTML = stage.salle2;
+        cell6.addEventListener('click', () => cell6.focus());
         row.appendChild(cell6);
 
         const cell7 = document.createElement('td');
         cell7.contentEditable = true;
         cell7.innerHTML = stage.prof1 ? stage.prof1.nom : '';
+        cell7.addEventListener('click', () => cell7.focus());
         row.appendChild(cell7);
 
         const cell8 = document.createElement('td');
         cell8.contentEditable = true;
         cell8.innerHTML = stage.prof2 ? stage.prof2.nom : '';
+        cell8.addEventListener('click', () => cell8.focus());
         row.appendChild(cell8);
 
         const cell9 = document.createElement('td');
         cell9.contentEditable = true;
         cell9.innerHTML = stage.commentaire;
+        cell9.addEventListener('click', () => cell9.focus());
         row.appendChild(cell9);
 
         table.appendChild(row);

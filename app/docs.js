@@ -295,8 +295,8 @@ async function fillAccueilDoc(downloadsPath, stageList, dateDoc1, dateDoc2) {
     const aReplacer = aReplacerTable();
     const header = addHeader('version accueil', dateDoc1, dateDoc2);
     const footer = addFooter('accueil');
-    const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée continue') === false);
-    const stageWithJC = stageList.find(stage => stage.staName.startsWith('Journée continue'));
+    const stageListWithoutJC = stageList.filter(stage => stage.staName.startsWith('Journée Continue') === false);
+    const stageWithJC = stageList.find(stage => stage.staName.startsWith('Journée Continue'));
     let childListWithJC = [];
     if (stageWithJC) {
         childListWithJC = stageWithJC.childs;

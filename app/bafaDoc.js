@@ -12,13 +12,13 @@ async function customerFillList(jsonList) {
         commentaires: [],
         transports: [],
     };
-    const stageWithJC = jsonList.find(stage => stage.staName.startsWith('Journée continue'));
+    const stageWithJC = jsonList.find(stage => stage.staName.startsWith('Journée Continue'));
     let childListWithJC = [];
     if (stageWithJC) {
         childListWithJC = stageWithJC.childs;
     }
     for (const stage of jsonList) {
-        if (!stage.staName.startsWith('Journée continue')) {
+        if (!stage.staName.startsWith('Journée Continue')) {
             if (stage.commentaire)
                 childList.commentaires.push(stage.commentaire);
             for (const child of stage.childs) {
@@ -57,8 +57,8 @@ async function customerFillList(jsonList) {
             const childPhrase = `A ${child.fin}, l'enfant ${child.firstName} ${child.lastName} doit être emmené de la salle ${child.salle2 ? child.salle2 : '?'} à la salle ${conflictingCourse.salle1 ? conflictingCourse.salle1 : '?'}`;
             childList.transports.push(childPhrase);        
         }
-        // if (childListWithJC.find(childJC => childJC.childId === child.id))
-        childList.stages.push(child);
+        if (childListWithJC.find(childJC => childJC.childId === child.id))
+            childList.stages.push(child);
     }
     childList.stages.sort((a, b) => {
         if (a.id < b.id) {
