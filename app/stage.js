@@ -292,7 +292,13 @@ async function getListToPrint(customerGroup) {
                         let name = stage.activ;
                         if (name === 'Hip') {
                             name = 'Hip Hop';
-                          }
+                        }
+                        else if (name === 'Initiation') {
+                            name = 'Initiation Théâtre';
+                        }
+                        else if (name === 'Peintres') {
+                            name = 'Grands Peintres';
+                        }
                         else if (name === 'Self') {
                             name = 'Self Defense';
                           }
@@ -311,8 +317,8 @@ async function getListToPrint(customerGroup) {
                         else if (name === 'Musical') {
                             name = 'Eveil musical';
                           }
-                        else if (name === 'Moderne') {
-                            name = 'Danse Moderne';
+                        else if (name === 'Modernes') {
+                            name = 'Danses Modernes';
                           }
                         else if (name === 'Box') {
                             name = 'Boxe';
