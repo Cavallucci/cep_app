@@ -293,6 +293,9 @@ async function getListToPrint(customerGroup) {
                         if (name === 'Hip') {
                             name = 'Hip Hop';
                         }
+                        else if (name === 'Académique') {
+                            name = 'Dessin Académique';
+                        }
                         else if (name === 'Initiation') {
                             name = 'Initiation Théâtre';
                         }
