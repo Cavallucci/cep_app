@@ -153,7 +153,7 @@ async function sendEmailDecouverte(customerGroup) {
     const mailOptions = {
       to: `${customerEmail}`,
       from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-      subject: "Cours de découverte : envie de vous inscrire aux cours annuels 24/25?",
+      subject: "Cours de découverte : envie de vous inscrire aux cours annuels?",
       text: "Cours de découverte",
       html: htmlWithCode,
       attachments: [{
@@ -232,7 +232,7 @@ async function sendEmailTest(customerGroup, storeLinks) {
   const mailOptions = {
     to: `${customerEmail}`,
     from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-    subject: "Après votre cours d’essai, inscription aux cours annuels 24/25?",
+    subject: "Après votre cours d’essai, inscription aux cours annuels?",
     text: "Cours de test",
     html: htmlWithCode,
     attachments: [{
@@ -278,7 +278,7 @@ async function sendEmailStage(customerGroup, listToPrint) {
   const mailOptions = {
     to: `${customerEmail}`,
     from: "Club des Enfants Parisiens <contact@clubdesenfantsparisiens.com>",
-    subject: "Retrouvez les activités de stages de vacances sous forme de cours annuels 24/25",
+    subject: "Retrouvez les activités de stages de vacances sous forme de cours annuels",
     text: "Stages",
     html: htmlWithCode,
     attachments: [{

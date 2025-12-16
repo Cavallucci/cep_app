@@ -45,9 +45,9 @@ async function fillCustomersList(groupedData) {
                 dateTest: [extractDateTest(customerData[header.productOptionsIndex])] //Date de votre test : : 22/04/2023 à 14h00,
             };
             if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('TEST')) {
-              if (customerData[header.prixVenteIndex] !== 0) {
+              // if (customerData[header.prixVenteIndex] !== 0) {
                 newCustomer.tests.push(customerData[header.nameIndex]);
-              }
+              // }
             }
             else if (customerData[header.skuIndex] && customerData[header.skuIndex].startsWith('TK')) {
                 newCustomer.tk.push(customerData[header.nameIndex]);
@@ -78,7 +78,6 @@ async function fillCustomersList(groupedData) {
     const customerWithMatchTK = findMatchingTK(customerWithtest);
 
     const customerWithMatch = findMatchingEnrollments(customerWithMatchTK);
-
     return customerWithMatch;
 }
 
@@ -247,7 +246,6 @@ async function fillTestWorksheet(worksheet, data, sortedData, header) {
 async function manageEmail(checkbox, globalData) {
   const customerId = checkbox.getAttribute('data-customer-id');
   const testList = await testModule.fillCustomersList(globalData);
-
   let groupEmail = [];
   for (const test of testList) {
       if (test.customerId === customerId && test.carnets.length === 0) {

@@ -90,7 +90,6 @@ function findMatchingDate(customersWithSTA) {
 }
 
 function replaceDateStage(date) {
-
     let dateSTA = date.split('_');
     let yearSTA = dateSTA[1].slice(-2); 
     let completeYearSTA = `20${yearSTA}`;
@@ -222,7 +221,6 @@ async function fillStageWorksheet(worksheet, data, sortedData, header) {
     }
     const recentDate = new Date(mostRecentDate);
     recentDate.setHours(0, 0, 0, 0);
-
 
     sortedData.forEach((rowData) => {
         let existingCustomer = data.find((data) => data.childId === rowData[header.participantsIdIndex]);

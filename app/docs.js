@@ -199,7 +199,7 @@ function replaceDateStage(date) { //STA_ETE23_28AOUT_019_2022
         case 'JUIN':
             monthSTA = '06';
             break;
-        case 'JUIL':
+        case 'JUILL':
             monthSTA = '07';
             break;
         case 'ERJUIL':
